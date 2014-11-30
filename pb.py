@@ -4,8 +4,8 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from credentials import *
 
 import datetime
-import os
-import hashlib
+from os import urandom
+from base64 import b64encode
 
 app = Flask(__name__)
 connectionString = "mysql://%s:%s@%s:3306/%s" % (USERNAME, PASSWORD, HOSTNAME, DATABASE)
@@ -16,76 +16,53 @@ app.secret_key = SECRET_KEY
 class Paste(db.Model):
     __tablename__ = "paste"
 
-    id = db.Column(db.Integer, primary_key=True)
-    content = db.Column(db.Text)
+    content = db.Column(db.Text(length=16777216, collation='utf8_general_ci'))
     date = db.Column(db.DateTime)
-    url = db.Column(db.String(25))
+    id = db.Column(db.String(9), primary_key=True, unique=True)
 
-    def __init__(self, content, date, url):
+    def __init__(self, content, date, id):
         self.content = content
         self.date = date
-        self.url = url
+        self.id = id
 
 db.create_all()
 db.session.commit()
 
-def make_url():
-    url = os.urandom(128)
-    url = hashlib.md5(url).hexdigest()[:8]
-    p = Paste.query.filter_by(url=url).all()
-    if p:
-        url = os.urandom(128)
-        url = hashlib.md5(url).hexdigest()[:8]
-        return url
-    else:
-        return url
+def make_id():
+    while True:
+        paste = b64encode(urandom(6))
+        p = Paste.query.filter_by(paste=paste).all()
+        if not p:
+            return paste
 
-@app.route('/', methods=['POST','GET'])
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/f', methods=['GET', 'POST'])
 def index():
     if request.method == "GET":
-        return render_template("index.html")
+        return render_template("form.html" if 'f' in request.path else "index.html")
     elif request.method == "POST":
         if 'content' in request.form:
             try:
-                p = Paste(request.form['content'], datetime.datetime.now(), make_url())
+                p = Paste(request.form['content'], datetime.datetime.now(), make_id())
                 db.session.add(p)
                 db.session.commit()
                 db.session.refresh(p)
             except:
-                return "Failed." 
+                return "Failed.", 500
+            
+            url = url_for('paste', id=p.id)
+            return redirect(url, Response=Response("{}\n".format(url)))
+    
+    return "Nope.", 204
 
-            return "http://ptpb.pw/p/%s\n" % p.url
-    else:
-        return "Nope."
-
-@app.route('/p/<paste>', methods=['GET'])
-def paste(paste):
-    if paste:
-        p = Paste.query.filter_by(url=paste).first()
+@app.route('/p/<id>', methods=['GET'])
+def paste(id):
+    if id:
+        p = Paste.query.filter_by(id=id).first()
         if p:
             return render_template("paste.html", paste=p)
-        else:
-            return "Not found."
-    else:
-        return "Not found."
 
-@app.route('/f', methods=['GET','POST'])
-def form():
-    if request.method == "GET":
-        return render_template("form.html")
-    elif request.method == "POST":
-        if 'content' in request.form:
-            try:
-                p = Paste(request.form['content'], datetime.datetime.now(), make_url())
-                db.session.add(p)
-                db.session.commit()
-                db.session.refresh(p)
-            except Exception, e:
-                return "Failed. %s" % str(e)
-
-            return redirect('/p/%s' % p.url)
-    else:
-        return "Nope."
+    return "Not found.", 404
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10002, debug=True)
