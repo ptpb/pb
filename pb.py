@@ -43,11 +43,11 @@ def index():
     if request.method == "GET":
         return render_template("form.html" if 'f' in request.path else "index.html")
     elif request.method == "POST":
-        if 'content' in request.form:
-            p = Paste(request.form['content'], datetime.datetime.now(), make_id())
+        if 'c' in request.form:
+            p = Paste(request.form['c'], datetime.datetime.now(), make_id())
             db.session.add(p)
             db.session.commit()
-            db.session.refresh(p)  
+            db.session.refresh(p)
             #url = url_for('paste', _external=True, id=p.id)
             url = "http://ptpb.pw/p/{}".format(p.id)
             return redirect(url, Response=lambda *a, **k: Response("{}\n".format(url)))
@@ -58,7 +58,7 @@ def paste(id):
     if id:
         p = Paste.query.filter_by(id=id).first()
         if p:
-            return render_template("paste.html", paste=p)
+            return Reponse(p.content, mimetype='text/plain; charset=utf-8')
     return "Not found.", 404
 
 if __name__ == '__main__':
