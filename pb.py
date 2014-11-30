@@ -58,7 +58,7 @@ def paste(id):
     if id:
         p = Paste.query.filter_by(id=id).first()
         if p:
-            return Reponse(p.content, mimetype='text/plain; charset=utf-8')
+            return Response(p.content, mimetype='text/plain')
     return "Not found.", 404
 
 if __name__ == '__main__':
