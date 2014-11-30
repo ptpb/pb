@@ -62,7 +62,10 @@ def index():
 def paste(paste):
     if paste:
         p = Paste.query.filter_by(url=paste).first()
-        return render_template("paste.html", paste=p)
+        if p:
+            return render_template("paste.html", paste=p)
+        else:
+            return "Not found."
     else:
         return "Not found."
 
