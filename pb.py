@@ -30,10 +30,10 @@ db.session.commit()
 
 def make_id():
     while True:
-        paste = b64encode(urandom(6))
-        p = Paste.query.filter_by(paste=paste).all()
+        id = b64encode(urandom(6))
+        p = Paste.query.filter_by(id=id).all()
         if not p:
-            return paste
+            return id
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/f', methods=['GET', 'POST'])
@@ -42,13 +42,10 @@ def index():
         return render_template("form.html" if 'f' in request.path else "index.html")
     elif request.method == "POST":
         if 'content' in request.form:
-            try:
-                p = Paste(request.form['content'], datetime.datetime.now(), make_id())
-                db.session.add(p)
-                db.session.commit()
-                db.session.refresh(p)
-            except:
-                return "Failed.", 500
+            p = Paste(request.form['content'], datetime.datetime.now(), make_id())
+            db.session.add(p)
+            db.session.commit()
+            db.session.refresh(p)
             
             url = url_for('paste', id=p.id)
             return redirect(url, Response=Response("{}\n".format(url)))
