@@ -1,0 +1,4 @@
+SECRET_KEY: super sekrit
+DEBUG: true
+
+SQLALCHEMY_DATABASE_URI: mysql://username:password@hostname:port/database
