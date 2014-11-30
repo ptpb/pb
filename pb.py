@@ -48,7 +48,7 @@ def index():
             db.session.refresh(p)
             
             url = url_for('paste', id=p.id)
-            return redirect(url, Response=Response("{}\n".format(url)))
+            return redirect(url, Response=lambda *a, **k: Response("{}\n".format(url)))
     
     return "Nope.", 204
 
