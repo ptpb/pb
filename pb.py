@@ -50,7 +50,7 @@ def index():
             db.session.refresh(p)
             #url = url_for('paste', _external=True, id=p.id)
             url = "http://ptpb.pw/p/{}".format(p.id)
-            return redirect(url, Response=lambda *a, **k: Response("{}\n".format(url)))
+            return redirect(url, Response=lambda *a, **k: Response("{}\n".format(url), 302, mimetype="text/plain"))
     return "Nope.", 204
 
 @app.route('/p/<id>', methods=['GET'])
@@ -59,7 +59,7 @@ def paste(id):
         p = Paste.query.filter_by(id=id).first()
         if p:
             return Response(p.content, mimetype='text/plain')
-    return "Not found.", 404
+    return Response("Not found.", 404, mimetype="text/plain")
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10002, debug=True)
