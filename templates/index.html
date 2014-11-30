@@ -1,15 +1,37 @@
-ptpb (pettit pastebin)<br/>
--------------------------------<br/>
-A sprunge-like pastebin<br/>
-<br/>
-Use:<br/>
-<br/>
-<a href="/f">Submit a paste</a><br/>
-<br/>
-/p/<paste id> to view a paste<br/>
-<br/>
-From the command line:<br/>
-<br/>
-cat /etc/yourmom | curl -F "content=<-" http://ptpb.pw
+<html>
+<head>
+<title>ptpb - a simple pastebin</title>
+</head>
+<body>
+<pre>
+ptpb
 
+ptpb is a simple pastebin. 
+
+USE:
+
+From the web: <a href="/f">Make a paste</a>
+
+From the command line:
+command | curl -F "content=<-" http://ptpb.pw
+
+EXAMPLE:
+
+cat /etc/resolv.conf | curl -F "content=<-" http://ptpb.pw
+http://ptpb.pw/p/b55743ba
+
+OTHER INFO:
+Pastes will be kept as long as feasible, they may be deleted eventually though. Don't use ptpb for things you need to
+keep around forever.
+
+SSL coming soon.
+
+SOURCE:
+<a href="https://github.com/silverp1/pb">https://github.com/silverp1/pb</a>
+
+AUTHOR:
+Joe Pettit 
+</pre>
+</body>
+</html>
 
