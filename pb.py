@@ -7,7 +7,11 @@ import datetime
 from os import urandom
 from base64 import b64encode
 
+class TextResponse(Response):
+    default_mimetype = 'text/plain'
+
 app = Flask(__name__)
+app.response_class = TextResponse
 connectionString = "mysql://%s:%s@%s:3306/%s" % (USERNAME, PASSWORD, HOSTNAME, DATABASE)
 app.config.update(
     SQLALCHEMY_DATABASE_URI = connectionString
@@ -37,11 +41,16 @@ def make_id():
         if not p:
             return id
 
+def redirect(location, rv):
+    response = TextResponse(rv, 302)
+    response.headers['Location'] = location
+    return response
+
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/f', methods=['GET', 'POST'])
 def index():
     if request.method == "GET":
-        return render_template("form.html" if 'f' in request.path else "index.html")
+        return Response(render_template("form.html" if 'f' in request.path else "index.html"), mimetype='text/html')
     elif request.method == "POST":
         if 'c' in request.form:
             p = Paste(request.form['c'], datetime.datetime.now(), make_id())
@@ -50,7 +59,7 @@ def index():
             db.session.refresh(p)
             #url = url_for('paste', _external=True, id=p.id)
             url = "http://ptpb.pw/p/{}".format(p.id)
-            return redirect(url, Response=lambda *a, **k: Response("{}\n".format(url), 302, mimetype="text/plain"))
+            return redirect(url, "{}\n".format(url))
     return "Nope.", 204
 
 @app.route('/p/<id>', methods=['GET'])
@@ -58,8 +67,8 @@ def paste(id):
     if id:
         p = Paste.query.filter_by(id=id).first()
         if p:
-            return Response(p.content, mimetype='text/plain')
-    return Response("Not found.", 404, mimetype="text/plain")
+            return p.content
+    return "Not found.", 404
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10002, debug=True)
