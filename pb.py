@@ -9,7 +9,9 @@ from base64 import b64encode
 
 app = Flask(__name__)
 connectionString = "mysql://%s:%s@%s:3306/%s" % (USERNAME, PASSWORD, HOSTNAME, DATABASE)
-app.config['SQLALCHEMY_DATABASE_URI'] = connectionString
+app.config.update(
+    SQLALCHEMY_DATABASE_URI = connectionString
+)
 db = SQLAlchemy(app)
 app.secret_key = SECRET_KEY
 
@@ -45,11 +47,10 @@ def index():
             p = Paste(request.form['content'], datetime.datetime.now(), make_id())
             db.session.add(p)
             db.session.commit()
-            db.session.refresh(p)
-            
-            url = url_for('paste', id=p.id)
+            db.session.refresh(p)  
+            #url = url_for('paste', _external=True, id=p.id)
+            url = "http://ptpb.pw/p/{}".format(p.id)
             return redirect(url, Response=lambda *a, **k: Response("{}\n".format(url)))
-    
     return "Nope.", 204
 
 @app.route('/p/<id>', methods=['GET'])
@@ -58,7 +59,6 @@ def paste(id):
         p = Paste.query.filter_by(id=id).first()
         if p:
             return render_template("paste.html", paste=p)
-
     return "Not found.", 404
 
 if __name__ == '__main__':
