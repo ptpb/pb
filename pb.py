@@ -54,7 +54,7 @@ def index():
             except:
                 return "Failed." 
 
-            return "https://ptpb.pw/p/%s\n" % p.url
+            return "http://ptpb.pw/p/%s\n" % p.url
     else:
         return "Nope."
 
