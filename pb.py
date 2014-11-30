@@ -1,8 +1,8 @@
-from flask import *
+from flask import Flask, Response, request, render_template
 from flask.ext.sqlalchemy import SQLAlchemy
 
 import yaml
-import datetime
+from datetime import datetime
 from os import urandom, path
 from base64 import urlsafe_b64encode as b64encode
 
@@ -56,7 +56,7 @@ def index():
         return Response(render_template("form.html" if 'f' in request.path else "index.html"), mimetype='text/html')
     elif request.method == "POST":
         if 'c' in request.form:
-            p = Paste(request.form['c'], datetime.datetime.now(), make_id())
+            p = Paste(request.form['c'], datetime.now(), make_id())
             db.session.add(p)
             db.session.commit()
             db.session.refresh(p)
