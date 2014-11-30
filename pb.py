@@ -1,23 +1,26 @@
 from flask import *
 from flask.ext.sqlalchemy import SQLAlchemy
 
-from credentials import *
-
+import yaml
 import datetime
-from os import urandom
-from base64 import b64encode
+from os import urandom, path
+from base64 import urlsafe_b64encode as b64encode
 
 class TextResponse(Response):
     default_mimetype = 'text/plain'
 
+def load_yaml(app, filename):
+    filename = path.join(app.root_path, filename)
+    with open(filename) as f:
+        obj = yaml.load(f)
+
+    return app.from_mapping(obj)
+
 app = Flask(__name__)
 app.response_class = TextResponse
-connectionString = "mysql://%s:%s@%s:3306/%s" % (USERNAME, PASSWORD, HOSTNAME, DATABASE)
-app.config.update(
-    SQLALCHEMY_DATABASE_URI = connectionString
-)
+load_yaml(app, 'config.yaml')
+
 db = SQLAlchemy(app)
-app.secret_key = SECRET_KEY
 
 class Paste(db.Model):
     __tablename__ = "paste"
@@ -71,4 +74,4 @@ def paste(id):
     return "Not found.", 404
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10002, debug=True)
+    app.run(host='0.0.0.0', port=10002)
