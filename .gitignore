@@ -1,6 +1,4 @@
 __pycache__/
 *.py[cod]
 *.pyc
-credentials.py
-password.py
-*.
+config.yaml

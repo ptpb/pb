@@ -14,7 +14,7 @@ def load_yaml(app, filename):
     with open(filename) as f:
         obj = yaml.load(f)
 
-    return app.from_mapping(obj)
+    return app.config.from_mapping(obj)
 
 app = Flask(__name__)
 app.response_class = TextResponse
