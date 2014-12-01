@@ -63,9 +63,10 @@ def index():
         return Response(render_template("form.html" if 'f' in request.path else "index.html"), mimetype='text/html')
     elif request.method == "POST":
         if 'c' in request.form:
-            p, digest = get_digest(request.form['c'])
+            content = request.form['c'].encode('utf-8')
+            p, digest = get_digest(content)
             if not p:
-                p = Paste(make_id(), digest, request.form['c'])
+                p = Paste(make_id(), digest, content)
                 db.session.add(p)
                 db.session.commit()
 
