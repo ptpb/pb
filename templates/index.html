@@ -1,8 +1,6 @@
-<html>
-<head>
-<title>ptpb - a simple pastebin</title>
-</head>
-<body>
+{% extends "layout.html" %}
+
+{% block body %}
 <pre>
 ptpb
 
@@ -13,11 +11,11 @@ USE:
 From the web: <a href="/f">Make a paste</a>
 
 From the command line:
-command | curl -F "c=<-" http://ptpb.pw
+command | curl -F "c=&lt;-" http://ptpb.pw
 
 EXAMPLE:
 
-cat /etc/resolv.conf | curl -F "c=<-" http://ptpb.pw
+cat /etc/resolv.conf | curl -F "c=&lt;-" http://ptpb.pw
 http://ptpb.pw/p/b55743ba
 
 OTHER INFO:
@@ -32,5 +30,4 @@ SOURCE:
 AUTHOR:
 Joe Pettit
 </pre>
-</body>
-</html>
+{% endblock %}
