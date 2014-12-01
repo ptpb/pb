@@ -60,7 +60,7 @@ def index():
             db.session.add(p)
             db.session.commit()
             #url = url_for('paste', _external=True, id=p.id)
-            url = "http://ptpb.pw/p/{}".format(p.id)
+            url = "https://ptpb.pw/p/{}".format(p.id)
             return redirect(url, "{}\n".format(url))
     return "Nope.", 204
 
@@ -72,4 +72,4 @@ def paste(id):
     return "Not found.", 404
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10002)
+    app.run(host='127.0.0.1', port=10002)
