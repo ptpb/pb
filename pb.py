@@ -47,14 +47,11 @@ def make_id():
         if not p:
             return id
 
-def check_hash(c):
+def get_hash(c):
     m = hashlib.md5()
     m.update(c)
-    p = Paste.query.filter_by(hash=m.hexdigest()).first()
-    if p:
-        return True, p.id
-    else:
-        return False, m.hexdigest()
+    digest = m.hexdigest()
+    return Paste.query.filter_by(hash=digest).first(), digest
 
 def redirect(location, rv):
     response = TextResponse(rv, 302)
@@ -68,17 +65,16 @@ def index():
         return Response(render_template("form.html" if 'f' in request.path else "index.html"), mimetype='text/html')
     elif request.method == "POST":
         if 'c' in request.form:
-            status, hash = check_hash(request.form['c'])
-            if status == False:
-                p = Paste(request.form['c'], datetime.now(), make_id(), hash)
+            p, digest = get_hash(request.form['c'])
+            if not p:
+                p = Paste(request.form['c'], datetime.now(), make_id(), digest)
                 db.session.add(p)
                 db.session.commit()
-                #url = url_for('paste', _external=True, id=p.id)
-                url = "https://ptpb.pw/p/{}".format(p.id)
-                return redirect(url, "{}\n".format(url))
-            else:
-                url = "https://ptpb.pw/p/{}".format(hash)
-                return redirect(url, "{}\n".format(url))
+
+            #url = url_for('paste', _external=True, id=p.id)
+            url = "https://ptpb.pw/p/{}".format(p.id)
+            return redirect(url, "{}\n".format(url))
+        
     return "Nope.", 204
 
 @app.route('/p/<id>', methods=['GET'])
