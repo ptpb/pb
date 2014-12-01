@@ -83,5 +83,10 @@ def paste(id):
         return p.content
     return "Not found.", 404
 
+@app.route('/s', methods=['GET'])
+def stats():
+    p = Paste.query.count()
+    return "We have {} pastes.".format(p)
+
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=10002)
