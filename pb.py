@@ -5,6 +5,7 @@ import yaml
 from datetime import datetime
 from os import urandom, path
 from base64 import urlsafe_b64encode as b64encode
+import hashlib
 
 class TextResponse(Response):
     default_mimetype = 'text/plain'
@@ -27,12 +28,14 @@ class Paste(db.Model):
 
     content = db.Column(db.Text(length=16777216, collation='utf8_general_ci'))
     date = db.Column(db.DateTime)
+    hash = db.Column(db.String(32))
     id = db.Column(db.String(9), primary_key=True, unique=True)
 
-    def __init__(self, content, date, id):
+    def __init__(self, content, date, id, hash):
         self.content = content
         self.date = date
         self.id = id
+        self.hash = hash
 
 db.create_all()
 db.session.commit()
@@ -43,6 +46,15 @@ def make_id():
         p = Paste.query.filter_by(id=id).all()
         if not p:
             return id
+
+def check_hash(c):
+    m = hashlib.md5()
+    m.update(c)
+    p = Paste.query.filter_by(hash=m.hexdigest()).first()
+    if p:
+        return True, p.id
+    else:
+        return False, m.hexdigest()
 
 def redirect(location, rv):
     response = TextResponse(rv, 302)
@@ -56,12 +68,17 @@ def index():
         return Response(render_template("form.html" if 'f' in request.path else "index.html"), mimetype='text/html')
     elif request.method == "POST":
         if 'c' in request.form:
-            p = Paste(request.form['c'], datetime.now(), make_id())
-            db.session.add(p)
-            db.session.commit()
-            #url = url_for('paste', _external=True, id=p.id)
-            url = "https://ptpb.pw/p/{}".format(p.id)
-            return redirect(url, "{}\n".format(url))
+            status, hash = check_hash(request.form['c'])
+            if status == False:
+                p = Paste(request.form['c'], datetime.now(), make_id(), hash)
+                db.session.add(p)
+                db.session.commit()
+                #url = url_for('paste', _external=True, id=p.id)
+                url = "https://ptpb.pw/p/{}".format(p.id)
+                return redirect(url, "{}\n".format(url))
+            else:
+                url = "https://ptpb.pw/p/{}".format(hash)
+                return redirect(url, "{}\n".format(url))
     return "Nope.", 204
 
 @app.route('/p/<id>', methods=['GET'])
