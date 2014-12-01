@@ -1,10 +1,10 @@
 from flask import Flask, Response, request, render_template
 from flask.ext.sqlalchemy import SQLAlchemy
-
+from sqlalchemy.dialects.mysql import BINARY
 import yaml
 from datetime import datetime
 from os import urandom, path
-from base64 import urlsafe_b64encode as b64encode
+from base64 import urlsafe_b64encode as b64encode, urlsafe_b64decode as b64decode
 import hashlib
 
 class TextResponse(Response):
@@ -26,32 +26,30 @@ db = SQLAlchemy(app)
 class Paste(db.Model):
     __tablename__ = "paste"
 
+    id = db.Column(BINARY(6), primary_key=True, unique=True)
+    digest = db.Column(BINARY(16), index=True, unique=True)
     content = db.Column(db.Text(length=16777216, collation='utf8_general_ci'))
-    date = db.Column(db.DateTime)
-    hash = db.Column(db.String(32))
-    id = db.Column(db.String(9), primary_key=True, unique=True)
 
-    def __init__(self, content, date, id, hash):
-        self.content = content
-        self.date = date
+    def __init__(self, id, digest, content):
         self.id = id
-        self.hash = hash
+        self.digest = digest
+        self.content = content
 
 db.create_all()
 db.session.commit()
 
 def make_id():
     while True:
-        id = b64encode(urandom(6))
+        id = urandom(6)
         p = Paste.query.filter_by(id=id).all()
         if not p:
             return id
 
-def get_hash(c):
+def get_digest(c):
     m = hashlib.md5()
     m.update(c)
-    digest = m.hexdigest()
-    return Paste.query.filter_by(hash=digest).first(), digest
+    digest = m.digest()
+    return Paste.query.filter_by(digest=digest).first(), digest
 
 def redirect(location, rv):
     response = TextResponse(rv, 302)
@@ -65,21 +63,21 @@ def index():
         return Response(render_template("form.html" if 'f' in request.path else "index.html"), mimetype='text/html')
     elif request.method == "POST":
         if 'c' in request.form:
-            p, digest = get_hash(request.form['c'])
+            p, digest = get_digest(request.form['c'])
             if not p:
-                p = Paste(request.form['c'], datetime.now(), make_id(), digest)
+                p = Paste(make_id(), digest, request.form['c'])
                 db.session.add(p)
                 db.session.commit()
 
             #url = url_for('paste', _external=True, id=p.id)
-            url = "https://ptpb.pw/p/{}".format(p.id)
+            url = "https://ptpb.pw/p/{}".format(b64encode(p.id))
             return redirect(url, "{}\n".format(url))
         
     return "Nope.", 204
 
 @app.route('/p/<id>', methods=['GET'])
 def paste(id):
-    p = Paste.query.filter_by(id=id).first()
+    p = Paste.query.filter_by(id=b64decode(id.encode('utf-8'))).first()
     if p:
         return p.content
     return "Not found.", 404
