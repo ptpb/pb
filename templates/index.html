@@ -11,19 +11,23 @@ USE:
 From the web: <a href="/f">Make a paste</a>
 
 From the command line:
-command | curl -F "c=&lt;-" https://ptpb.pw
+    command | curl -F "c=&lt;-" https://ptpb.pw
+
+For raw data:
+    command | curl --data-binary '@-' https://ptpb.pw/r
 
 EXAMPLE:
 
-cat /etc/resolv.conf | curl -F "c=&lt;-" https://ptpb.pw
-http://ptpb.pw/p/b55743ba
+    dmesg | curl -F "c=&lt;-" https://ptpb.pw
+    https://ptpb.pw/p/b55743ba
 
 OTHER INFO:
+
 Pastes will be kept as long as feasible, they may be deleted eventually though. Don't use ptpb for things you need to
 keep around forever.
 
 Alias it for easier access:
-alias ptpb='curl -F "c=<-" https://ptpb.pw'
+    alias ptpb='curl -F "c=<-" https://ptpb.pw'
 
 <strike>SSL coming soon.</strike> SSL is now enabled and forced. 
 
