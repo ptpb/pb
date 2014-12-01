@@ -1,6 +1,6 @@
 from flask import Flask, Response, request, render_template
 from flask.ext.sqlalchemy import SQLAlchemy
-from sqlalchemy.dialects.mysql import BINARY, MEDIUMBLOB
+from sqlalchemy.dialects.mysql import BINARY, MEDIUMBLOB, TINYINT
 import yaml
 from datetime import datetime
 from os import urandom, path
@@ -29,11 +29,13 @@ class Paste(db.Model):
     id = db.Column(BINARY(6), primary_key=True, unique=True, nullable=False)
     digest = db.Column(BINARY(20), index=True, unique=True, nullable=False)
     content = db.Column(MEDIUMBLOB(), nullable=False)
+    raw = db.Column(TINYINT(), nullable=False)
 
-    def __init__(self, id, digest, content):
+    def __init__(self, id, digest, content, raw):
         self.id = id
         self.digest = digest
         self.content = content
+        self.raw = raw
 
 db.create_all()
 db.session.commit()
@@ -56,10 +58,10 @@ def redirect(location, rv):
     response.headers['Location'] = location
     return response
 
-def make_paste(content):
+def make_paste(content, raw):
     p, digest = get_digest(content)
     if not p:
-        p = Paste(make_id(), digest, content)
+        p = Paste(make_id(), digest, content, raw)
         db.session.add(p)
         db.session.commit()
 
@@ -73,13 +75,12 @@ def index():
         return Response(render_template("index.html"), mimetype='text/html')
     elif request.method == "POST":
         if 'c' in request.form:
-            return make_paste(request.form['c'].encode('utf-8'))
-
+            return make_paste(request.form['c'].encode('utf-8'), 0)
     return "Nope.", 204
 
 @app.route('/r', methods=['POST'])
 def stream():
-    return make_paste(request.stream.read())
+    return make_paste(request.stream.read(), 1)
 
 @app.route('/f')
 def form():
@@ -88,6 +89,8 @@ def form():
 @app.route('/p/<id>')
 def paste(id):
     p = Paste.query.filter_by(id=b64decode(id.encode('utf-8'))).first()
+    if p and p.raw:
+        return Response(p.content, mimetype='application/octet-stream')
     if p:
         return p.content
     return "Not found.", 404
