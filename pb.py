@@ -1,6 +1,6 @@
 from flask import Flask, Response, request, render_template
 from flask.ext.sqlalchemy import SQLAlchemy
-from sqlalchemy.dialects.mysql import BINARY
+from sqlalchemy.dialects.mysql import BINARY, MEDIUMBLOB
 import yaml
 from datetime import datetime
 from os import urandom, path
@@ -26,9 +26,9 @@ db = SQLAlchemy(app)
 class Paste(db.Model):
     __tablename__ = "paste"
 
-    id = db.Column(BINARY(6), primary_key=True, unique=True)
-    digest = db.Column(BINARY(20), index=True, unique=True)
-    content = db.Column(db.Text(length=16777216, collation='utf8_general_ci'))
+    id = db.Column(BINARY(6), primary_key=True, unique=True, nullable=False)
+    digest = db.Column(BINARY(20), index=True, unique=True, nullable=False)
+    content = db.Column(MEDIUMBLOB(), nullable=False)
 
     def __init__(self, id, digest, content):
         self.id = id
