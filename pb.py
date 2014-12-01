@@ -27,7 +27,7 @@ class Paste(db.Model):
     __tablename__ = "paste"
 
     id = db.Column(BINARY(6), primary_key=True, unique=True)
-    digest = db.Column(BINARY(16), index=True, unique=True)
+    digest = db.Column(BINARY(20), index=True, unique=True)
     content = db.Column(db.Text(length=16777216, collation='utf8_general_ci'))
 
     def __init__(self, id, digest, content):
@@ -46,7 +46,7 @@ def make_id():
             return id
 
 def get_digest(c):
-    m = hashlib.md5()
+    m = hashlib.new('sha1')
     m.update(c)
     digest = m.digest()
     return Paste.query.filter_by(digest=digest).first(), digest
