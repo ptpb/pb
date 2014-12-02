@@ -2,21 +2,14 @@
 
 pb is a lightweight pastebin built using Flask. pb supports both standard form input, as well as raw input for arbitrary data. pb was written to be easy to deploy, so please feel free to host your own pb instance. The official instance of pb can be found at [ptpb.pw](https://ptpb.pw).
 
-### Use
+### Requirements
 
-From the Web: [Paste](https://ptpb.pw)
-
-Command Line (non-raw):
-`yourcommand | curl -F "c=<-" https://ptpb.pw`
-
-Command Line (raw):
-`yourcommand | curl --data-binary '@-' https://ptpb.pw/r`
-
-Alias (non-raw):
-`alias ptpb='curl -F "c=<-" https://ptpb.pw` 
-
-Add alias to `~/.bashrc` to use:
-`yourcommand | ptpb`
+* Python2 or Python3
+* MySQL server
+* Flask (>=0.11-dev)
+* Flask-SQLAlchemy (>=2.0)
+* Werkzeug (>=0.10-dev)
+* PyYAML (>=3.11)
 
 ### Installation
 
@@ -32,3 +25,19 @@ Add alias to `~/.bashrc` to use:
 * /s - Returns the number of pastes 
 * /r - Handle raw post data
 * /p/<id> - View paste with <id>
+
+### Use
+
+From the Web: [Paste](https://ptpb.pw)
+
+Command Line (non-raw):
+`yourcommand | curl -F "c=<-" https://ptpb.pw`
+
+Command Line (raw):
+`yourcommand | curl --data-binary '@-' https://ptpb.pw/r`
+
+Alias (non-raw):
+`alias ptpb='curl -F "c=<-" https://ptpb.pw` 
+
+Add alias to `~/.bashrc` to use:
+`yourcommand | ptpb`
