@@ -1,4 +1,4 @@
 Flask>=0.11-dev
-Flask-SQLAlchemy>=2.0
 Werkzeug>=0.10-dev
 PyYAML>=3.11
+mysql-connector-python>=2.0.2
