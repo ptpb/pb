@@ -19,7 +19,7 @@ def index():
     if request.method == "GET":
         return Response(render_template("index.html"), mimetype='text/html')
     elif request.method == "POST":
-        raw = 'r' in request.path
+        raw = request.path == '/r'
         if not raw and 'c' in request.form:
             content = request.form['c'].encode('utf-8')
         elif raw:
@@ -39,7 +39,7 @@ def index():
 def form():
     return Response(render_template("form.html"), mimetype='text/html')
 
-@view.route('/p/<id>')
+@view.route('/<id>')
 @cursor
 def paste(id):
     try:
