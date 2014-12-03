@@ -5,13 +5,9 @@ from flask import Blueprint, Response, request, render_template, current_app, ur
 
 from db import cursor
 from model import insert_paste, get_stats, get_digest, get_content
+from util import highlight, redirect
 
 view = Blueprint('view', __name__)
-
-def redirect(location, rv):
-    response = current_app.response_class(rv, 302)
-    response.headers['Location'] = location
-    return response
 
 @view.route('/', methods=['GET', 'POST'])
 @view.route('/r', methods=['POST'])
@@ -41,14 +37,18 @@ def form():
     return Response(render_template("form.html"), mimetype='text/html')
 
 @view.route('/<id>')
+@view.route('/<id>/<lexer>')
 @cursor
-def paste(id):
+def paste(id, lexer=None):
     id = Bits(bytes=urlsafe_b64decode(id)).int
+
     content, raw = get_content(id)
     if not content:
         return "Not found.", 404
 
-    if int(raw):
+    if lexer:
+        return highlight(content, lexer)
+    elif int(raw):
         return Response(content, mimetype='application/octet-stream')
     else:
         return content
