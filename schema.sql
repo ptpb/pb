@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS paste;
-CREATE TABLE paste (
-  id BINARY(16) NOT NULL,
+CREATE TABLE paste (  
+  id MEDIUMINT NOT NULL AUTO_INCREMENT,
   digest BINARY(20) NOT NULL,
   content MEDIUMBLOB NOT NULL,
   raw BIT(1) NOT NULL,
@@ -12,13 +12,16 @@ ENGINE = InnoDB;
 DELIMITER @@
 DROP PROCEDURE IF EXISTS insert_paste@@
 CREATE PROCEDURE insert_paste (
-  p_id BINARY(16),
   p_content MEDIUMBLOB,
-  p_raw BIT(1)
+  p_raw BIT(1),
+  OUT p_id MEDIUMINT
 )
 BEGIN
-  INSERT paste
-  VALUES (p_id, UNHEX(SHA1(p_content)), p_content, p_raw);
+  START TRANSACTION;
+  INSERT paste (digest, content, raw)
+  VALUES (UNHEX(SHA1(p_content)), p_content, p_raw);
+  SELECT last_insert_id() INTO p_id;
+  COMMIT;
 END;
 @@
 
@@ -35,7 +38,7 @@ END;
 DROP PROCEDURE IF EXISTS get_digest@@
 CREATE PROCEDURE get_digest (
   p_digest BINARY(20),
-  OUT p_id BINARY(16)
+  OUT p_id MEDIUMINT
 )
 BEGIN
   SELECT id INTO p_id
@@ -46,7 +49,7 @@ END;
 
 DROP PROCEDURE IF EXISTS get_content@@
 CREATE PROCEDURE get_content (
-  p_id BINARY(16),
+  p_id MEDIUMINT,
   OUT p_content MEDIUMBLOB,
   OUT p_raw BIT(1)
 )

@@ -1,12 +1,10 @@
 from flask import request
 
-import uuid
 import hashlib
 
 def insert_paste(content, raw):
-    id = uuid.uuid4().bytes
-    args = (id, content, raw)
-    request.cur.callproc('insert_paste', args)
+    args = (content, raw, None)
+    (_, _, id) = request.cur.callproc('insert_paste', args)
     return id
 
 def get_stats():

@@ -1,4 +1,5 @@
-import uuid
+from bitstring import Bits
+from base64 import urlsafe_b64encode, urlsafe_b64decode
 
 from flask import Blueprint, Response, request, render_template, current_app, url_for
 
@@ -31,7 +32,7 @@ def index():
         if not id:
             id = insert_paste(content, raw)
 
-        pid = uuid.UUID(bytes=bytes(id))
+        pid = urlsafe_b64encode(Bits(length=24, uint=int(id)).bytes)
         url = url_for('.paste', id=pid, _external=True)
         return redirect(url, "{}\n".format(url))
 
@@ -42,11 +43,7 @@ def form():
 @view.route('/p/<id>')
 @cursor
 def paste(id):
-    try:
-        id = uuid.UUID(id).bytes
-    except ValueError:
-        return "Invalid id.", 400
-
+    id = Bits(bytes=urlsafe_b64decode(id)).int
     content, raw = get_content(id)
     if not content:
         return "Not found.", 404
