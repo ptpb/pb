@@ -8,9 +8,9 @@ def insert_paste(content, raw):
     return id
 
 def get_stats():
-    args = (None,)
-    (count,) = request.cur.callproc('get_stats', args)
-    return count
+    args = (None, None)
+    (count, length) = request.cur.callproc('get_stats', args)
+    return int(count), int(length)
 
 def get_digest(content):
     digest = hashlib.new('sha1', content).digest()

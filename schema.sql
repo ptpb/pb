@@ -27,10 +27,11 @@ END;
 
 DROP PROCEDURE IF EXISTS get_stats@@
 CREATE PROCEDURE get_stats (
-  OUT p_count INT
+  OUT p_count INT,
+  OUT p_length INT
 )
 BEGIN
-  SELECT COUNT(*) INTO p_count
+  SELECT COUNT(*), SUM(LENGTH(content)) INTO p_count, p_length
   FROM paste;
 END;
 @@

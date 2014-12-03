@@ -56,5 +56,5 @@ def paste(id):
 @view.route('/s')
 @cursor
 def stats():
-    count = get_stats()
-    return "We have {} pastes.".format(count)
+    count, length = get_stats()
+    return "{} pastes\n{} bytes\n".format(count, length)
