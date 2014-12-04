@@ -9,32 +9,33 @@ from util import highlight, redirect
 
 view = Blueprint('view', __name__)
 
-@view.route('/', methods=['GET', 'POST'])
-@view.route('/r', methods=['POST'])
-@cursor
+@view.route('/')
 def index():
-    if request.method == "GET":
-        return Response(render_template("index.html"), mimetype='text/html')
-    elif request.method == "POST":
-        raw = request.path == '/r'
-        if not raw and 'c' in request.form:
-            content = request.form['c'].encode('utf-8')
-        elif raw:
-            content = request.stream.read()
-        else:
-            return "Nope.", 400
-
-        id = get_digest(content)
-        if not id:
-            id = insert_paste(content, raw)
-
-        pid = urlsafe_b64encode(Bits(length=24, uint=int(id)).bytes)
-        url = url_for('.paste', id=pid, _external=True)
-        return redirect(url, "{}\n".format(url))
+    return Response(render_template("index.html"), mimetype='text/html')
 
 @view.route('/f')
 def form():
     return Response(render_template("form.html"), mimetype='text/html')
+
+@view.route('/', methods=['POST'])
+@view.route('/r', methods=['POST'])
+@cursor
+def post():
+    raw = request.path == '/r'
+    if not raw and 'c' in request.form:
+        content = request.form['c'].encode('utf-8')
+    elif raw:
+        content = request.stream.read()
+    else:
+        return "Nope.", 400
+
+    id = get_digest(content)
+    if not id:
+        id = insert_paste(content, raw)
+
+    pid = urlsafe_b64encode(Bits(length=24, uint=int(id)).bytes)
+    url = url_for('.paste', id=pid, _external=True)
+    return redirect(url, "{}\n".format(url))
 
 @view.route('/<id>')
 @view.route('/<id>/<lexer>')
@@ -50,8 +51,8 @@ def paste(id, lexer=None):
         return highlight(content, lexer)
     elif int(raw):
         return Response(content, mimetype='application/octet-stream')
-    else:
-        return content
+
+    return content
 
 @view.route('/s')
 @cursor
