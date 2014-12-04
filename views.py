@@ -5,7 +5,7 @@ from uuid import UUID
 from flask import Blueprint, Response, request, render_template, current_app, url_for
 
 from db import cursor
-from model import insert_paste, get_stats, get_digest, get_content
+from model import insert_paste, delete_paste, get_stats, get_digest, get_content
 from util import highlight, redirect
 
 view = Blueprint('view', __name__)
@@ -38,6 +38,15 @@ def post():
     url = url_for('.paste', id=pid, _external=True)
     uuid = UUID(bytes=uuid) if uuid else '[redacted]'
     return redirect(url, "{}\nuuid: {}\n".format(url, uuid))
+
+@view.route('/<uuid>', methods=['DELETE'])
+@cursor
+def delete(uuid):
+    uuid = UUID(uuid).bytes
+    count = int(delete_paste(uuid))
+    if count:
+        return "{} pastes deleted.\n".format(count), 204
+    return "Not found.\n", 404
 
 @view.route('/<id>')
 @view.route('/<id>/<lexer>')

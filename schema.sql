@@ -12,6 +12,7 @@ CREATE TABLE paste (
 ENGINE = InnoDB;
 
 DELIMITER @@
+
 DROP PROCEDURE IF EXISTS insert_paste@@
 CREATE PROCEDURE insert_paste (
   p_uuid BINARY(16),
@@ -24,6 +25,21 @@ BEGIN
   INSERT paste (uuid, digest, content, raw)
   VALUES (p_uuid, UNHEX(SHA1(p_content)), p_content, p_raw);
   SELECT last_insert_id() INTO p_id;
+  COMMIT;
+END;
+@@
+
+DROP PROCEDURE IF EXISTS delete_paste@@
+CREATE PROCEDURE delete_paste (
+  p_uuid BINARY(16),
+  OUT p_count MEDIUMINT
+)
+BEGIN
+  START TRANSACTION;
+  DELETE
+  FROM paste
+  WHERE uuid = p_uuid;
+  SELECT row_count() INTO p_count;
   COMMIT;
 END;
 @@
