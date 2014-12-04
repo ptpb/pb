@@ -1,26 +1,61 @@
 DROP TABLE IF EXISTS paste;
 CREATE TABLE paste (  
   id MEDIUMINT NOT NULL AUTO_INCREMENT,
+  uuid BINARY(16) NOT NULL,
   digest BINARY(20) NOT NULL,
   content MEDIUMBLOB NOT NULL,
   raw BIT(1) NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY (digest)
+  UNIQUE KEY (digest),
+  UNIQUE KEY (uuid)
 )
 ENGINE = InnoDB;
 
 DELIMITER @@
+
 DROP PROCEDURE IF EXISTS insert_paste@@
 CREATE PROCEDURE insert_paste (
+  p_uuid BINARY(16),
   p_content MEDIUMBLOB,
   p_raw BIT(1),
   OUT p_id MEDIUMINT
 )
 BEGIN
   START TRANSACTION;
-  INSERT paste (digest, content, raw)
-  VALUES (UNHEX(SHA1(p_content)), p_content, p_raw);
+  INSERT paste (uuid, digest, content, raw)
+  VALUES (p_uuid, UNHEX(SHA1(p_content)), p_content, p_raw);
   SELECT last_insert_id() INTO p_id;
+  COMMIT;
+END;
+@@
+
+DROP PROCEDURE IF EXISTS put_paste@@
+CREATE PROCEDURE put_paste (
+  p_uuid BINARY(16),
+  p_content MEDIUMBLOB,
+  OUT p_count MEDIUMINT
+)
+BEGIN
+  START TRANSACTION;
+  UPDATE paste
+  SET digest = UNHEX(SHA1(p_content)), content = p_content
+  WHERE uuid = p_uuid;
+  SELECT row_count() INTO p_count;
+  COMMIT;
+END;
+@@
+
+DROP PROCEDURE IF EXISTS delete_paste@@
+CREATE PROCEDURE delete_paste (
+  p_uuid BINARY(16),
+  OUT p_count MEDIUMINT
+)
+BEGIN
+  START TRANSACTION;
+  DELETE
+  FROM paste
+  WHERE uuid = p_uuid;
+  SELECT row_count() INTO p_count;
   COMMIT;
 END;
 @@

@@ -1,11 +1,23 @@
 from flask import request
 
+from uuid import uuid4
 import hashlib
 
 def insert_paste(content, raw):
-    args = (content, raw, None)
-    (_, _, id) = request.cur.callproc('insert_paste', args)
-    return id
+    uuid = uuid4().bytes
+    args = (uuid, content, raw, None)
+    (_, _, _, id) = request.cur.callproc('insert_paste', args)
+    return id, uuid
+
+def put_paste(uuid, content):
+    args = (uuid, content, None)
+    (_, _, count) = request.cur.callproc('put_paste', args)
+    return count
+
+def delete_paste(uuid):
+    args = (uuid, None)
+    (_, count) = request.cur.callproc('delete_paste', args)
+    return count
 
 def get_stats():
     args = (None, None)
@@ -16,7 +28,7 @@ def get_digest(content):
     digest = hashlib.new('sha1', content).digest()
     args = (digest, None)
     (_, id) = request.cur.callproc('get_digest', args)
-    return id
+    return id, None
 
 def get_content(id):
     args = (id,) + (None,) * 2
