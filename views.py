@@ -1,5 +1,6 @@
 from bitstring import Bits
 from base64 import urlsafe_b64encode, urlsafe_b64decode
+from uuid import UUID
 
 from flask import Blueprint, Response, request, render_template, current_app, url_for
 
@@ -29,13 +30,14 @@ def post():
     else:
         return "Nope.", 400
 
-    id = get_digest(content)
+    id, uuid = get_digest(content)
     if not id:
-        id = insert_paste(content, raw)
+        id, uuid = insert_paste(content, raw)
 
     pid = urlsafe_b64encode(Bits(length=24, uint=int(id)).bytes)
     url = url_for('.paste', id=pid, _external=True)
-    return redirect(url, "{}\n".format(url))
+    uuid = UUID(bytes=uuid) if uuid else '[redacted]'
+    return redirect(url, "{}\nuuid: {}\n".format(url, uuid))
 
 @view.route('/<id>')
 @view.route('/<id>/<lexer>')
