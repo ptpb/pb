@@ -1,6 +1,7 @@
 from bitstring import Bits
 from base64 import urlsafe_b64encode, urlsafe_b64decode
 from uuid import UUID
+from mimetypes import guess_type
 
 from flask import Blueprint, Response, request, render_template, current_app, url_for
 
@@ -68,7 +69,8 @@ def delete(uuid):
 @view.route('/<id>/<lexer>')
 @cursor
 def get(id, lexer=None):
-    id = Bits(bytes=urlsafe_b64decode(id)).int
+    id = Bits(bytes=urlsafe_b64decode(id.split('.')[0])).int
+    mimetype, _ = guess_type(id)
 
     content, raw = get_content(id)
     if not content:
@@ -76,6 +78,8 @@ def get(id, lexer=None):
 
     if lexer:
         return highlight(content, lexer)
+    elif mimetype:
+        return Response(content, mimetype=mimetype)
     elif int(raw):
         return Response(content, mimetype='application/octet-stream')
 
