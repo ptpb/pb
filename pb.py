@@ -24,5 +24,10 @@ load_yaml(app, 'config.yaml')
 init_db(app)
 app.register_blueprint(view)
 
+@app.after_request
+def add_cache_header(response):
+    response.cache_control.max_age = 300
+    return response
+
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=10002)
