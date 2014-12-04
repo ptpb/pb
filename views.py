@@ -44,14 +44,16 @@ def put(uuid):
     uuid = UUID(uuid).bytes
 
     id, _ = get_digest(content)
-    if not id:
-        count = int(put_paste(uuid, content))
+    if id:
+        pid = urlsafe_b64encode(Bits(length=24, uint=int(id)).bytes)
+        url = url_for('.get', id=pid, _external=True)
+        return redirect(url, "Paste already exists.\n", 409)
+
+    count = int(put_paste(uuid, content))
+    if count:
         return "{} pastes updated.\n".format(count), 200
 
-    pid = urlsafe_b64encode(Bits(length=24, uint=int(id)).bytes)
-    url = url_for('.get', id=pid, _external=True)
-
-    return redirect(url, "Paste already exists.\n", 409)
+    return "Not found.", 404
 
 @view.route('/<uuid>', methods=['DELETE'])
 @cursor
