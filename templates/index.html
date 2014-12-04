@@ -2,39 +2,61 @@
 
 {% block body %}
 <pre>
-ptpb
+<h3>ptpb</h3>
 
 ptpb is a simple pastebin.
 
-USE:
+<h3>USE</h3>
 
-From the web: <a href="/f">Make a paste</a>
+<strong>GET:</strong>
 
-From the command line:
+Returns an existing paste.
+
+    curl https://ptpb.pw/AAAA
+
+<strong>POST:</strong>
+
+Creates a new paste, returns URL and UUID.
+
+- 'multipart/form-data' (preferred, non-binary only)
+
     command | curl -F "c=&lt;-" https://ptpb.pw
 
-For raw data:
-    command | curl --data-binary '@-' https://ptpb.pw/r
+- 'application/x-www-form-urlencoded' (less-preferred; can be binary)
 
-EXAMPLE:
+    curl --data-binary @- https://ptpb.pw
 
-    dmesg | curl -F "c=&lt;-" https://ptpb.pw
-    https://ptpb.pw/p/b55743ba
+<strong>PUT:</strong>
 
-OTHER INFO:
+Modifies an existing paste. Requires the paste UUID for authentication. 
 
-Pastes will be kept as long as feasible, they may be deleted eventually though. Don't use ptpb for things you need to
-keep around forever.
+    curl -X PUT -F 'c=&lt;-' https://ptpb.pw/529441ee-0d09-4465-81bc-cf0d2cfb1d18
 
-Alias it for easier access:
+<strong>DELETE:</strong>
+
+Deletes an existing paste.
+
+    curl -X DELETE https://ptpb.pw/529441ee-0d09-4465-81bc-cf0d2cfb1d18
+
+<h3>ENDPOINTS</h3>
+
+<a href="/">/</a> - Displays this page, handles all post/get/delete requests.
+/&lt;ID&gt; - View a paste.
+/&lt;ID&gt;/&lt;LEXER&gt; - Display a paste with the syntax highlighting of the lexer you select. 
+<a href="/f">/f</a> - Webform to submit a paste.
+<a href="/s">/s</a> - View statistics. 
+
+<h3>OTHER INFO</h3>
+
+Make an alias for easier access:
     alias ptpb='curl -F "c=<-" https://ptpb.pw'
 
-<strike>SSL coming soon.</strike> SSL is now enabled and forced. 
+SSL is now enabled and forced. 
 
-SOURCE:
-<a href="https://github.com/silverp1/pb">https://github.com/silverp1/pb</a>
-
-AUTHORS:
+<h3>AUTHORS</h3>
 <a href="https://github.com/silverp1">Joe Pettit</a>, <a href="https://buhman.org">Zack Buhman</a>
+
+<h3>SOURCE</h3>
+<a href="https://github.com/silverp1/pb">https://github.com/silverp1/pb</a>
 </pre>
 {% endblock %}
