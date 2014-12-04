@@ -9,6 +9,11 @@ def insert_paste(content, raw):
     (_, _, _, id) = request.cur.callproc('insert_paste', args)
     return id, uuid
 
+def put_paste(uuid, content):
+    args = (uuid, content, None)
+    (_, _, count) = request.cur.callproc('put_paste', args)
+    return count
+
 def delete_paste(uuid):
     args = (uuid, None)
     (_, count) = request.cur.callproc('delete_paste', args)

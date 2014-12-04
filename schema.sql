@@ -29,6 +29,22 @@ BEGIN
 END;
 @@
 
+DROP PROCEDURE IF EXISTS put_paste@@
+CREATE PROCEDURE put_paste (
+  p_uuid BINARY(16),
+  p_content MEDIUMBLOB,
+  OUT p_count MEDIUMINT
+)
+BEGIN
+  START TRANSACTION;
+  UPDATE paste
+  SET digest = UNHEX(SHA1(p_content)), content = p_content
+  WHERE uuid = p_uuid;
+  SELECT row_count() INTO p_count;
+  COMMIT;
+END;
+@@
+
 DROP PROCEDURE IF EXISTS delete_paste@@
 CREATE PROCEDURE delete_paste (
   p_uuid BINARY(16),
