@@ -4,7 +4,6 @@ CREATE TABLE paste (
   uuid BINARY(16) NOT NULL,
   digest BINARY(20) NOT NULL,
   content MEDIUMBLOB NOT NULL,
-  raw BIT(1) NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY (digest),
   UNIQUE KEY (uuid)
@@ -17,13 +16,12 @@ DROP PROCEDURE IF EXISTS insert_paste@@
 CREATE PROCEDURE insert_paste (
   p_uuid BINARY(16),
   p_content MEDIUMBLOB,
-  p_raw BIT(1),
   OUT p_id MEDIUMINT
 )
 BEGIN
   START TRANSACTION;
-  INSERT paste (uuid, digest, content, raw)
-  VALUES (p_uuid, UNHEX(SHA1(p_content)), p_content, p_raw);
+  INSERT paste (uuid, digest, content)
+  VALUES (p_uuid, UNHEX(SHA1(p_content)), p_content);
   SELECT last_insert_id() INTO p_id;
   COMMIT;
 END;
@@ -86,11 +84,10 @@ END;
 DROP PROCEDURE IF EXISTS get_content@@
 CREATE PROCEDURE get_content (
   p_id MEDIUMINT,
-  OUT p_content MEDIUMBLOB,
-  OUT p_raw BIT(1)
+  OUT p_content MEDIUMBLOB
 )
 BEGIN
-  SELECT content, raw INTO p_content, p_raw
+  SELECT content INTO p_content
   FROM paste
   WHERE id = p_id;
 END;

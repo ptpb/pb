@@ -3,10 +3,10 @@ from flask import request
 from uuid import uuid4
 import hashlib
 
-def insert_paste(content, raw):
+def insert_paste(content):
     uuid = uuid4().bytes
-    args = (uuid, content, raw, None)
-    (_, _, _, id) = request.cur.callproc('insert_paste', args)
+    args = (uuid, content, None)
+    (_, _, id) = request.cur.callproc('insert_paste', args)
     return id, uuid
 
 def put_paste(uuid, content):
@@ -31,6 +31,6 @@ def get_digest(content):
     return id, None
 
 def get_content(id):
-    args = (id,) + (None,) * 2
-    (_, content, raw) = request.cur.callproc('get_content', args)
-    return content, raw
+    args = (id,) + (None,)
+    (_, content) = request.cur.callproc('get_content', args)
+    return content

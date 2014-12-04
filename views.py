@@ -1,6 +1,7 @@
 from bitstring import Bits
 from base64 import urlsafe_b64encode, urlsafe_b64decode
 from uuid import UUID
+from mimetypes import guess_type
 
 from flask import Blueprint, Response, request, render_template, current_app, url_for
 
@@ -21,13 +22,13 @@ def form():
 @view.route('/', methods=['POST'])
 @cursor
 def post():
-    content, raw = request_content()
+    content = request_content()
     if not content:
         return "Nope.", 400
 
     id, uuid = get_digest(content)
     if not id:
-        id, uuid = insert_paste(content, raw)
+        id, uuid = insert_paste(content)
 
     pid = urlsafe_b64encode(Bits(length=24, uint=int(id)).bytes)
     url = url_for('.get', id=pid, _external=True)
@@ -37,7 +38,7 @@ def post():
 @view.route('/<uuid>', methods=['PUT'])
 @cursor
 def put(uuid):
-    content, raw = request_content()
+    content = request_content()
     if not content:
         return "Nope.", 400
 
@@ -68,16 +69,17 @@ def delete(uuid):
 @view.route('/<id>/<lexer>')
 @cursor
 def get(id, lexer=None):
-    id = Bits(bytes=urlsafe_b64decode(id)).int
+    mimetype, _ = guess_type(id)
+    id = Bits(bytes=urlsafe_b64decode(id.split('.')[0])).int
 
-    content, raw = get_content(id)
+    content = get_content(id)
     if not content:
         return "Not found.", 404
 
     if lexer:
         return highlight(content, lexer)
-    elif int(raw):
-        return Response(content, mimetype='application/octet-stream')
+    elif mimetype:
+        return Response(content, mimetype=mimetype)
 
     return content
 

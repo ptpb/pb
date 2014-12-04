@@ -24,8 +24,8 @@ def request_content():
     raw = 'application/x-www-form-urlencoded' in request.headers.get('Content-Type')
 
     if not raw and 'c' in request.form:
-        return request.form['c'].encode('utf-8'), raw
+        return request.form['c'].encode('utf-8')
     elif raw:
-        return request.stream.read(), raw
+        return request.stream.read()
 
-    return None, raw
+    return None
