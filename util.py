@@ -20,7 +20,7 @@ def highlight(content, lexer):
     except ClassNotFound:
         return "No such lexer.", 400
 
-    content = _highlight(content, lexer, HtmlFormatter(linenos='table'))
+    content = _highlight(content, lexer, HtmlFormatter(linenos='table', anchorlinenos=True))
     template = render_template('highlight.html', content=content)
 
     return Response(template, mimetype='text/html')
