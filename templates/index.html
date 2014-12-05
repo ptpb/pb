@@ -48,13 +48,13 @@ Deletes an existing paste.
 
 <h3>OTHER INFO</h3>
 
-Make an function for more convenient access:
-    ptpb(){ curl -F "c=@$1" https://ptpb.pw }
+Function for more convenient access:
+    pb () { curl -F "c=@${1:--}" https://ptpb.pw }
 
 Examples:
-    ptpb cats.jpg
+    pb cats.jpg
 
-    dmesg | ptpb -
+    dmesg | pb
 
 SSL is now enabled and forced. 
 
