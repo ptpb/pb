@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 
-from flask import Flask, Response
+from hashlib import sha1
+
+from flask import Flask, Response, request
 
 import yaml
 from os import path
@@ -26,7 +28,13 @@ app.register_blueprint(view)
 
 @app.after_request
 def add_cache_header(response):
-    response.cache_control.max_age = 300
+    if request.method == 'GET' and not response.cache_control.public:
+        etag = sha1(response.data).hexdigest()
+        response.add_etag(etag)
+        response.cache_control.public = True
+        response.cache_control.max_age = app.get_send_file_max_age(request.path)
+        response.make_conditional(request)
+
     return response
 
 if __name__ == '__main__':
