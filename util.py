@@ -49,4 +49,4 @@ def pid_id(pid):
 
 def get_id_url(id, filename):
     pid = id_pid(id, filename)
-    return url_for('.get', id=pid, _external=True)
+    return url_for('.get', id=pid, _external=True, _scheme='https')
