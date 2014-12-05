@@ -24,12 +24,8 @@ def post():
     if not content:
         return "Nope.", 400
 
-    print(len(content))
-
-    print('digest')
     id, uuid = get_digest(content)
     if not id:
-        print('insert')
         id, uuid = insert_paste(content)
 
     url = get_id_url(id, filename)

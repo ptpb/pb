@@ -27,15 +27,13 @@ def highlight(content, lexer):
 def request_content():
 
     if 'application/x-www-form-urlencoded' in request.headers.get('Content-Type'):
-        print('a1')
         return request.stream.read(), None
 
-    if 'c' in request.form:
-        print('a2')
-        return request.form['c'].encode('utf-8'), None
-    if 'c' in request.files:
-        print('a3')
-        fs = request.files['c']
+    c = request.form.get('c')
+    if c:
+        return c.encode('utf-8'), None
+    fs = request.files.get('c')
+    if fs:
         return fs.stream.read(), fs.filename
 
     return None, None
