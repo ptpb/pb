@@ -5,6 +5,7 @@ from mimetypes import guess_type
 
 from flask import Blueprint, Response, request, render_template, current_app, url_for
 from pygments.formatters import HtmlFormatter
+from pygments.lexers import get_all_lexers
 
 from db import cursor
 from model import insert_paste, put_paste, delete_paste, get_stats, get_digest, get_content
@@ -94,3 +95,8 @@ def stats():
 def highlight_css():
     css = HtmlFormatter().get_style_defs('.highlight')
     return Response(css, mimetype='text/css')
+
+@view.route('/l')
+def list_lexers():
+    lexers = '\n'.join(' '.join(i) for _, i, _, _ in get_all_lexers())
+    return '{}\n'.format(lexers)
