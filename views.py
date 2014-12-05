@@ -4,6 +4,7 @@ from uuid import UUID
 from mimetypes import guess_type
 
 from flask import Blueprint, Response, request, render_template, current_app, url_for
+from pygments.formatters import HtmlFormatter
 
 from db import cursor
 from model import insert_paste, put_paste, delete_paste, get_stats, get_digest, get_content
@@ -88,3 +89,8 @@ def get(id, lexer=None):
 def stats():
     count, length = get_stats()
     return "{} pastes\n{} bytes\n".format(count, length)
+
+@view.route('/static/highlight.css')
+def highlight_css():
+    css = HtmlFormatter().get_style_defs('.highlight')
+    return Response(css, mimetype='text/css')
