@@ -1,4 +1,8 @@
-from flask import Response, render_template, current_app, request
+from os import path
+from base64 import urlsafe_b64encode, urlsafe_b64decode
+from bitstring import Bits
+
+from flask import Response, render_template, current_app, request, url_for
 
 from pygments import highlight as _highlight
 from pygments.lexers import get_lexer_by_name
@@ -21,11 +25,30 @@ def highlight(content, lexer):
     return Response(render_template('highlight.html', content=content), mimetype='text/html')
 
 def request_content():
-    raw = 'application/x-www-form-urlencoded' in request.headers.get('Content-Type')
 
-    if not raw and 'c' in request.form:
-        return request.form['c'].encode('utf-8')
-    elif raw:
-        return request.stream.read()
+    if 'application/x-www-form-urlencoded' in request.headers.get('Content-Type'):
+        print('a1')
+        return request.stream.read(), None
 
-    return None
+    if 'c' in request.form:
+        print('a2')
+        return request.form['c'].encode('utf-8'), None
+    if 'c' in request.files:
+        print('a3')
+        fs = request.files['c']
+        return fs.stream.read(), fs.filename
+
+    return None, None
+
+def id_pid(id, filename):
+    pid = urlsafe_b64encode(Bits(length=24, uint=int(id)).bytes)
+    ext = path.splitext(filename)[1] if filename else None
+    return b''.join((pid, ext.encode('utf-8'))) if ext else pid
+
+def pid_id(pid):
+    root, _ = path.splitext(pid)
+    return Bits(bytes=urlsafe_b64decode(root)).int
+
+def get_id_url(id, filename):
+    pid = id_pid(id, filename)
+    return url_for('.get', id=pid, _external=True)
