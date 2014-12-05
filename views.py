@@ -1,5 +1,3 @@
-from bitstring import Bits
-from base64 import urlsafe_b64encode, urlsafe_b64decode
 from uuid import UUID
 from mimetypes import guess_type
 
@@ -7,7 +5,7 @@ from flask import Blueprint, Response, request, render_template, current_app, ur
 
 from db import cursor
 from model import insert_paste, put_paste, delete_paste, get_stats, get_digest, get_content
-from util import highlight, redirect, request_content
+from util import highlight, redirect, request_content, get_id_url, pid_id
 
 view = Blueprint('view', __name__)
 
@@ -22,7 +20,7 @@ def form():
 @view.route('/', methods=['POST'])
 @cursor
 def post():
-    content = request_content()
+    content, filename = request_content()
     if not content:
         return "Nope.", 400
 
@@ -30,15 +28,14 @@ def post():
     if not id:
         id, uuid = insert_paste(content)
 
-    pid = urlsafe_b64encode(Bits(length=24, uint=int(id)).bytes)
-    url = url_for('.get', id=pid, _external=True)
+    url = get_id_url(id, filename)
     uuid = UUID(bytes=uuid) if uuid else '[redacted]'
     return redirect(url, "{}\nuuid: {}\n".format(url, uuid))
 
 @view.route('/<uuid>', methods=['PUT'])
 @cursor
 def put(uuid):
-    content = request_content()
+    content, filename = request_content()
     if not content:
         return "Nope.", 400
 
@@ -46,12 +43,12 @@ def put(uuid):
 
     id, _ = get_digest(content)
     if id:
-        pid = urlsafe_b64encode(Bits(length=24, uint=int(id)).bytes)
-        url = url_for('.get', id=pid, _external=True)
+        url = get_id_url(id, None)
         return redirect(url, "Paste already exists.\n", 409)
 
     count = int(put_paste(uuid, content))
     if count:
+        # FIXME: geif Location
         return "{} pastes updated.\n".format(count), 200
 
     return "Not found.", 404
@@ -70,7 +67,7 @@ def delete(uuid):
 @cursor
 def get(id, lexer=None):
     mimetype, _ = guess_type(id)
-    id = Bits(bytes=urlsafe_b64decode(id.split('.')[0])).int
+    id = pid_id(id)
 
     content = get_content(id)
     if not content:

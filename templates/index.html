@@ -18,19 +18,19 @@ Returns an existing paste.
 
 Creates a new paste, returns URL and UUID.
 
-- 'multipart/form-data' (preferred, non-binary only)
+- 'multipart/form-data' (preferred)
 
-    command | curl -F "c=&lt;-" https://ptpb.pw
+    curl -F c=@- https://ptpb.pw
 
-- 'application/x-www-form-urlencoded' (less-preferred; can be binary)
+- 'application/x-www-form-urlencoded' (less-preferred)
 
-    curl --data-binary @- https://ptpb.pw
+    curl -d @- https://ptpb.pw
 
 <strong>PUT:</strong>
 
 Modifies an existing paste. Requires the paste UUID for authentication. 
 
-    curl -X PUT -F 'c=&lt;-' https://ptpb.pw/529441ee-0d09-4465-81bc-cf0d2cfb1d18
+    curl -X PUT -F 'c=@-' https://ptpb.pw/529441ee-0d09-4465-81bc-cf0d2cfb1d18
 
 <strong>DELETE:</strong>
 
@@ -48,8 +48,13 @@ Deletes an existing paste.
 
 <h3>OTHER INFO</h3>
 
-Make an alias for easier access:
-    alias ptpb='curl -F "c=<-" https://ptpb.pw'
+Make an function for more convenient access:
+    ptpb(){ curl -F "c=@$1" https://ptpb.pw }
+
+Examples:
+    ptpb cats.jpg
+
+    dmesg | ptpb -
 
 SSL is now enabled and forced. 
 
