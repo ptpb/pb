@@ -19,6 +19,6 @@ textarea {
     color: #888;
 }
 
-.code div {
-    margin-left: 0.5em;
+.linenodiv {
+    margin-right: 0.5em;
 }
