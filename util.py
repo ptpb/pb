@@ -21,8 +21,10 @@ def highlight(content, lexer):
         return "No such lexer.", 400
 
     content = _highlight(content, lexer, HtmlFormatter())
+    lines = range(1, sum(1 for line in content.splitlines()))
+    template = render_template('highlight.html', content=content, lines=lines)
 
-    return Response(render_template('highlight.html', content=content), mimetype='text/html')
+    return Response(template, mimetype='text/html')
 
 def request_content():
 
