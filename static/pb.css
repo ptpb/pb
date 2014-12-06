@@ -9,16 +9,16 @@ textarea {
     height: 10em;
 }
 
-.linenum {
-    text-align: right;
-}
-
-.linenum a {
+.linenos a {
     border-bottom: medium none;
     text-decoration: none;
     color: #888;
 }
 
-.code div {
-    margin-left: 0.5em;
+.linenos a:hover {
+    text-decoration: underline;
+}
+
+.linenodiv {
+    margin-right: 0.5em;
 }

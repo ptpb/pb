@@ -5,15 +5,5 @@
 {% endblock %}
 
 {% block body %}
-<table>
-  <tr>
-    <td class="linenum">
-      <pre>{% for line in lines %}<a href="#{{ line }}">{{ line }}</a>
-{% endfor %}</pre>
-    </td>
-    <td class="code">
-      {{ content | safe }}
-    </td>
-  </tr>
-</table>
+{{ content | safe }}
 {% endblock %}
