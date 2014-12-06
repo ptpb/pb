@@ -2,6 +2,8 @@ from os import path
 from functools import wraps
 from concurrent.futures import ThreadPoolExecutor
 
+from hashlib import sha1
+
 from urllib.parse import urljoin, urlsplit
 from requests.sessions import Session
 
@@ -29,9 +31,28 @@ def invalidate(url):
 
     return s.executor.submit(s.request, 'BAN', url, headers=headers)
 
+def add_cache_header(response):
+    if request.method == 'GET' and not response.cache_control.public:
+        etag = sha1(response.data).hexdigest()
+        response.add_etag(etag)
+        response.cache_control.public = True
+        response.cache_control.max_age = current_app.get_send_file_max_age(request.path)
+        response.make_conditional(request)
+
+    return response
+
+def invalidate_cache(response):
+    location = response.headers.get('Location')
+    if location:
+        invalidate(location)
+    return response
+
+def teardown_cache(exception):
+    s = getattr(g, '_session', None)
+    if s is not None:
+        s.executor.shutdown()
+
 def init_cache(app):
-    @app.teardown_appcontext
-    def teardown_cache(exception):
-        s = getattr(g, '_session', None)
-        if s is not None:
-            s.executor.shutdown()
+    app.teardown_appcontext(teardown_cache)
+    app.after_request(add_cache_header)
+    app.after_request(invalidate_cache)
