@@ -48,10 +48,10 @@ def put(uuid):
         url = get_id_url(id, None)
         return redirect(url, "Paste already exists.\n", 409)
 
-    count = int(put_paste(uuid, content))
-    if count:
-        # FIXME: geif Location
-        return "{} pastes updated.\n".format(count), 200
+    id = put_paste(uuid, content)
+    if id:
+        url = get_id_url(id, filename)
+        return redirect(url, "{} updated.\n".format(url), 200)
 
     return "Not found.\n", 404
 
@@ -59,9 +59,10 @@ def put(uuid):
 @cursor
 def delete(uuid):
     uuid = UUID(uuid).bytes
-    count = int(delete_paste(uuid))
-    if count:
-        return "{} pastes deleted.\n".format(count), 200
+    id = delete_paste(uuid)
+    if id:
+        url = get_id_url(id, filename)
+        return redirect(url, "{} deleted.\n".format(count), 200)
     return "Not found.\n", 404
 
 @view.route('/<id>')
