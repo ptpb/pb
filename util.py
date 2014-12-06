@@ -1,6 +1,7 @@
 from os import path
 from base64 import urlsafe_b64encode, urlsafe_b64decode
 from bitstring import Bits
+import binascii
 
 from flask import Response, render_template, current_app, request, url_for
 
@@ -46,7 +47,11 @@ def id_pid(id, filename):
 
 def pid_id(pid):
     root, _ = path.splitext(pid)
-    return Bits(bytes=urlsafe_b64decode(root)).int
+
+    try:
+        return Bits(bytes=urlsafe_b64decode(root)).int
+    except binascii.Error:
+        pass
 
 def get_id_url(id, filename):
     pid = id_pid(id, filename)

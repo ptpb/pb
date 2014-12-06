@@ -24,7 +24,7 @@ def form():
 def post():
     content, filename = request_content()
     if not content:
-        return "Nope.", 400
+        return "Nope.\n", 400
 
     id, uuid = get_digest(content)
     if not id:
@@ -39,7 +39,7 @@ def post():
 def put(uuid):
     content, filename = request_content()
     if not content:
-        return "Nope.", 400
+        return "Nope.\n", 400
 
     uuid = UUID(uuid).bytes
 
@@ -53,7 +53,7 @@ def put(uuid):
         # FIXME: geif Location
         return "{} pastes updated.\n".format(count), 200
 
-    return "Not found.", 404
+    return "Not found.\n", 404
 
 @view.route('/<uuid>', methods=['DELETE'])
 @cursor
@@ -70,10 +70,12 @@ def delete(uuid):
 def get(id, lexer=None):
     mimetype, _ = guess_type(id)
     id = pid_id(id)
+    if not id:
+        return "Invalid id.\n", 400
 
     content = get_content(id)
     if not content:
-        return "Not found.", 404
+        return "Not found.\n", 404
 
     if lexer:
         return highlight(content, lexer)
