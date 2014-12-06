@@ -5,3 +5,5 @@ MYSQL:
   user: foo
   password: bar
   database: spam
+
+VARNISH_BASE: 'http://[::1]:8080/'
