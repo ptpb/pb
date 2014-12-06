@@ -11,13 +11,13 @@ def insert_paste(content):
 
 def put_paste(uuid, content):
     args = (uuid, content, None)
-    (_, _, count) = request.cur.callproc('put_paste', args)
-    return count
+    (_, _, id) = request.cur.callproc('put_paste', args)
+    return id
 
 def delete_paste(uuid):
     args = (uuid, None)
-    (_, count) = request.cur.callproc('delete_paste', args)
-    return count
+    (_, id) = request.cur.callproc('delete_paste', args)
+    return id
 
 def get_stats():
     args = (None, None)
