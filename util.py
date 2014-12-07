@@ -41,7 +41,7 @@ def request_content():
     return None, None
 
 def id_pid(id, filename):
-    pid = urlsafe_b64encode(Bits(length=24, uint=int(id)).bytes)
+    pid = urlsafe_b64encode(Bits(length=24, int=int(id)).bytes)
     ext = path.splitext(filename)[1] if filename else None
     return b''.join((pid, ext.encode('utf-8'))) if ext else pid
 
