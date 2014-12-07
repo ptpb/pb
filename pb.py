@@ -5,7 +5,7 @@ from flask import Flask, Response, request
 import yaml
 from os import path
 
-from views import view
+from paste.views import paste
 from db import init_db
 from cache import init_cache, invalidate
 
@@ -24,7 +24,7 @@ app.response_class = TextResponse
 load_yaml(app, 'config.yaml')
 init_db(app)
 init_cache(app)
-app.register_blueprint(view)
+app.register_blueprint(paste)
 
 if __name__ == '__main__':
     app.run(host='::1', port=10002)

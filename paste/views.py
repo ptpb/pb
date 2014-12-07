@@ -6,35 +6,35 @@ from pygments.formatters import HtmlFormatter
 from pygments.lexers import get_all_lexers
 
 from db import cursor
-from model import insert_paste, put_paste, delete_paste, get_stats, get_digest, get_content
+from paste import model
 from util import highlight, redirect, request_content, get_id_url, pid_id
 
-view = Blueprint('view', __name__)
+paste = Blueprint('paste', __name__)
 
-@view.route('/')
+@paste.route('/')
 def index():
     return Response(render_template("index.html"), mimetype='text/html')
 
-@view.route('/f')
+@paste.route('/f')
 def form():
     return Response(render_template("form.html"), mimetype='text/html')
 
-@view.route('/', methods=['POST'])
+@paste.route('/', methods=['POST'])
 @cursor
 def post():
     content, filename = request_content()
     if not content:
         return "Nope.\n", 400
 
-    id, uuid = get_digest(content)
+    id, uuid = model.get_digest(content)
     if not id:
-        id, uuid = insert_paste(content)
+        id, uuid = model.insert(content)
 
     url = get_id_url(id, filename)
     uuid = UUID(bytes=uuid) if uuid else '[redacted]'
     return redirect(url, "{}\nuuid: {}\n".format(url, uuid))
 
-@view.route('/<uuid>', methods=['PUT'])
+@paste.route('/<uuid>', methods=['PUT'])
 @cursor
 def put(uuid):
     content, filename = request_content()
@@ -43,30 +43,30 @@ def put(uuid):
 
     uuid = UUID(uuid).bytes
 
-    id, _ = get_digest(content)
+    id, _ = model.get_digest(content)
     if id:
         url = get_id_url(id, None)
         return redirect(url, "Paste already exists.\n", 409)
 
-    id = put_paste(uuid, content)
+    id = model.put(uuid, content)
     if id:
         url = get_id_url(id, filename)
         return redirect(url, "{} updated.\n".format(url), 200)
 
     return "Not found.\n", 404
 
-@view.route('/<uuid>', methods=['DELETE'])
+@paste.route('/<uuid>', methods=['DELETE'])
 @cursor
 def delete(uuid):
     uuid = UUID(uuid).bytes
-    id = delete_paste(uuid)
+    id = model.delete(uuid)
     if id:
-        url = get_id_url(id, filename)
-        return redirect(url, "{} deleted.\n".format(count), 200)
+        url = get_id_url(id, None)
+        return redirect(url, "{} deleted.\n".format(url), 200)
     return "Not found.\n", 404
 
-@view.route('/<id>')
-@view.route('/<id>/<lexer>')
+@paste.route('/<string(length=4):id>')
+@paste.route('/<string(length=4):id>/<lexer>')
 @cursor
 def get(id, lexer=None):
     mimetype, _ = guess_type(id)
@@ -74,7 +74,7 @@ def get(id, lexer=None):
     if not id:
         return "Invalid id.\n", 400
 
-    content = get_content(id)
+    content = model.get_content(id)
     if not content:
         return "Not found.\n", 404
 
@@ -85,18 +85,18 @@ def get(id, lexer=None):
 
     return content
 
-@view.route('/s')
+@paste.route('/s')
 @cursor
 def stats():
-    count, length = get_stats()
+    count, length = model.get_stats()
     return "{} pastes\n{} bytes\n".format(count, length)
 
-@view.route('/static/highlight.css')
+@paste.route('/static/highlight.css')
 def highlight_css():
     css = HtmlFormatter().get_style_defs('.highlight')
     return Response(css, mimetype='text/css')
 
-@view.route('/l')
+@paste.route('/l')
 def list_lexers():
     lexers = '\n'.join(' '.join(i) for _, i, _, _ in get_all_lexers())
     return '{}\n'.format(lexers)

@@ -16,8 +16,8 @@ ENGINE = InnoDB;
 
 DELIMITER @@
 
-DROP PROCEDURE IF EXISTS insert_paste@@
-CREATE PROCEDURE insert_paste (
+DROP PROCEDURE IF EXISTS paste_insert@@
+CREATE PROCEDURE paste_insert (
   p_uuid BINARY(16),
   p_content MEDIUMBLOB,
   OUT p_id MEDIUMINT
@@ -31,8 +31,8 @@ BEGIN
 END;
 @@
 
-DROP PROCEDURE IF EXISTS put_paste@@
-CREATE PROCEDURE put_paste (
+DROP PROCEDURE IF EXISTS paste_put@@
+CREATE PROCEDURE paste_put (
   p_uuid BINARY(16),
   p_content MEDIUMBLOB,
   OUT p_id MEDIUMINT
@@ -49,8 +49,8 @@ BEGIN
 END;
 @@
 
-DROP PROCEDURE IF EXISTS delete_paste@@
-CREATE PROCEDURE delete_paste (
+DROP PROCEDURE IF EXISTS paste_delete@@
+CREATE PROCEDURE paste_delete (
   p_uuid BINARY(16),
   OUT p_id MEDIUMINT
 )
@@ -66,8 +66,8 @@ BEGIN
 END;
 @@
 
-DROP PROCEDURE IF EXISTS get_stats@@
-CREATE PROCEDURE get_stats (
+DROP PROCEDURE IF EXISTS paste_get_stats@@
+CREATE PROCEDURE paste_get_stats (
   OUT p_count INT,
   OUT p_length INT
 )
@@ -77,8 +77,8 @@ BEGIN
 END;
 @@
 
-DROP PROCEDURE IF EXISTS get_digest@@
-CREATE PROCEDURE get_digest (
+DROP PROCEDURE IF EXISTS paste_get_digest@@
+CREATE PROCEDURE paste_get_digest (
   p_digest BINARY(20),
   OUT p_id MEDIUMINT
 )
@@ -89,8 +89,8 @@ BEGIN
 END;
 @@
 
-DROP PROCEDURE IF EXISTS get_content@@
-CREATE PROCEDURE get_content (
+DROP PROCEDURE IF EXISTS paste_get_content@@
+CREATE PROCEDURE paste_get_content (
   p_id MEDIUMINT,
   OUT p_content MEDIUMBLOB
 )
@@ -123,8 +123,8 @@ ENGINE = InnoDB;
 
 DELIMITER @@
 
-DROP PROCEDURE IF EXISTS insert_url@@
-CREATE PROCEDURE insert_url (
+DROP PROCEDURE IF EXISTS url_insert@@
+CREATE PROCEDURE url_insert (
   p_content BLOB,
   OUT p_id MEDIUMINT
 )
@@ -137,8 +137,8 @@ BEGIN
 END;
 @@
 
-DROP PROCEDURE IF EXISTS get_url_digest@@
-CREATE PROCEDURE get_url_digest (
+DROP PROCEDURE IF EXISTS url_get_digest@@
+CREATE PROCEDURE url_get_digest (
   p_digest BINARY(20),
   OUT p_id MEDIUMINT
 )
@@ -149,8 +149,8 @@ BEGIN
 END;
 @@
 
-DROP PROCEDURE IF EXISTS get_url_content@@
-CREATE PROCEDURE get_url_content (
+DROP PROCEDURE IF EXISTS url_get_content@@
+CREATE PROCEDURE url_get_content (
   p_id MEDIUMINT,
   OUT p_content BLOB
 )
