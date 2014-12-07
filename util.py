@@ -49,7 +49,7 @@ def pid_id(pid):
     root, _ = path.splitext(pid)
 
     try:
-        return Bits(bytes=urlsafe_b64decode(root)).int
+        return Bits(bytes=urlsafe_b64decode(root)).uint
     except binascii.Error:
         pass
 
