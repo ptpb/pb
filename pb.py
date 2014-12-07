@@ -6,6 +6,7 @@ import yaml
 from os import path
 
 from paste.views import paste
+from url.views import url
 from db import init_db
 from cache import init_cache, invalidate
 
@@ -25,6 +26,7 @@ load_yaml(app, 'config.yaml')
 init_db(app)
 init_cache(app)
 app.register_blueprint(paste)
+app.register_blueprint(url)
 
 if __name__ == '__main__':
     app.run(host='::1', port=10002)
