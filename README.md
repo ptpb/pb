@@ -4,12 +4,9 @@ pb is a lightweight pastebin built using Flask. pb supports both standard form i
 
 ### Requirements
 
-* Python2 or Python3
-* MySQL server
-* Flask (>=0.11-dev)
-* Flask-SQLAlchemy (>=2.0)
-* Werkzeug (>=0.10-dev)
-* PyYAML (>=3.11)
+* python >= 3.4 [requirements.txt](requirements.txt)
+* mysqld >= 5.5
+* varnish >= 4.0 (optional)
 
 ### Installation
 

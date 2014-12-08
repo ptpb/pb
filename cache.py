@@ -33,12 +33,12 @@ def invalidate(url):
 
 def add_cache_header(response):
     if request.method == 'GET' and not response.cache_control.public:
-        etag = sha1(response.data).hexdigest()
-        response.add_etag(etag)
+        prefix = current_app.blueprints[request.blueprint].name
+        etag = "{}-{}".format(prefix, sha1(response.data).hexdigest())
+        response.set_etag(etag)
         response.cache_control.public = True
         response.cache_control.max_age = current_app.get_send_file_max_age(request.path)
         response.make_conditional(request)
-
     return response
 
 def invalidate_cache(response):

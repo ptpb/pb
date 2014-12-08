@@ -1,5 +1,9 @@
+/*
+BEGIN PASTE SCHEMA
+*/
+
 DROP TABLE IF EXISTS paste;
-CREATE TABLE paste (  
+CREATE TABLE paste (
   id MEDIUMINT NOT NULL AUTO_INCREMENT,
   uuid BINARY(16) NOT NULL,
   digest BINARY(20) NOT NULL,
@@ -12,8 +16,8 @@ ENGINE = InnoDB;
 
 DELIMITER @@
 
-DROP PROCEDURE IF EXISTS insert_paste@@
-CREATE PROCEDURE insert_paste (
+DROP PROCEDURE IF EXISTS paste_insert@@
+CREATE PROCEDURE paste_insert (
   p_uuid BINARY(16),
   p_content MEDIUMBLOB,
   OUT p_id MEDIUMINT
@@ -27,8 +31,8 @@ BEGIN
 END;
 @@
 
-DROP PROCEDURE IF EXISTS put_paste@@
-CREATE PROCEDURE put_paste (
+DROP PROCEDURE IF EXISTS paste_put@@
+CREATE PROCEDURE paste_put (
   p_uuid BINARY(16),
   p_content MEDIUMBLOB,
   OUT p_id MEDIUMINT
@@ -45,8 +49,8 @@ BEGIN
 END;
 @@
 
-DROP PROCEDURE IF EXISTS delete_paste@@
-CREATE PROCEDURE delete_paste (
+DROP PROCEDURE IF EXISTS paste_delete@@
+CREATE PROCEDURE paste_delete (
   p_uuid BINARY(16),
   OUT p_id MEDIUMINT
 )
@@ -62,8 +66,8 @@ BEGIN
 END;
 @@
 
-DROP PROCEDURE IF EXISTS get_stats@@
-CREATE PROCEDURE get_stats (
+DROP PROCEDURE IF EXISTS paste_get_stats@@
+CREATE PROCEDURE paste_get_stats (
   OUT p_count INT,
   OUT p_length INT
 )
@@ -73,8 +77,8 @@ BEGIN
 END;
 @@
 
-DROP PROCEDURE IF EXISTS get_digest@@
-CREATE PROCEDURE get_digest (
+DROP PROCEDURE IF EXISTS paste_get_digest@@
+CREATE PROCEDURE paste_get_digest (
   p_digest BINARY(20),
   OUT p_id MEDIUMINT
 )
@@ -85,8 +89,8 @@ BEGIN
 END;
 @@
 
-DROP PROCEDURE IF EXISTS get_content@@
-CREATE PROCEDURE get_content (
+DROP PROCEDURE IF EXISTS paste_get_content@@
+CREATE PROCEDURE paste_get_content (
   p_id MEDIUMINT,
   OUT p_content MEDIUMBLOB
 )
@@ -96,3 +100,67 @@ BEGIN
   WHERE id = p_id;
 END;
 @@
+
+/*
+END PASTE SCHEMA
+*/
+
+/*
+BEGIN URL SCHEMA
+*/
+
+DELIMITER ;
+
+DROP TABLE IF EXISTS url;
+CREATE TABLE url (
+  id MEDIUMINT NOT NULL AUTO_INCREMENT,
+  digest BINARY(20) NOT NULL,
+  content BLOB NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY (digest)
+)
+ENGINE = InnoDB;
+
+DELIMITER @@
+
+DROP PROCEDURE IF EXISTS url_insert@@
+CREATE PROCEDURE url_insert (
+  p_content BLOB,
+  OUT p_id MEDIUMINT
+)
+BEGIN
+  START TRANSACTION;
+  INSERT url (digest, content)
+  VALUES (UNHEX(SHA1(p_content)), p_content);
+  SELECT last_insert_id() INTO p_id;
+  COMMIT;
+END;
+@@
+
+DROP PROCEDURE IF EXISTS url_get_digest@@
+CREATE PROCEDURE url_get_digest (
+  p_digest BINARY(20),
+  OUT p_id MEDIUMINT
+)
+BEGIN
+  SELECT id INTO p_id
+  FROM url
+  WHERE digest = p_digest;
+END;
+@@
+
+DROP PROCEDURE IF EXISTS url_get_content@@
+CREATE PROCEDURE url_get_content (
+  p_id MEDIUMINT,
+  OUT p_content BLOB
+)
+BEGIN
+  SELECT content INTO p_content
+  FROM url
+  WHERE id = p_id;
+END;
+@@
+
+/*
+END URL SCHEMA
+*/
