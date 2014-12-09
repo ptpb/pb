@@ -1,9 +1,8 @@
 from os import path
-from base64 import urlsafe_b64encode, urlsafe_b64decode, b85encode, b85decode
+import string
+from base64 import urlsafe_b64encode, urlsafe_b64decode
 from bitstring import Bits
 import binascii
-
-from urllib.parse import quote, unquote
 
 from flask import Response, render_template, current_app, request, url_for
 
@@ -51,13 +50,15 @@ def b64_id(b64):
     except binascii.Error:
         pass
 
-def id_b85(id):
-    b85 = b85encode(Bits(length=16, int=int(id)).bytes)
-    return quote(b85)
-
-def b85_id(b85):
-    b85 = unquote(b85)
-    return Bits(bytes=b85decode(b85)).int
+def int_b36(i):
+    char_set = string.digits + string.ascii_lowercase
+    if i < 36:
+        return char_set[i]
+    b36 = ''
+    while i != 0:
+        i, n = divmod(i, 36)
+        b36 = char_set[n] + b36
+    return b36
 
 def id_url(**kwargs):
     return url_for('.get', _external=True, _scheme='https', **kwargs)
