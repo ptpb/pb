@@ -33,7 +33,7 @@ def invalidate(url):
 
 def add_cache_header(response):
     if request.method == 'GET' and not response.cache_control.public:
-        prefix = current_app.blueprints[request.blueprint].name
+        prefix = request.blueprint
         etag = "{}-{}".format(prefix, sha1(response.data).hexdigest())
         response.set_etag(etag)
         response.cache_control.public = True
@@ -43,7 +43,7 @@ def add_cache_header(response):
 
 def invalidate_cache(response):
     location = response.headers.get('Location')
-    if location:
+    if location and request.blueprint == 'paste':
         invalidate(location)
     return response
 
