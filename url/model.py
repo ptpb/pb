@@ -1,3 +1,5 @@
+from hashlib import sha1
+
 from flask import request
 
 def insert(content):
@@ -5,8 +7,8 @@ def insert(content):
     (_, id) = request.cur.callproc('url_insert', args)
     return id
 
-def get_digest(digest):
-    args = (digest, None)
+def get_digest(content):
+    args = (sha1(content).digest(), None)
     (_, id) = request.cur.callproc('url_get_digest', args)
     return id
 
