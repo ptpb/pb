@@ -7,7 +7,7 @@ from pygments.lexers import get_all_lexers
 
 from db import cursor
 from paste import model
-from util import highlight, redirect, request_content, id_url, b64_id, id_b64
+from util import highlight, redirect, request_content, id_url, b66_int, int_b66
 
 paste = Blueprint('paste', __name__)
 
@@ -30,7 +30,7 @@ def post():
     if not id:
         id, uuid = model.insert(content)
 
-    url = id_url(b64=id_b64(id, filename=filename))
+    url = id_url(b66=int_b66(id, filename=filename))
     uuid = UUID(bytes=uuid) if uuid else '[redacted]'
     return redirect(url, "{}\nuuid: {}\n".format(url, uuid))
 
@@ -45,12 +45,12 @@ def put(uuid):
 
     id, _ = model.get_digest(content)
     if id:
-        url = id_url(b64=id_b64(id))
+        url = id_url(b66=int_b66(id))
         return redirect(url, "Paste already exists.\n", 409)
 
     id = model.put(uuid, content)
     if id:
-        url = id_url(b64=id_b64(id, filename=filename))
+        url = id_url(b66=int_b66(id, filename=filename))
         return redirect(url, "{} updated.\n".format(url), 200)
 
     return "Not found.\n", 404
@@ -61,19 +61,20 @@ def delete(uuid):
     uuid = UUID(uuid).bytes
     id = model.delete(uuid)
     if id:
-        url = id_url(b64=id_b64(id))
+        url = id_url(b66=int_b66(id))
         return redirect(url, "{} deleted.\n".format(url), 200)
     return "Not found.\n", 404
 
-@paste.route('/<string(length=4):b64>')
-@paste.route('/<string(length=4):b64>/<lexer>')
+@paste.route('/<string(length=4):b66>')
+@paste.route('/<string(length=4):b66>/<lexer>')
 @cursor
-def get(b64, lexer=None):
-    id = b64_id(b64)
-    if not id:
+def get(b66, lexer=None):
+    try:
+        id = b66_int(b66)
+    except ValueError:
         return "Invalid id.\n", 400
 
-    mimetype, _ = guess_type(b64)
+    mimetype, _ = guess_type(b66)
 
     content = model.get_content(id)
     if not content:

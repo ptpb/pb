@@ -1,9 +1,4 @@
 from os import path
-from base64 import urlsafe_b64encode, urlsafe_b64decode, b85encode, b85decode
-from bitstring import Bits
-import binascii
-
-from urllib.parse import quote, unquote
 
 from flask import Response, render_template, current_app, request, url_for
 
@@ -11,6 +6,8 @@ from pygments import highlight as _highlight
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters import HtmlFormatter
 from pygments.util import ClassNotFound
+
+b66c = 'QwdJxskgt6BE.levhL0zWNj8~1P_ZbHDq7YrpGOIX5CyimfK-cMoAR49FaUn3VT2Su'
 
 def redirect(location, rv, code=302):
     response = current_app.response_class(rv, code)
@@ -38,26 +35,17 @@ def request_content():
 
     return None, None
 
-def id_b64(id, filename=None):
-    b64 = urlsafe_b64encode(Bits(length=24, int=int(id)).bytes)
+def int_b66(i, length=4, filename=None):
+    i = int(i)
+    b66 = ''
+    while i != 0:
+        i, n = divmod(i, len(b66c))
+        b66 = b66c[n] + b66
     ext = path.splitext(filename)[1] if filename else None
-    return b''.join((b64, ext.encode('utf-8'))) if ext else b64
+    return '{:{zero}>{length}}'.format(''.join(b66, ext) if ext else b66, length=length, zero=b66c[0])
 
-def b64_id(b64):
-    root, _ = path.splitext(b64)
-
-    try:
-        return Bits(bytes=urlsafe_b64decode(root)).int
-    except binascii.Error:
-        pass
-
-def id_b85(id):
-    b85 = b85encode(Bits(length=16, int=int(id)).bytes)
-    return quote(b85)
-
-def b85_id(b85):
-    b85 = unquote(b85)
-    return Bits(bytes=b85decode(b85)).int
+def b66_int(s):
+    return sum(b66c.index(c) * len(b66c) ** (len(s) - i - 1) for i, c in enumerate(s))
 
 def id_url(**kwargs):
     return url_for('.get', _external=True, _scheme='https', **kwargs)
