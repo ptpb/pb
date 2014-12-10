@@ -19,7 +19,7 @@ class TextResponse(Response):
 class IDConverter(BaseConverter):
     def __init__(self, map, length):
         super().__init__(map)
-        self.regex = '(([A-Za-z0-9.~_-]{{{}}})([.].*|$))'.format(length)
+        self.regex = '(([A-Za-z0-9.~_-]{{{}}})([.][^/]*)?)'.format(length)
         self.sre = re.compile(self.regex)
         self.length = length
 
