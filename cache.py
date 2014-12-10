@@ -33,7 +33,7 @@ def invalidate(url):
 
 def add_cache_header(response):
     if request.method == 'GET' and not response.cache_control.public:
-        prefix = request.blueprint
+        prefix = request.blueprint if request.blueprint else current_app.name
         etag = "{}-{}".format(prefix, sha1(response.data).hexdigest())
         response.set_etag(etag)
         response.cache_control.public = True
