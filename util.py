@@ -35,8 +35,7 @@ def request_content():
 
     return None, None
 
-def int_b66(i, length=4, filename=None):
-    i = int(i)
+def int_b66(length, i, filename=None):
     b66 = ''
     while i != 0:
         i, n = divmod(i, len(b66c))

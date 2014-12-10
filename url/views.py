@@ -1,19 +1,15 @@
 from flask import Blueprint
 
 from db import cursor
-from util import redirect, request_content, id_url, int_b66, b66_int
+from util import redirect, request_content, id_url
 from url import model
 
 url = Blueprint('url', __name__)
 
-@url.route('/<string(length=3):b66>')
+@url.route('/<id(length=3):b66>')
 @cursor
 def get(b66):
-    try:
-        id = b66_int(b66)
-    except ValueError:
-        return 'Invalid id.\n', 400
-
+    id, name = b66
     content = model.get_content(id)
     if not content:
         return 'Not found.\n', 404
@@ -35,5 +31,5 @@ def post():
     if not id:
         id = model.insert(content)
 
-    url = id_url(b66=int_b66(id, 3))
+    url = id_url(b66=id)
     return redirect(url, "{}\n".format(url), 200)

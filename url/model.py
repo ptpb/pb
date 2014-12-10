@@ -5,12 +5,12 @@ from flask import request
 def insert(content):
     args = (content, None)
     (_, id) = request.cur.callproc('url_insert', args)
-    return id
+    return int(id) if id else None
 
 def get_digest(content):
     args = (sha1(content).digest(), None)
     (_, id) = request.cur.callproc('url_get_digest', args)
-    return id
+    return int(id) if id else None
 
 def get_content(id):
     args = (id, None)

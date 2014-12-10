@@ -7,7 +7,7 @@ from pygments.lexers import get_all_lexers
 
 from db import cursor
 from paste import model
-from util import highlight, redirect, request_content, id_url, b66_int, int_b66
+from util import highlight, redirect, request_content, id_url
 
 paste = Blueprint('paste', __name__)
 
@@ -30,51 +30,44 @@ def post():
     if not id:
         id, uuid = model.insert(content)
 
-    url = id_url(b66=int_b66(id, filename=filename))
+    url = id_url(b66=(id, filename))
     uuid = UUID(bytes=uuid) if uuid else '[redacted]'
     return redirect(url, "{}\nuuid: {}\n".format(url, uuid))
 
-@paste.route('/<uuid>', methods=['PUT'])
+@paste.route('/<uuid:uuid>', methods=['PUT'])
 @cursor
 def put(uuid):
     content, filename = request_content()
     if not content:
         return "Nope.\n", 400
 
-    uuid = UUID(uuid).bytes
-
     id, _ = model.get_digest(content)
     if id:
-        url = id_url(b66=int_b66(id))
+        url = id_url(b66=id)
         return redirect(url, "Paste already exists.\n", 409)
 
-    id = model.put(uuid, content)
+    id = model.put(uuid.bytes, content)
     if id:
-        url = id_url(b66=int_b66(id, filename=filename))
+        url = id_url(b66=(id, ext))
         return redirect(url, "{} updated.\n".format(url), 200)
 
     return "Not found.\n", 404
 
-@paste.route('/<uuid>', methods=['DELETE'])
+@paste.route('/<uuid:uuid>', methods=['DELETE'])
 @cursor
 def delete(uuid):
-    uuid = UUID(uuid).bytes
-    id = model.delete(uuid)
+    id = model.delete(uuid.bytes)
     if id:
-        url = id_url(b66=int_b66(id))
+        url = id_url(b66=id)
         return redirect(url, "{} deleted.\n".format(url), 200)
     return "Not found.\n", 404
 
-@paste.route('/<string(length=4):b66>')
-@paste.route('/<string(length=4):b66>/<lexer>')
+@paste.route('/<id(length=4):b66>')
+@paste.route('/<id(length=4):b66>/<lexer>')
 @cursor
 def get(b66, lexer=None):
-    try:
-        id = b66_int(b66)
-    except ValueError:
-        return "Invalid id.\n", 400
-
-    mimetype, _ = guess_type(b66)
+    id, name = b66
+    mimetype, _ = guess_type(name)
 
     content = model.get_content(id)
     if not content:
