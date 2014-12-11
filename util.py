@@ -40,8 +40,8 @@ def int_b66(length, i, filename=None):
     while i != 0:
         i, n = divmod(i, len(b66c))
         b66 = b66c[n] + b66
-    ext = path.splitext(filename)[1] if filename else None
-    return '{:{zero}>{length}}'.format(''.join(b66, ext) if ext else b66, length=length, zero=b66c[0])
+    ext = path.splitext(filename)[1] if filename else ''
+    return '{:{zero}>{length}}{ext}'.format(b66, ext=ext, length=length, zero=b66c[0])
 
 def b66_int(s):
     return sum(b66c.index(c) * len(b66c) ** (len(s) - i - 1) for i, c in enumerate(s))
