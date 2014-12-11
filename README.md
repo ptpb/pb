@@ -1,40 +1,71 @@
 ## pb
 
-pb is a lightweight pastebin built using Flask. pb supports both standard form input, as well as raw input for arbitrary data. pb was written to be easy to deploy, so please feel free to host your own pb instance. The official instance of pb can be found at [ptpb.pw](https://ptpb.pw).
+`pb` is a lightweight pastebin built using Flask.
+
+The official instance of `pb` can be found at
+[ptpb.pw](https://ptpb.pw)--feel free to deploy pb elsewhere.
 
 ### Requirements
 
 * python >= 3.4 [requirements.txt](requirements.txt)
 * mysqld >= 5.5
 * varnish >= 4.0 (optional)
+* gunicorn >= 19.1 (optional, or any other WSGI server)
 
-### Installation
+### Deployment
 
-1. Install the requirements (located in requirements.txt) `pip install -r requirements.txt`
-2. Create a database for pb, add a user with all privileges on said database. 
-3. Copy the example config to config.yaml, input a secret key and your database information.
-4. Start pb. You can use the built in Flask server (not recommended) by running: `python pb.py`, we recommend using [Gunicorn](https://github.com/benoitc/gunicorn)
+This assumes you have at least a working `python` and `mysqld` with
+versions strictly matching the the above.
 
-### Endpoints
+Start by cloning `pb`:
 
-* / - View index, handle all form post data
-* /f - Returns the form
-* /s - Returns the number of pastes 
-* /r - Handle raw post data
-* /p/<id> - View paste with <id>
+```shell-session
+$ git clone https://github.com/silverp1/pb.git
+```
 
-### Use
+You should then proceed to create a database and optionally database
+user for `pb`:
 
-From the Web: [Paste](https://ptpb.pw)
+```shell-session
+$ mysql -u root <<EOF
+CREATE USER 'pb'@'localhost' IDENTIFIED BY 'green socks and sharp knives';
+CREATE DATABASE pb;
+GRANT ALL PRIVILEGES ON pb.* to 'pb'@'localhost';
+FLUSH PRIVILEGES;
+EOF
+```
 
-Command Line (non-raw):
-`yourcommand | curl -F "c=<-" https://ptpb.pw`
+The schema also needs to be present:
 
-Command Line (raw):
-`yourcommand | curl --data-binary '@-' https://ptpb.pw/r`
+```shell-session
+$ mysql -u root pb < pb/schema.sql
+```
 
-Alias (non-raw):
-`alias ptpb='curl -F "c=<-" https://ptpb.pw` 
+Next, copy `pb/config.yaml.example` to `pb/config.yaml`, and edit it
+appropriately. If you've followed the above steps exactly, its
+contents should look something like:
 
-Add alias to `~/.bashrc` to use:
-`yourcommand | ptpb`
+```yaml
+DEBUG: true
+
+MYSQL:
+  user: pb
+  password: green socks and sharp knives
+  database: pb
+```
+
+A `pb` development environment could be created with something like:
+
+```shell-session
+$ pip install virtualenv
+$ virtualenv pbenv
+$ source pbenv/bin/activate
+(pbenv)$ pip install --allow-external mysql-connector-python -r pb/requirements.txt
+```
+
+You can then start a `pb` instance via werkzeug's built-in WSGI
+server:
+
+```shell-session
+(pbenv)$ (cd pb; ./pb.py)
+```
