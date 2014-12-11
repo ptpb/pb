@@ -1,6 +1,7 @@
 ## pb
 
-`pb` is a lightweight pastebin built using Flask.
+`pb` is a lightweight pastebin built using
+[Flask](http://flask.pocoo.org/docs/0.10/quickstart/).
 
 The official instance of `pb` can be found at
 [ptpb.pw](https://ptpb.pw)--feel free to deploy pb elsewhere.
@@ -15,16 +16,20 @@ The official instance of `pb` can be found at
 ### Deployment
 
 This assumes you have at least a working `python` and `mysqld` with
-versions strictly matching the the above.
+versions strictly matching the the above. Consult your distribution's
+documentation on how to do that.
 
-Start by cloning `pb`:
+Start by [cloning](http://git-scm.com/docs/git-clone) `pb`:
 
 ```shell-session
 $ git clone https://github.com/silverp1/pb.git
 ```
 
-You should then proceed to create a database and optionally database
-user for `pb`:
+You should then proceed to
+[create a database](https://dev.mysql.com/doc/refman/5.5/en/create-database.html)
+and optionally
+[database user](https://dev.mysql.com/doc/refman/5.5/en/adding-users.html)
+for `pb`:
 
 ```shell-session
 $ mysql -u root <<EOF
@@ -54,7 +59,9 @@ MYSQL:
   database: pb
 ```
 
-A `pb` development environment could be created with something like:
+A `pb` development
+[environment](https://virtualenv.pypa.io/en/latest/virtualenv.html#usage)
+could be created with something like:
 
 ```shell-session
 $ pip install virtualenv
@@ -63,8 +70,8 @@ $ source pbenv/bin/activate
 (pbenv)$ pip install --allow-external mysql-connector-python -r pb/requirements.txt
 ```
 
-You can then start a `pb` instance via werkzeug's built-in WSGI
-server:
+You can then start a `pb` instance via werkzeug's built-in
+[WSGI server](http://werkzeug.pocoo.org/docs/0.9/serving/).
 
 ```shell-session
 (pbenv)$ (cd pb; ./pb.py)
