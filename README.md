@@ -11,7 +11,7 @@ The official instance of `pb` can be found at
 * python >= 3.4 [requirements.txt](requirements.txt)
 * mysqld >= 5.5
 * varnish >= 4.0 (optional)
-* gunicorn >= 19.1 (optional, or any other WSGI server)
+* gunicorn >= 19.1 (optional, or [any other WSGI server](http://wsgi.readthedocs.org/en/latest/servers.html))
 
 ### Deployment
 
