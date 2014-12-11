@@ -7,23 +7,23 @@ def insert(content):
     uuid = uuid4().bytes
     args = (uuid, content, None)
     (_, _, id) = request.cur.callproc('paste_insert', args)
-    return id, uuid
+    return int(id) if id else None, uuid
 
 def put(uuid, content):
     args = (uuid, content, None)
     (_, _, id) = request.cur.callproc('paste_put', args)
-    return id
+    return int(id) if id else None
 
 def delete(uuid):
     args = (uuid, None)
     (_, id) = request.cur.callproc('paste_delete', args)
-    return id
+    return int(id) if id else None
 
 def get_digest(content):
     digest = sha1(content).digest()
     args = (digest, None)
     (_, id) = request.cur.callproc('paste_get_digest', args)
-    return id, None
+    return int(id) if id else None, None
 
 def get_content(id):
     args = (id,) + (None,)
