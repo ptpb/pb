@@ -1,7 +1,7 @@
 ## pb
 
-`pb` is a lightweight pastebin built using
-[Flask](http://flask.pocoo.org/docs/0.10/quickstart/).
+`pb` is a lightweight pastebin (and url shortener) built using
+[flask](http://flask.pocoo.org/docs/0.10/quickstart/).
 
 The official instance of `pb` can be found at
 [ptpb.pw](https://ptpb.pw)--feel free to deploy pb elsewhere.
