@@ -4,7 +4,7 @@
 [flask](http://flask.pocoo.org/docs/0.10/quickstart/).
 
 The official instance of `pb` can be found at
-[ptpb.pw](https://ptpb.pw)--feel free to deploy pb elsewhere.
+[ptpb.pw](https://ptpb.pw)--feel free to deploy `pb` elsewhere.
 
 ### Requirements
 
