@@ -2,7 +2,8 @@ from os import path
 
 from flask import Response, render_template, current_app, request, url_for
 
-from pygments import highlight as _highlight
+from pygments import highlight as _highlight, format as _format
+from pygments.token import Token
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters import HtmlFormatter
 from pygments.util import ClassNotFound
@@ -14,13 +15,21 @@ def redirect(location, rv, code=302):
     response.headers['Location'] = location
     return response
 
-def highlight(content, lexer):
+def highlight(content, lexer_name):
     try:
-        lexer = get_lexer_by_name(lexer)
+        lexer = get_lexer_by_name(lexer_name)
     except ClassNotFound:
-        return "No such lexer.", 400
+        if lexer_name != '':
+            return "No such lexer.", 400
 
-    content = _highlight(content, lexer, HtmlFormatter(linenos='table', anchorlinenos=True, lineanchors='L', linespans='L'))
+    formatter = HtmlFormatter(linenos='table', anchorlinenos=True, lineanchors='L', linespans='L')
+
+    if lexer_name == '':
+        tokens = ((Token.Generic.Output, '{}\n'.format(c.decode('utf-8'))) for c in content.splitlines())
+        content = _format(tokens, formatter)
+    else:
+        content = _highlight(content, lexer, formatter)
+
     template = render_template('highlight.html', content=content)
 
     return Response(template, mimetype='text/html')

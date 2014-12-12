@@ -63,7 +63,7 @@ def delete(uuid):
     return "Not found.\n", 404
 
 @paste.route('/<id(length=4):b66>')
-@paste.route('/<id(length=4):b66>/<lexer>')
+@paste.route('/<id(length=4):b66>/<string(minlength=0):lexer>')
 @cursor
 def get(b66, lexer=None):
     id, name = b66
@@ -73,7 +73,7 @@ def get(b66, lexer=None):
     if not content:
         return "Not found.\n", 404
 
-    if lexer:
+    if lexer != None:
         return highlight(content, lexer)
     elif mimetype:
         return Response(content, mimetype=mimetype)
