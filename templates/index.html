@@ -12,12 +12,8 @@ Create a new paste from the output of 'cmd':
 
     cmd | curl -F c=@- https://ptpb.pw
 
-Put it in your .{bash,zsh}rc:
-
-    pb () { curl -F "c=@${1:--}" https://ptpb.pw }
-
-This uploads paste content stdin unless an argument is provided,
-otherwise uploading the specified file.
+A <a href="/f">HTML form</a> is also provided for convenience paste
+and file-uploads from web browsers.
 
 <h3>terminology</h3>
 
@@ -159,6 +155,9 @@ line:
 Like it? Put a convience shell function in your bashrc:
 
     pb () { curl -F "c=@${1:--}" https://ptpb.pw }
+
+This uploads paste content stdin unless an argument is provided,
+otherwise uploading the specified file.
 
 Now just:
 
