@@ -56,4 +56,6 @@ def b66_int(s):
     return sum(b66c.index(c) * len(b66c) ** (len(s) - i - 1) for i, c in enumerate(s))
 
 def id_url(**kwargs):
-    return url_for('.get', _external=True, _scheme='https', **kwargs)
+    proto = request.environ.get('HTTP_X_FORWARDED_PROTO')
+    scheme = proto if proto else request.scheme
+    return url_for('.get', _external=True, _scheme=scheme, **kwargs)
