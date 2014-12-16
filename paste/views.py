@@ -6,7 +6,7 @@ from pygments.formatters import HtmlFormatter
 from pygments.lexers import get_all_lexers
 
 from db import cursor
-from paste import model
+from paste import model, handler as _handler
 from util import highlight, redirect, request_content, id_url
 
 paste = Blueprint('paste', __name__)
@@ -64,8 +64,9 @@ def delete(uuid):
 
 @paste.route('/<id(length=4):b66>')
 @paste.route('/<id(length=4):b66>/<string(minlength=0):lexer>')
+@paste.route('/<string(length=1):handler>/<id(length=4):b66>')
 @cursor
-def get(b66, lexer=None):
+def get(b66, lexer=None, handler=None):
     id, name = b66
     mimetype, _ = guess_type(name)
 
@@ -75,7 +76,9 @@ def get(b66, lexer=None):
 
     if lexer != None:
         return highlight(content, lexer)
-    elif mimetype:
+    if handler != None:
+        return _handler.get(handler, content)
+    if mimetype:
         return Response(content, mimetype=mimetype)
 
     return content
