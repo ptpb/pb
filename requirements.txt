@@ -6,3 +6,4 @@ PyYAML>=3.11
 mysql-connector-python>=2.0.2
 Pygments>=2.0.1
 requests>=2.5.0
+docutils>=0.12
