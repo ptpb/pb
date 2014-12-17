@@ -26,7 +26,7 @@ def invalidate(url):
 
     url = urlsplit(url).path
     url = path.splitext(url.split('/')[1])[0]
-    url = urljoin(base, '/{}.*'.format(url))
+    url = urljoin(base, '/.*{}.*'.format(url))
     headers = {'Host': get_host(request.environ)}
 
     return s.executor.submit(s.request, 'BAN', url, headers=headers)
