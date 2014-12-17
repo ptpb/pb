@@ -43,6 +43,17 @@ and file-uploads from web browsers.
     weak form of 'shared secret' that, if known, allow the user to
     modify the pastes.
 
+<strong>handler</strong>
+
+    A one-character handler identifier.
+
+<h3>handlers</h3>
+
+<strong>r</strong>
+
+    <em>render</em>: This expects reStructuredText in the paste
+    content and gives HTML output.
+
 <h3>routes</h3>
 
 <strong>GET /&lt;id&gt;</strong>
@@ -61,6 +72,11 @@ and file-uploads from web browsers.
 
     Line numbering and fragments are included, and can be used to link
     to individual lines within the paste.
+
+<strong>GET /&lt;handler&gt;/&lt;id&gt;</strong>
+
+    Like the above, but paste content is mangled by said handler
+    before being returned.
 
 <strong>POST /</strong>
 
