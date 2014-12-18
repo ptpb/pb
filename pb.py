@@ -1,7 +1,9 @@
 #!/usr/bin/python3
 
 from werkzeug.routing import BaseConverter
-from flask import Flask, Response, request
+from flask import Flask, Response, request, current_app
+from jinja2 import Markup
+from docutils import core
 
 import re
 import yaml
@@ -47,6 +49,17 @@ init_cache(app)
 app.url_map.converters['id'] = IDConverter
 app.register_blueprint(paste)
 app.register_blueprint(url)
+
+@app.template_filter(name='rst')
+def filter_rst(source):
+    html = core.publish_parts(source, writer_name='html')['html_body']
+    return Markup(html)
+
+@app.template_global()
+def include_raw(filename):
+    env = current_app.jinja_env
+    source = current_app.jinja_loader.get_source(env, filename)[0]
+    return Markup(source)
 
 if __name__ == '__main__':
     app.run(host='::1', port=10002)
