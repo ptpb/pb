@@ -91,7 +91,7 @@ def stats():
 
 @paste.route('/static/highlight.css')
 def highlight_css():
-    css = HtmlFormatter().get_style_defs('.highlight')
+    css = HtmlFormatter().get_style_defs('.code')
     return Response(css, mimetype='text/css')
 
 @paste.route('/l')

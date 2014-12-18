@@ -3,7 +3,6 @@
 from werkzeug.routing import BaseConverter
 from flask import Flask, Response, request, current_app
 from jinja2 import Markup
-from docutils import core
 
 import re
 import yaml
@@ -13,7 +12,7 @@ from paste.views import paste
 from url.views import url
 from db import init_db
 from cache import init_cache, invalidate
-from util import b66_int, int_b66
+from util import b66_int, int_b66, publish_parts
 
 class TextResponse(Response):
     default_mimetype = 'text/plain'
@@ -52,8 +51,7 @@ app.register_blueprint(url)
 
 @app.template_filter(name='rst')
 def filter_rst(source):
-    html = core.publish_parts(source, writer_name='html')['html_body']
-    return Markup(html)
+    return Markup(publish_parts(source))
 
 @app.template_global()
 def include_raw(filename):

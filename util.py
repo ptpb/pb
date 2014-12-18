@@ -8,6 +8,8 @@ from pygments.lexers import get_lexer_by_name
 from pygments.formatters import HtmlFormatter
 from pygments.util import ClassNotFound
 
+from docutils import core
+
 b66c = 'QwdJxskgt6BE.levhL0zWNj8~1P_ZbHDq7YrpGOIX5CyimfK-cMoAR49FaUn3VT2Su'
 
 def redirect(location, rv, code=302):
@@ -59,3 +61,8 @@ def id_url(**kwargs):
     proto = request.environ.get('HTTP_X_FORWARDED_PROTO')
     scheme = proto if proto else request.scheme
     return url_for('.get', _external=True, _scheme=scheme, **kwargs)
+
+def publish_parts(source):
+    overrides = {'syntax_highlight': 'short'}
+    parts = core.publish_parts(source, writer_name='html', settings_overrides=overrides)
+    return parts['html_body']

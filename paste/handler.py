@@ -1,9 +1,9 @@
 from flask import Response
-from docutils import core
+
+from util import publish_parts
 
 def render(content):
-    parts = core.publish_parts(content, writer_name='html')
-    return Response(parts['html_body'], mimetype='text/html')
+    return Response(publish_parts(content), mimetype='text/html')
 
 handlers = {
     'r': render
