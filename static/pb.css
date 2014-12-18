@@ -1,6 +1,18 @@
-:target {
-   background-color: #ffa;
+h1 {
+    padding-bottom: .3em;
+    font-size: 1.8em;
+    border-bottom: 1px solid #cfd8dc;
 }
+
+h2 {
+    font-size: 1.2em;
+}
+
+a, .title {
+    color: #607d8b;
+}
+
+/* paste html form */
 
 .container {
     margin-left: auto;
@@ -11,6 +23,12 @@
 textarea {
     width: 100%;
     height: 10em;
+}
+
+/* pygments line numbering */
+
+span:target {
+   background-color: #ffa;
 }
 
 .linenos a {
@@ -25,8 +43,4 @@ textarea {
 
 .linenodiv {
     margin-right: 0.5em;
-}
-
-h3 {
-    margin: 0;
 }

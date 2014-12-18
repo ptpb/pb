@@ -1,9 +1,5 @@
 {% extends "layout.html" %}
 
-{% block head %}
-<link href="{{ url_for('static', filename='highlight.css') }}" type="text/css" rel="stylesheet"/>
-{% endblock %}
-
 {% block body %}
 {{ content | safe }}
 {% endblock %}
