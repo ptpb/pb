@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+"""
+    cache
+    ~~~~~
+
+    manipulate server-side and client browser caches.
+
+    :copyright: Copyright (C) 2014 by the respective authors; see AUTHORS.
+    :license: GPLv3, see LICENSE for details.
+"""
+
 from os import path
 from functools import wraps
 from concurrent.futures import ThreadPoolExecutor

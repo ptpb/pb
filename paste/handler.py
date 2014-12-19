@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+"""
+    paste.handler
+    ~~~~~~~~~~~~~
+
+    handlers to mangle paste content.
+
+    :copyright: Copyright (C) 2014 by the respective authors; see AUTHORS.
+    :license: GPLv3, see LICENSE for details.
+"""
+
 from flask import Response
 
 from util import publish_parts

@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+"""
+    paste.model
+    ~~~~~~~~~~~
+
+    paste database model.
+
+    :copyright: Copyright (C) 2014 by the respective authors; see AUTHORS.
+    :license: GPLv3, see LICENSE for details.
+"""
+
 from flask import request
 
 from uuid import uuid4

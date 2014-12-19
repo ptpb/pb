@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+"""
+    url.model
+    ~~~~~~~~~
+
+    url url routes and views.
+
+    :copyright: Copyright (C) 2014 by the respective authors; see AUTHORS.
+    :license: GPLv3, see LICENSE for details.
+"""
+
 from flask import Blueprint
 
 from db import cursor
