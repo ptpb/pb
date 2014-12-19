@@ -211,6 +211,13 @@ Now just:
     $ command | pb
     $ pb filename
 
+ptpb also sets the Location header to the paste's URL. You can use that to
+directly copy the URL to your clipboard. For example:
+
+.. code:: sh
+
+   upload() { curl -sF c=@${1:--} -w "%{redirect_url}" https://ptpb.pw/ -o /dev/stderr | xsel -l /dev/null -b }
+
 authors
 -------
 
