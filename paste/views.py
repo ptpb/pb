@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+"""
+    paste.views
+    ~~~~~~~~~~~
+
+    paste url routes and views.
+
+    :copyright: Copyright (C) 2014 by the respective authors; see AUTHORS.
+    :license: GPLv3, see LICENSE for details.
+"""
+
 from uuid import UUID
 from mimetypes import guess_type
 

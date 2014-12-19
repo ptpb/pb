@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+"""
+    url.model
+    ~~~~~~~~~
+
+    url database model.
+
+    :copyright: Copyright (C) 2014 by the respective authors; see AUTHORS.
+    :license: GPLv3, see LICENSE for details.
+"""
+
 from hashlib import sha1
 
 from flask import request

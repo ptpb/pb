@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+"""
+    db
+    ~~
+
+    database functions.
+
+    :copyright: Copyright (C) 2014 by the respective authors; see AUTHORS.
+    :license: GPLv3, see LICENSE for details.
+"""
+
 from functools import wraps
 from contextlib import closing
 

@@ -1,4 +1,14 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+    pb
+    ~~
+
+    pb is a lightweight pastebin.
+
+    :copyright: Copyright (C) 2014 by the respective authors; see AUTHORS.
+    :license: GPLv3, see LICENSE for details.
+"""
 
 from werkzeug.routing import BaseConverter
 from flask import Flask, Response, request, current_app

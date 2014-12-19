@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+"""
+    util
+    ~~~~
+
+    Utility functions.
+
+    :copyright: Copyright (C) 2014 by the respective authors; see AUTHORS.
+    :license: GPLv3, see LICENSE for details.
+"""
+
 from os import path
 
 from flask import Response, render_template, current_app, request, url_for
