@@ -195,9 +195,12 @@ line:
 
     https://ptpb.pw/QQQ_/py#L-24
 
-Like it? Put a convenience shell function in your bashrc:
+shell functions
+---------------
 
-.. code:: sh
+Like it? Here's some convenience shell functions:
+
+.. code:: bash
 
     pb () { curl -F "c=@${1:--}" https://ptpb.pw }
 
@@ -211,12 +214,14 @@ Now just:
     $ command | pb
     $ pb filename
 
-ptpb also sets the Location header to the paste's URL. You can use that to
-directly copy the URL to your clipboard. For example:
+A slightly more elaborate variant:
 
-.. code:: sh
+.. code:: bash
 
-   upload() { curl -sF c=@${1:--} -w "%{redirect_url}" https://ptpb.pw/ -o /dev/stderr | xsel -l /dev/null -b }
+   pbx () { curl -sF "c=@${1:--}" -w "%{redirect_url}" https://ptpb.pw -o /dev/stderr | xsel -l /dev/null -b }
+
+This uses xsel to set the ``CLIPBOARD`` selection with the url of the
+uploaded paste for immediate regurgitation elsewhere.
 
 authors
 -------
