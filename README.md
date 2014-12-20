@@ -67,12 +67,12 @@ could be created with something like:
 $ pip install virtualenv
 $ virtualenv pbenv
 $ source pbenv/bin/activate
-(pbenv)$ pip install --allow-external mysql-connector-python -r pb/requirements.txt
+(pbenv)$ pip install -r pb/requirements.txt
 ```
 
 You can then start a `pb` instance via werkzeug's built-in
 [WSGI server](http://werkzeug.pocoo.org/docs/0.9/serving/).
 
 ```shell-session
-(pbenv)$ (cd pb; ./pb.py)
+(pbenv)$ (cd pb; ./pb/pb.py)
 ```
