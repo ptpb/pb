@@ -195,9 +195,12 @@ line:
 
     https://ptpb.pw/QQQ_/py#L-24
 
-Like it? Put a convenience shell function in your bashrc:
+shell functions
+---------------
 
-.. code:: sh
+Like it? Here's some convenience shell functions:
+
+.. code:: bash
 
     pb () { curl -F "c=@${1:--}" https://ptpb.pw }
 
@@ -210,6 +213,15 @@ Now just:
 
     $ command | pb
     $ pb filename
+
+A slightly more elaborate variant:
+
+.. code:: bash
+
+   pbx () { curl -sF "c=@${1:--}" -w "%{redirect_url}" https://ptpb.pw -o /dev/stderr | xsel -l /dev/null -b }
+
+This uses xsel to set the ``CLIPBOARD`` selection with the url of the
+uploaded paste for immediate regurgitation elsewhere.
 
 authors
 -------
