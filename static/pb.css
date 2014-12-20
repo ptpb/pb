@@ -12,6 +12,10 @@ a, .title {
     color: #607d8b;
 }
 
+.literal {
+    background: #f8f8f8;
+}
+
 /* paste html form */
 
 .container {
