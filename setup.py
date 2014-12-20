@@ -8,5 +8,6 @@ setup(
     license='GPLv3',
     maintainer='Zack Buhman',
     maintainer_email='zack@buhman.org',
+    include_package_data=True,
     packages=find_packages()
 )

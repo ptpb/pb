@@ -47,7 +47,7 @@ def load_yaml(app, filename):
             obj = yaml.load(f)
             app.config.from_mapping(obj)
 
-def create_app(config_filename):
+def create_app(config_filename='config.yaml'):
     app = Flask(__name__)
     app.response_class = TextResponse
     app.url_map.converters['id'] = IDConverter
