@@ -74,5 +74,5 @@ You can then start a `pb` instance via werkzeug's built-in
 [WSGI server](http://werkzeug.pocoo.org/docs/0.9/serving/).
 
 ```shell-session
-(pbenv)$ (cd pb; ./pb/pb.py)
+(pbenv)$ (cd pb; ./run.py)
 ```

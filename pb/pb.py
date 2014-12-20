@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
     pb
@@ -11,8 +10,7 @@
 """
 
 from werkzeug.routing import BaseConverter
-from flask import Flask, Response, request, current_app
-from jinja2 import Markup
+from flask import Flask, Response, request
 
 import re
 import yaml
@@ -22,7 +20,7 @@ from pb.paste.views import paste
 from pb.url.views import url
 from pb.db import init_db
 from pb.cache import init_cache, invalidate
-from pb.util import b66_int, int_b66, publish_parts
+from pb.util import b66_int, int_b66
 
 class TextResponse(Response):
     default_mimetype = 'text/plain'
@@ -49,24 +47,16 @@ def load_yaml(app, filename):
             obj = yaml.load(f)
             app.config.from_mapping(obj)
 
-app = Flask(__name__)
-app.response_class = TextResponse
-load_yaml(app, 'config.yaml')
-init_db(app)
-init_cache(app)
-app.url_map.converters['id'] = IDConverter
-app.register_blueprint(paste)
-app.register_blueprint(url)
+def create_app(config_filename):
+    app = Flask(__name__)
+    app.response_class = TextResponse
+    app.url_map.converters['id'] = IDConverter
 
-@app.template_filter(name='rst')
-def filter_rst(source):
-    return Markup(publish_parts(source))
+    load_yaml(app, config_filename)
+    init_db(app)
+    init_cache(app)
 
-@app.template_global()
-def include_raw(filename):
-    env = current_app.jinja_env
-    source = current_app.jinja_loader.get_source(env, filename)[0]
-    return Markup(source)
+    app.register_blueprint(paste)
+    app.register_blueprint(url)
 
-if __name__ == '__main__':
-    app.run(host='::1', port=10002)
+    return app
