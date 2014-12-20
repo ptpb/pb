@@ -2,3 +2,10 @@ __pycache__/
 *.py[cod]
 *.pyc
 config.yaml
+
+.tox/
+
+*.egg
+*.egg-info
+build/
+dist/
