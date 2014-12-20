@@ -12,7 +12,7 @@ a, .title {
     color: #607d8b;
 }
 
-.literal {
+.literal, .literal-block {
     background: #f8f8f8;
 }
 
