@@ -1,4 +1,4 @@
-include LICENSE AUTHORS README.md
+include LICENSE AUTHORS README.rst
 recursive-include pb/static *
 recursive-include pb/templates *
 recursive-include tests *
