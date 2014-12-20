@@ -11,9 +11,9 @@
 
 from flask import Blueprint
 
-from db import cursor
-from util import redirect, request_content, id_url
-from url import model
+from pb.db import cursor
+from pb.util import redirect, request_content, id_url
+from pb.url import model
 
 url = Blueprint('url', __name__)
 

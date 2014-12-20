@@ -16,13 +16,13 @@ from jinja2 import Markup
 
 import re
 import yaml
-from os import path
+from xdg import BaseDirectory
 
-from paste.views import paste
-from url.views import url
-from db import init_db
-from cache import init_cache, invalidate
-from util import b66_int, int_b66, publish_parts
+from pb.paste.views import paste
+from pb.url.views import url
+from pb.db import init_db
+from pb.cache import init_cache, invalidate
+from pb.util import b66_int, int_b66, publish_parts
 
 class TextResponse(Response):
     default_mimetype = 'text/plain'
@@ -44,11 +44,10 @@ class IDConverter(BaseConverter):
         return int_b66(self.length, *value)
 
 def load_yaml(app, filename):
-    filename = path.join(app.root_path, filename)
-    with open(filename) as f:
-        obj = yaml.load(f)
-
-    return app.config.from_mapping(obj)
+    for filename in BaseDirectory.load_config_paths('pb', filename):
+        with open(filename) as f:
+            obj = yaml.load(f)
+            app.config.from_mapping(obj)
 
 app = Flask(__name__)
 app.response_class = TextResponse

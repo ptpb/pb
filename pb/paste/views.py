@@ -16,9 +16,9 @@ from flask import Blueprint, Response, request, render_template, current_app, ur
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import get_all_lexers
 
-from db import cursor
-from paste import model, handler as _handler
-from util import highlight, redirect, request_content, id_url
+from pb.db import cursor
+from pb.paste import model, handler as _handler
+from pb.util import highlight, redirect, request_content, id_url
 
 paste = Blueprint('paste', __name__)
 
