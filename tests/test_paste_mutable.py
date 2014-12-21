@@ -56,3 +56,10 @@ def test_delete():
     rv = app.test_client().delete(url)
     assert rv.status_code == 404
 
+    with app.test_request_context():
+        url = url_for('paste.put', uuid=data.get('uuid'))
+
+    rv = app.test_client().put(url, data=dict(
+        c = str(time())
+    ))
+    assert rv.status_code == 404

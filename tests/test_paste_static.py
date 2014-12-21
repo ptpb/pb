@@ -15,7 +15,7 @@ def test_get_form():
     with app.test_request_context():
         url = url_for('paste.form')
 
-    rv = app.test_client().get()
+    rv = app.test_client().get(url)
     assert rv.status_code == 200
 
 def test_get_stats():

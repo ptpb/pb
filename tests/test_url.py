@@ -44,6 +44,7 @@ def test_url_get():
 
     url_path = parse.urlsplit(location).path
     id = b66_int(path.split(url_path)[-1])
+    assert id != 0
 
     with app.test_request_context():
         url = url_for('url.get', b66=id+10)
