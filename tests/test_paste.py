@@ -4,12 +4,6 @@ from os import urandom
 
 from pb.pb import create_app
 
-def test_get_index():
-    app = create_app()
-
-    rv = app.test_client().get('/')
-    assert rv.status_code == 200
-
 def test_post_content():
     app = create_app()
 
