@@ -11,7 +11,7 @@
 
 from flask import Response
 
-from util import publish_parts
+from pb.util import publish_parts
 
 def render(content):
     return Response(publish_parts(content), mimetype='text/html')

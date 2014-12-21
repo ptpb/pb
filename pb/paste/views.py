@@ -13,14 +13,25 @@ from uuid import UUID
 from mimetypes import guess_type
 
 from flask import Blueprint, Response, request, render_template, current_app, url_for
+from jinja2 import Markup
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import get_all_lexers
 
-from db import cursor
-from paste import model, handler as _handler
-from util import highlight, redirect, request_content, id_url
+from pb.db import cursor
+from pb.paste import model, handler as _handler
+from pb.util import highlight, redirect, request_content, id_url, publish_parts
 
 paste = Blueprint('paste', __name__)
+
+@paste.app_template_filter(name='rst')
+def filter_rst(source):
+    return Markup(publish_parts(source))
+
+@paste.app_template_global()
+def include_raw(filename):
+    env = current_app.jinja_env
+    source = current_app.jinja_loader.get_source(env, filename)[0]
+    return Markup(source)
 
 @paste.route('/')
 def index():
