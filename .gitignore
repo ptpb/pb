@@ -4,6 +4,7 @@ __pycache__/
 config.yaml
 
 .tox/
+.coverage
 
 *.egg
 *.egg-info
