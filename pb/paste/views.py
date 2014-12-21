@@ -110,7 +110,7 @@ def get(b66, lexer=None, handler=None):
 @cursor
 def stats():
     count, length = model.get_stats()
-    return "{} pastes\n{} bytes\n".format(count, length)
+    return safe_dump(dict(pastes=count, bytes=length), default_flow_style=False)
 
 @paste.route('/static/highlight.css')
 def highlight_css():
