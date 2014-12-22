@@ -52,10 +52,6 @@ class SHA1Converter(BaseConverter):
         (name, hexdigest, _) = self.sre.match(value).groups()
         return unhexlify(hexdigest), name
 
-    def to_url(self, value):
-        # used only by tests
-        return hexlify(value)
-
 def load_yaml(app, filename):
     for filename in BaseDirectory.load_config_paths('pb', filename):
         with open(filename) as f:
