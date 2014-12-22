@@ -32,6 +32,9 @@ One of:
 - a four character base66 paste id
 - a four character base66 paste id, followed by a period-delimiter and a
   mimetype extension
+- a 40 character sha1 hexdigest
+- a 40 character sha1 hexdigest, followed by a period-delimiter and a
+  mimetype extension
 - a three character base66 url redirect id
 
 A mimetype extension, when specified, is first matched with a matching mimetype
