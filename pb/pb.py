@@ -15,6 +15,7 @@ from flask import Flask, Response, request
 import re
 import yaml
 from xdg import BaseDirectory
+from binascii import unhexlify, hexlify
 
 from pb.paste.views import paste
 from pb.url.views import url
@@ -41,6 +42,20 @@ class IDConverter(BaseConverter):
             return int_b66(self.length, value)
         return int_b66(self.length, *value)
 
+class SHA1Converter(BaseConverter):
+    def __init__(self, map):
+        super().__init__(map)
+        self.regex = '(([A-Za-z0-9]{40})([.][^/]*)?)'
+        self.sre = re.compile(self.regex)
+
+    def to_python(self, value):
+        (name, hexdigest, _) = self.sre.match(value).groups()
+        return unhexlify(hexdigest), name
+
+    def to_url(self, value):
+        # used only by tests
+        return hexlify(value)
+
 def load_yaml(app, filename):
     for filename in BaseDirectory.load_config_paths('pb', filename):
         with open(filename) as f:
@@ -51,6 +66,7 @@ def create_app(config_filename='config.yaml'):
     app = Flask(__name__)
     app.response_class = TextResponse
     app.url_map.converters['id'] = IDConverter
+    app.url_map.converters['sha1'] = SHA1Converter
 
     load_yaml(app, config_filename)
     init_db(app)

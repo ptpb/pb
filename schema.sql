@@ -101,6 +101,18 @@ BEGIN
 END;
 @@
 
+DROP PROCEDURE IF EXISTS paste_get_content_digest@@
+CREATE PROCEDURE paste_get_content_digest (
+  p_digest BINARY(20),
+  OUT p_content MEDIUMBLOB
+)
+BEGIN
+  SELECT content INTO p_content
+  FROM paste
+  WHERE digest = p_digest;
+END;
+@@
+
 /*
 END PASTE SCHEMA
 */
