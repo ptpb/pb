@@ -38,7 +38,7 @@ def highlight(content, lexer_name):
     formatter = HtmlFormatter(linenos='table', anchorlinenos=True, lineanchors='L', linespans='L')
 
     if lexer_name == '':
-        tokens = ((Token.Generic.Output, '{}\n'.format(c.decode('utf-8'))) for c in content.splitlines())
+        tokens = ((Token.Text, '{}\n'.format(c.decode('utf-8'))) for c in content.splitlines())
         content = _format(tokens, formatter)
     else:
         content = _highlight(content, lexer, formatter)
