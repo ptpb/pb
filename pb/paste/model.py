@@ -41,6 +41,11 @@ def get_content(id):
     (_, content) = request.cur.callproc('paste_get_content', args)
     return content
 
+def get_content_digest(digest):
+    args = (digest, None)
+    (_, content) = request.cur.callproc('paste_get_content_digest', args)
+    return content
+
 def get_stats():
     args = (None, None)
     (count, length) = request.cur.callproc('paste_get_stats', args)

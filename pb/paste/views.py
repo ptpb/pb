@@ -88,14 +88,23 @@ def delete(uuid):
 @paste.route('/<id(length=4):b66>')
 @paste.route('/<id(length=4):b66>/<string(minlength=0):lexer>')
 @paste.route('/<string(length=1):handler>/<id(length=4):b66>')
+@paste.route('/<sha1:sha1>')
+@paste.route('/<sha1:sha1>/<string(minlength=0):lexer>')
+@paste.route('/<string(length=1):handler>/<sha1:sha1>')
 @cursor
-def get(b66, lexer=None, handler=None):
-    id, name = b66
-    mimetype, _ = guess_type(name)
+def get(b66=None, sha1=None, lexer=None, handler=None):
+    content = None
+    if b66:
+        id, name = b66
+        content = model.get_content(id)
+    if sha1:
+        digest, name = sha1
+        content = model.get_content_digest(digest)
 
-    content = model.get_content(id)
     if not content:
         return "Not found.\n", 404
+
+    mimetype, _ = guess_type(name)
 
     if lexer != None:
         return highlight(content, lexer)
