@@ -9,6 +9,7 @@
     :license: GPLv3, see LICENSE for details.
 """
 
+from yaml import safe_dump
 from uuid import UUID
 from mimetypes import guess_type
 
@@ -53,8 +54,8 @@ def post():
         id, uuid = model.insert(content)
 
     url = id_url(b66=(id, filename))
-    uuid = UUID(bytes=uuid) if uuid else '[redacted]'
-    return redirect(url, "{}\nuuid: {}\n".format(url, uuid))
+    uuid = str(UUID(bytes=uuid)) if uuid else '<redacted>'
+    return redirect(url, safe_dump(dict(url=url, uuid=uuid), default_flow_style=False))
 
 @paste.route('/<uuid:uuid>', methods=['PUT'])
 @cursor
@@ -109,7 +110,7 @@ def get(b66, lexer=None, handler=None):
 @cursor
 def stats():
     count, length = model.get_stats()
-    return "{} pastes\n{} bytes\n".format(count, length)
+    return safe_dump(dict(pastes=count, bytes=length), default_flow_style=False)
 
 @paste.route('/static/highlight.css')
 def highlight_css():
