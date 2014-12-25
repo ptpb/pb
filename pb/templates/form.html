@@ -2,15 +2,16 @@
 
 {% block body %}
 <div class="container">
-<form action="/" method="post" enctype="multipart/form-data">
+<form method="post" enctype="multipart/form-data">
   <div>
-    <textarea name="c" cols="50" rows="75"></textarea>
+    <textarea name="c"></textarea>
   </div>
   <div>
     <input type="file" name="c">
   </div>
   <div>
-    <button>Submit</button>
+    <button formaction="/">Paste</button>
+    <button formaction="/u">URL</button>
   </div>
 </form>
 </div>
