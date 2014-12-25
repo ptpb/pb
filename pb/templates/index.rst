@@ -99,8 +99,12 @@ Creates a new paste; returns GET URL and secret UUID.
 
 Only multipart/form-data is supported; other content types are not tested.
 
-The 'name' disposition extension parameter must be present, and its value must
-be 'c'.
+At least one 'name' disposition extension parameter must be present,
+and its value must be 'c'.
+
+If the 'p' form parameter exists and its value evaluates to true, the
+paste will be a private paste where the paste can only be retrieved by
+knowledge of its sha1 hexdigest.
 
 Unless the 'filename' disposition extension parameter is specified, the form
 data is decoded. The value of the 'filename' parameter is split by
@@ -188,7 +192,7 @@ Put my latest 'hax.py' script on ptpb:
 .. code:: console
 
     $ curl -F c=@- https://ptpb.pw < hax.py
-    https://ptpb.pw/QQQ_
+    https://ptpb.pw/QQx8
     uuid: [redacted]
 
 Now I want to syntax highlight and draw attention to one particular
@@ -196,7 +200,16 @@ line:
 
 ::
 
-    https://ptpb.pw/QQQ_/py#L-24
+    https://ptpb.pw/QQQ_/py#L-7
+
+Perhaps we have some super sekrit thing that we don't want be be
+guessable by base66 id:
+
+.. code:: console
+
+    $ curl -F c=@- -F p=1 https://ptpb.pw < SEKRIT_hax.py
+    url: http://localhost:10002/1c5dd062b6a3359cf60989d0e1c8746944608304
+    uuid: e5860f7a-b074-4e5d-88d4-747cfacc1fcd
 
 shell functions
 ---------------

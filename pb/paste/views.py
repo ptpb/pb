@@ -49,11 +49,15 @@ def post():
     if not content:
         return "Nope.\n", 400
 
-    id, uuid = model.get_digest(content)
-    if not id:
-        id, uuid = model.insert(content)
+    uuid = None
+    id, digest = model.get_digest(content)
+    if not id and not digest:
+        if request.form.get('p'):
+            digest, uuid = model.insert_private(content)
+        else:
+            id, uuid = model.insert(content)
 
-    url = id_url(b66=(id, filename))
+    url = id_url(b66=(id, filename)) if id else id_url(sha1=(digest, filename))
     uuid = str(UUID(bytes=uuid)) if uuid else '<redacted>'
     return redirect(url, safe_dump(dict(url=url, uuid=uuid), default_flow_style=False))
 
@@ -64,14 +68,14 @@ def put(uuid):
     if not content:
         return "Nope.\n", 400
 
-    id, _ = model.get_digest(content)
-    if id:
-        url = id_url(b66=id)
+    id, digest = model.get_digest(content)
+    if id or digest:
+        url = id_url(b66=id) if id else id_url(sha1=digest)
         return redirect(url, "Paste already exists.\n", 409)
 
-    id = model.put(uuid.bytes, content)
-    if id:
-        url = id_url(b66=(id, filename))
+    id, digest = model.put(uuid.bytes, content)
+    if id or digest:
+        url = id_url(b66=(id, filename)) if id else id_url(sha1=digest)
         return redirect(url, "{} updated.\n".format(url), 200)
 
     return "Not found.\n", 404
@@ -79,9 +83,9 @@ def put(uuid):
 @paste.route('/<uuid:uuid>', methods=['DELETE'])
 @cursor
 def delete(uuid):
-    id = model.delete(uuid.bytes)
-    if id:
-        url = id_url(b66=id)
+    id, digest = model.delete(uuid.bytes)
+    if id or digest:
+        url = id_url(b66=id) if id else id_url(sha1=digest)
         return redirect(url, "{} deleted.\n".format(url), 200)
     return "Not found.\n", 404
 
