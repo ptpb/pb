@@ -15,26 +15,32 @@ from uuid import uuid4
 from hashlib import sha1
 
 def insert(content):
-    uuid = uuid4().bytes
-    args = (uuid, content, None)
+    secret = uuid4().bytes
+    args = (secret, content, None)
     (_, _, id) = request.cur.callproc('paste_insert', args)
-    return int(id) if id else None, uuid
+    return int(id) if id else None, secret
 
-def put(uuid, content):
-    args = (uuid, content, None)
-    (_, _, id) = request.cur.callproc('paste_put', args)
-    return int(id) if id else None
+def insert_private(content):
+    secret = uuid4().bytes
+    args = (secret, content, None)
+    (_, _, digest) = request.cur.callproc('paste_insert_private', args)
+    return bytes(digest) if digest else None, secret
+    
+def put(secret, content):
+    args = (secret, content, None, None)
+    (_, _, id, digest) = request.cur.callproc('paste_put', args)
+    return int(id) if id else None, bytes(digest) if digest else None
 
 def delete(uuid):
-    args = (uuid, None)
-    (_, id) = request.cur.callproc('paste_delete', args)
-    return int(id) if id else None
+    args = (uuid, None, None)
+    (_, id, digest) = request.cur.callproc('paste_delete', args)
+    return int(id) if id else None, bytes(digest) if digest else None
 
 def get_digest(content):
     digest = sha1(content).digest()
-    args = (digest, None)
-    (_, id) = request.cur.callproc('paste_get_digest', args)
-    return int(id) if id else None, None
+    args = (digest, None, None)
+    (_, id, exists) = request.cur.callproc('paste_get_digest', args)
+    return int(id) if id else None, digest if exists else None
 
 def get_content(id):
     args = (id,) + (None,)

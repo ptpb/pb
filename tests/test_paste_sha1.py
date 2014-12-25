@@ -13,9 +13,9 @@ def test_get_digest():
         c = c
     ))
 
-    hexdigest = sha1(c.encode('utf-8')).hexdigest()
+    digest = sha1(c.encode('utf-8')).digest()
     with app.test_request_context():
-        url = url_for('paste.get', sha1=hexdigest)
+        url = url_for('paste.get', sha1=digest)
 
     rv = app.test_client().get(url)
     assert rv.status_code == 200

@@ -1,16 +1,27 @@
 /*
 BEGIN PASTE SCHEMA
 */
+DELIMITER ;
 
 DROP TABLE IF EXISTS paste;
 CREATE TABLE paste (
   id MEDIUMINT NOT NULL AUTO_INCREMENT,
-  uuid BINARY(16) NOT NULL,
+  secret BINARY(16) NOT NULL,
   digest BINARY(20) NOT NULL,
   content MEDIUMBLOB NOT NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY (digest),
-  UNIQUE KEY (uuid)
+  UNIQUE KEY (secret),
+  UNIQUE KEY (digest)
+)
+ENGINE = InnoDB;
+
+DROP TABLE IF EXISTS private;
+CREATE TABLE private (
+  digest BINARY(20) NOT NULL,
+  secret BINARY(16) NOT NULL,
+  content BLOB NOT NULL,
+  PRIMARY KEY (digest),
+  UNIQUE KEY (secret)
 )
 ENGINE = InnoDB;
 
@@ -18,50 +29,81 @@ DELIMITER @@
 
 DROP PROCEDURE IF EXISTS paste_insert@@
 CREATE PROCEDURE paste_insert (
-  p_uuid BINARY(16),
+  p_secret BINARY(16),
   p_content MEDIUMBLOB,
   OUT p_id MEDIUMINT
 )
 BEGIN
   START TRANSACTION;
-  INSERT paste (uuid, digest, content)
-  VALUES (p_uuid, UNHEX(SHA1(p_content)), p_content);
+  INSERT paste (secret, digest, content)
+  VALUES (p_secret, UNHEX(SHA1(p_content)), p_content);
   SELECT last_insert_id() INTO p_id;
+  COMMIT;
+END;
+@@
+
+DROP PROCEDURE IF EXISTS paste_insert_private@@
+CREATE PROCEDURE paste_insert_private (
+  p_secret BINARY(16),
+  p_content MEDIUMBLOB,
+  OUT p_digest BINARY(20)
+)
+BEGIN
+  START TRANSACTION;
+  INSERT private (secret, digest, content)
+  VALUES (p_secret, @d:=UNHEX(SHA1(p_content)), p_content);
+  SELECT @d INTO p_digest;
   COMMIT;
 END;
 @@
 
 DROP PROCEDURE IF EXISTS paste_put@@
 CREATE PROCEDURE paste_put (
-  p_uuid BINARY(16),
+  p_secret BINARY(16),
   p_content MEDIUMBLOB,
-  OUT p_id MEDIUMINT
+  OUT p_id MEDIUMINT,
+  OUT p_digest BINARY(20)
 )
 BEGIN
   START TRANSACTION;
-  SELECT id INTO p_id
-  FROM paste
-  WHERE uuid = p_uuid;
   UPDATE paste
   SET digest = UNHEX(SHA1(p_content)), content = p_content
-  WHERE uuid = p_uuid;
+  WHERE secret = p_secret;
+  UPDATE private
+  SET digest = UNHEX(SHA1(p_content)), content = p_content
+  WHERE secret = p_secret;
+  /* .. */
+  SELECT id INTO p_id
+  FROM paste
+  WHERE secret = p_secret;
+  SELECT digest INTO p_digest
+  FROM private
+  WHERE secret = p_secret;
   COMMIT;
 END;
 @@
 
 DROP PROCEDURE IF EXISTS paste_delete@@
 CREATE PROCEDURE paste_delete (
-  p_uuid BINARY(16),
-  OUT p_id MEDIUMINT
+  p_secret BINARY(16),
+  OUT p_id MEDIUMINT,
+  OUT p_digest BINARY(20)
 )
 BEGIN
   START TRANSACTION;
   SELECT id INTO p_id
   FROM paste
-  WHERE uuid = p_uuid;
+  WHERE secret = p_secret;
+  SELECT digest INTO p_digest
+  FROM private
+  WHERE secret = p_secret;
+  /* .. */
   DELETE
   FROM paste
-  WHERE uuid = p_uuid;
+  WHERE secret = p_secret;
+  DELETE
+  FROM private
+  WHERE secret = p_secret;
   COMMIT;
 END;
 @@
@@ -73,18 +115,26 @@ CREATE PROCEDURE paste_get_stats (
 )
 BEGIN
   SELECT COUNT(*), SUM(LENGTH(content)) INTO p_count, p_length
-  FROM paste;
+  FROM (
+    SELECT content FROM paste
+    UNION
+    SELECT content FROM private
+  ) AS p;
 END;
 @@
 
 DROP PROCEDURE IF EXISTS paste_get_digest@@
 CREATE PROCEDURE paste_get_digest (
   p_digest BINARY(20),
-  OUT p_id MEDIUMINT
+  OUT p_id MEDIUMINT,
+  OUT p_exists BIT(1)
 )
 BEGIN
   SELECT id INTO p_id
   FROM paste
+  WHERE digest = p_digest;
+  SELECT 1 INTO p_exists
+  FROM private
   WHERE digest = p_digest;
 END;
 @@
@@ -107,9 +157,16 @@ CREATE PROCEDURE paste_get_content_digest (
   OUT p_content MEDIUMBLOB
 )
 BEGIN
-  SELECT content INTO p_content
-  FROM paste
-  WHERE digest = p_digest;
+  SELECT p.content INTO p_content
+  FROM (
+    SELECT content
+    FROM paste
+    WHERE digest = p_digest
+    UNION
+    SELECT content
+    FROM private
+    WHERE digest = p_digest
+  ) AS p;
 END;
 @@
 

@@ -14,6 +14,7 @@ from flask import Flask, Response, request
 
 import re
 import yaml
+from os import path
 from xdg import BaseDirectory
 from binascii import unhexlify, hexlify
 
@@ -51,6 +52,13 @@ class SHA1Converter(BaseConverter):
     def to_python(self, value):
         (name, hexdigest, _) = self.sre.match(value).groups()
         return unhexlify(hexdigest), name
+
+    def to_url(self, value):
+        if isinstance(value, bytes):
+            return hexlify(value).decode('utf-8')
+        digest, filename = value
+        ext = path.splitext(filename)[1] if filename else ''
+        return '{}{}'.format(hexlify(digest).decode('utf-8'), ext)
 
 def load_yaml(app, filename):
     for filename in BaseDirectory.load_config_paths('pb', filename):
