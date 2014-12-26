@@ -97,7 +97,7 @@ BEGIN
   UPDATE private
   SET digest = UNHEX(SHA1(p_content)), content = p_content
   WHERE secret = p_secret;
-  UPDATE private
+  UPDATE vanity
   SET digest = UNHEX(SHA1(p_content)), content = p_content
   WHERE secret = p_secret;
   /* .. */
