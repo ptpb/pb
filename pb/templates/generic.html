@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block head %}
+{% if override is defined %}
+{% if override %}
+<link href="/{{ override }}.css" type="text/css" rel="stylesheet"/>
+{% endif %}
+{% else %}
+{{ super() }}
+{% endif %}
+{% endblock %}
+
+{% block body %}
+{{ content | safe }}
+{% endblock %}
