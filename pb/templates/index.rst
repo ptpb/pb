@@ -263,13 +263,6 @@ A slightly more elaborate variant:
 This uses xsel to set the ``CLIPBOARD`` selection with the url of the uploaded
 paste for immediate regurgitation elsewhere.
 
-authors
--------
-
-`Joe Pettit <https://github.com/silverp1>`_
-
-`Zack Buhman <https://buhman.org>`_
-
 duck sauce
 ----------
 
