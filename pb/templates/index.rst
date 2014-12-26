@@ -30,15 +30,24 @@ id
 One of:
 
 - a four character base66 paste id
-- a four character base66 paste id, followed by a period-delimiter and a
-  mimetype extension
+- a four character base66 paste id, followed by a period-delimiter and
+  a mimetype extension
 - a 40 character sha1 hexdigest
 - a 40 character sha1 hexdigest, followed by a period-delimiter and a
   mimetype extension
+- a 'vanity' label
+- a 'vanity' label, followed by a period-delimiter
+  and a mimetype extension
 - a three character base66 url redirect id
 
 A mimetype extension, when specified, is first matched with a matching mimetype
 known to the system, then returned in the HTTP response headers.
+
+vanity
+^^^^^^
+
+Any unicode string excluding the characters '/' and '.' of 5 < length
+< 40.
 
 lexer
 ^^^^^
@@ -110,6 +119,12 @@ Unless the 'filename' disposition extension parameter is specified, the form
 data is decoded. The value of the 'filename' parameter is split by
 period-delimited extension, and appended to the location in the response.
 
+``POST /<vanity>``
+^^^^^^^^^^^^^^^^^^
+
+Same as above, except the paste is a 'vanity' paste, where the GET URL
+path is identical to the POST path.
+
 ``PUT /<uuid>``
 ^^^^^^^^^^^^^^^
 
@@ -153,8 +168,8 @@ examples
 
 No really, how in the name of Gandalf's beard does this actually work? Show me!
 
-normal paste
-^^^^^^^^^^^^
+creating pastes
+^^^^^^^^^^^^^^^
 
 Create a paste from the output of 'dmesg':
 
@@ -234,6 +249,19 @@ base66 id:
     $ curl -F c=@- -F p=1 https://ptpb.pw < SEKRIT_hax.py
     url: http://localhost:10002/1c5dd062b6a3359cf60989d0e1c8746944608304
     uuid: e5860f7a-b074-4e5d-88d4-747cfacc1fcd
+
+vanity pastes
+^^^^^^^^^^^^^
+
+Witness the gloriousness:
+
+.. code:: console
+
+    $ curl -F c=@- https://ptpb.pw/polyzen <<< boats and hoes
+    url: https://ptpb.pw/polyzen
+    uuid: <redacted>
+    $ curl https://ptpb.pw/polyzen
+    boats and hoes
 
 shell functions
 ---------------

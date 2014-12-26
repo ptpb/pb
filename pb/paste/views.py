@@ -20,7 +20,7 @@ from pygments.lexers import get_all_lexers
 
 from pb.db import cursor
 from pb.paste import model, handler as _handler
-from pb.util import highlight, redirect, request_content, id_url, publish_parts
+from pb.util import highlight, redirect, request_content, id_url, publish_parts, any_url
 
 paste = Blueprint('paste', __name__)
 
@@ -43,21 +43,25 @@ def form():
     return Response(render_template("form.html"), mimetype='text/html')
 
 @paste.route('/', methods=['POST'])
+@paste.route('/<label:vanity>', methods=['POST'])
 @cursor
-def post():
+def post(vanity=None):
     content, filename = request_content()
     if not content:
         return "Nope.\n", 400
 
     uuid = None
-    id, digest = model.get_digest(content)
-    if not id and not digest:
-        if request.form.get('p'):
+    id, digest, label = model.get_digest(content)
+    if not any((id, digest, label)):
+        if vanity:
+            label, name = vanity
+            uuid = model.insert_vanity(label, content)
+        elif request.form.get('p'):
             digest, uuid = model.insert_private(content)
         else:
             id, uuid = model.insert(content)
 
-    url = id_url(b66=(id, filename)) if id else id_url(sha1=(digest, filename))
+    url = any_url(id, digest, label, filename=filename)
     uuid = str(UUID(bytes=uuid)) if uuid else '<redacted>'
     return redirect(url, safe_dump(dict(url=url, uuid=uuid), default_flow_style=False))
 
@@ -68,14 +72,14 @@ def put(uuid):
     if not content:
         return "Nope.\n", 400
 
-    id, digest = model.get_digest(content)
-    if id or digest:
-        url = id_url(b66=id) if id else id_url(sha1=digest)
+    args = model.get_digest(content)
+    if any(args):
+        url = any_url(*args)
         return redirect(url, "Paste already exists.\n", 409)
 
-    id, digest = model.put(uuid.bytes, content)
-    if id or digest:
-        url = id_url(b66=(id, filename)) if id else id_url(sha1=digest)
+    args = model.put(uuid.bytes, content)
+    if any(args):
+        url = any_url(*args)
         return redirect(url, "{} updated.\n".format(url), 200)
 
     return "Not found.\n", 404
@@ -83,9 +87,9 @@ def put(uuid):
 @paste.route('/<uuid:uuid>', methods=['DELETE'])
 @cursor
 def delete(uuid):
-    id, digest = model.delete(uuid.bytes)
-    if id or digest:
-        url = id_url(b66=id) if id else id_url(sha1=digest)
+    args = model.delete(uuid.bytes)
+    if any(args):
+        url = any_url(*args)
         return redirect(url, "{} deleted.\n".format(url), 200)
     return "Not found.\n", 404
 
@@ -95,8 +99,11 @@ def delete(uuid):
 @paste.route('/<sha1:sha1>')
 @paste.route('/<sha1:sha1>/<string(minlength=0):lexer>')
 @paste.route('/<string(length=1):handler>/<sha1:sha1>')
+@paste.route('/<label:label>')
+@paste.route('/<label:label>/<string(minlength=0):lexer>')
+@paste.route('/<string(length=1):handler>/<label:label>')
 @cursor
-def get(b66=None, sha1=None, lexer=None, handler=None):
+def get(b66=None, sha1=None, label=None, lexer=None, handler=None):
     content = None
     if b66:
         id, name = b66
@@ -104,6 +111,9 @@ def get(b66=None, sha1=None, lexer=None, handler=None):
     if sha1:
         digest, name = sha1
         content = model.get_content_digest(digest)
+    if label:
+        label, name = label
+        content = model.get_content_vanity(label)
 
     if not content:
         return "Not found.\n", 404
