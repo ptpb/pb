@@ -73,13 +73,13 @@ def id_url(**kwargs):
     scheme = proto if proto else request.scheme
     return url_for('.get', _external=True, _scheme=scheme, **kwargs)
 
-def any_url(id, digest, label, **kwargs):
+def any_url(id, digest, label, filename=None):
     if id:
-        return id_url(b66=id, **kwargs)
+        return id_url(b66=(id, filename))
     if digest:
-        return id_url(sha1=digest, **kwargs)
+        return id_url(sha1=(digest, filename))
     if label:
-        return id_url(label=label, **kwargs)
+        return id_url(label=(label, filename))
 
 def publish_parts(source):
     overrides = {'syntax_highlight': 'short'}
