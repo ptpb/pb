@@ -14,6 +14,8 @@ from flask import request
 from uuid import uuid4
 from hashlib import sha1
 
+from mysql.connector import errors
+
 def insert(content):
     secret = uuid4().bytes
     args = (secret, content, None)
@@ -25,22 +27,32 @@ def insert_private(content):
     args = (secret, content, None)
     (_, _, digest) = request.cur.callproc('paste_insert_private', args)
     return bytes(digest) if digest else None, secret
-    
+
+def insert_vanity(label, content):
+    secret = uuid4().bytes
+    args = (label, secret, content)
+
+    try:
+        request.cur.callproc('paste_insert_vanity', args)
+        return secret
+    except errors.IntegrityError:
+        return None
+
 def put(secret, content):
-    args = (secret, content, None, None)
-    (_, _, id, digest) = request.cur.callproc('paste_put', args)
-    return int(id) if id else None, bytes(digest) if digest else None
+    args = (secret, content, None, None, None)
+    (_, _, id, digest, label) = request.cur.callproc('paste_put', args)
+    return int(id) if id else None, bytes(digest) if digest else None, bytes(label) if label else None
 
 def delete(uuid):
-    args = (uuid, None, None)
-    (_, id, digest) = request.cur.callproc('paste_delete', args)
-    return int(id) if id else None, bytes(digest) if digest else None
+    args = (uuid, None, None, None)
+    (_, id, digest, label) = request.cur.callproc('paste_delete', args)
+    return int(id) if id else None, bytes(digest) if digest else None, bytes(label) if label else None
 
 def get_digest(content):
     digest = sha1(content).digest()
-    args = (digest, None, None)
-    (_, id, exists) = request.cur.callproc('paste_get_digest', args)
-    return int(id) if id else None, digest if exists else None
+    args = (digest, None, None, None)
+    (_, id, label, exists) = request.cur.callproc('paste_get_digest', args)
+    return int(id) if id else None, digest if exists else None, bytes(label) if label else None
 
 def get_content(id):
     args = (id,) + (None,)
@@ -52,7 +64,12 @@ def get_content_digest(digest):
     (_, content) = request.cur.callproc('paste_get_content_digest', args)
     return content
 
+def get_content_vanity(label):
+    args = (label, None)
+    (_, content) = request.cur.callproc('paste_get_content_vanity', args)
+    return content
+
 def get_stats():
     args = (None, None)
     (count, length) = request.cur.callproc('paste_get_stats', args)
-    return int(count), int(length)
+    return int(count) if count else 0, int(length) if length else 0

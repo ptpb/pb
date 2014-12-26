@@ -60,6 +60,23 @@ class SHA1Converter(BaseConverter):
         ext = path.splitext(filename)[1] if filename else ''
         return '{}{}'.format(hexlify(digest).decode('utf-8'), ext)
 
+class LabelConverter(BaseConverter):
+    def __init__(self, map):
+        super().__init__(map)
+        self.regex = '(([^/.]{6,39})([.][^/]*)?)'
+        self.sre = re.compile(self.regex)
+
+    def to_python(self, value):
+        (name, label, _) = self.sre.match(value).groups()
+        return label.encode('utf-8'), name
+
+    def to_url(self, value):
+        if isinstance(value, bytes):
+            return value.decode('utf-8')
+        label, filename = value
+        ext = path.splitext(filename)[1] if filename else ''
+        return '{}{}'.format(label.decode('utf-8'), ext)
+
 def load_yaml(app, filename):
     for filename in BaseDirectory.load_config_paths('pb', filename):
         with open(filename) as f:
@@ -71,6 +88,7 @@ def create_app(config_filename='config.yaml'):
     app.response_class = TextResponse
     app.url_map.converters['id'] = IDConverter
     app.url_map.converters['sha1'] = SHA1Converter
+    app.url_map.converters['label'] = LabelConverter
 
     load_yaml(app, config_filename)
     init_db(app)
