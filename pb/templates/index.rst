@@ -18,8 +18,8 @@ Create a new paste from the output of ``cmd``:
 
     cmd | curl -F c=@- https://ptpb.pw
 
-A  `HTML form </f>`_  is also provided for convenience paste
-and file-uploads from web browsers.
+A  `HTML form </f>`_  is also provided for convenience paste and file-uploads
+from web browsers.
 
 terminology
 -----------
@@ -99,12 +99,12 @@ Creates a new paste; returns GET URL and secret UUID.
 
 Only multipart/form-data is supported; other content types are not tested.
 
-At least one 'name' disposition extension parameter must be present,
-and its value must be 'c'.
+At least one 'name' disposition extension parameter must be present, and its
+value must be 'c'.
 
-If the 'p' form parameter exists and its value evaluates to true, the
-paste will be a private paste where the paste can only be retrieved by
-knowledge of its sha1 hexdigest.
+If the 'p' form parameter exists and its value evaluates to true, the paste
+will be a private paste where the paste can only be retrieved by knowledge of
+its sha1 hexdigest.
 
 Unless the 'filename' disposition extension parameter is specified, the form
 data is decoded. The value of the 'filename' parameter is split by
@@ -153,6 +153,9 @@ examples
 
 No really, how in the name of Gandalf's beard does this actually work? Show me!
 
+normal paste
+^^^^^^^^^^^^
+
 Create a paste from the output of 'dmesg':
 
 .. code:: console
@@ -161,6 +164,9 @@ Create a paste from the output of 'dmesg':
     https://ptpb.pw/QQQP
     uuid: 17c5829d-81a0-4eb6-8681-ba72f83ffbf3
 
+updating pastes
+^^^^^^^^^^^^^^^
+
 Take that paste, and replace it with a picture of a baby skunk:
 
 .. code:: console
@@ -168,24 +174,39 @@ Take that paste, and replace it with a picture of a baby skunk:
     $ curl -X PUT -F c=@- https://ptpb.pw/17c5829d-81a0-4eb6-8681-ba72f83ffbf3 < baby-skunk.jpg
     https://ptpb.pw/QQQP updated.
 
-Append '.jpg' to hint at browsers that they should probably display a
-jpeg image:
+using mimetypes
+^^^^^^^^^^^^^^^
+
+Append '.jpg' to hint at browsers that they should probably display a jpeg
+image:
 
 ::
 
     https://ptpb.pw/QQQP.jpg
 
-Actually, that picture is already on imgur; let's delete that paste
-and make a shorturl instead:
+deleting pastes
+^^^^^^^^^^^^^^^
+
+Actually, that picture is already on imgur; let's delete that paste and make a
+shorturl instead:
 
 .. code:: console
 
     $ curl -X DELETE https://ptpb.pw/17c5829d-81a0-4eb6-8681-ba72f83ffbf3
     https://ptpb.pw/QQQP deleted.
+
+shortening URLs
+^^^^^^^^^^^^^^^
+
+.. code:: console
+
     $ curl -F c=@- https://ptpb.pw/u <<< https://i.imgur.com/CT7DWCA.jpg
     https://ptpb.pw/QQ0
 
-Well, it  *is*   shorter..
+Well, it *is*  shorter..
+
+syntax highlighting
+^^^^^^^^^^^^^^^^^^^
 
 Put my latest 'hax.py' script on ptpb:
 
@@ -202,8 +223,11 @@ line:
 
     https://ptpb.pw/QQQ_/py#L-7
 
-Perhaps we have some super sekrit thing that we don't want be be
-guessable by base66 id:
+private pastes
+^^^^^^^^^^^^^^
+
+Perhaps we have some super sekrit thing that we don't want be be guessable by
+base66 id:
 
 .. code:: console
 
@@ -220,8 +244,8 @@ Like it? Here's some convenience shell functions:
 
     pb () { curl -F "c=@${1:--}" https://ptpb.pw }
 
-This uploads paste content stdin unless an argument is provided,
-otherwise uploading the specified file.
+This uploads paste content stdin unless an argument is provided, otherwise
+uploading the specified file.
 
 Now just:
 
@@ -236,8 +260,8 @@ A slightly more elaborate variant:
 
    pbx () { curl -sF "c=@${1:--}" -w "%{redirect_url}" https://ptpb.pw -o /dev/stderr | xsel -l /dev/null -b }
 
-This uses xsel to set the ``CLIPBOARD`` selection with the url of the
-uploaded paste for immediate regurgitation elsewhere.
+This uses xsel to set the ``CLIPBOARD`` selection with the url of the uploaded
+paste for immediate regurgitation elsewhere.
 
 authors
 -------
