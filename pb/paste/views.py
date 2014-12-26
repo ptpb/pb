@@ -79,7 +79,7 @@ def put(uuid):
 
     args = model.put(uuid.bytes, content)
     if any(args):
-        url = any_url(*args)
+        url = any_url(*args, filename=filename)
         return redirect(url, "{} updated.\n".format(url), 200)
 
     return "Not found.\n", 404
