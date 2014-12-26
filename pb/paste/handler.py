@@ -9,12 +9,13 @@
     :license: GPLv3, see LICENSE for details.
 """
 
-from flask import Response
+from flask import Response, render_template, url_for, request
 
 from pb.util import publish_parts
 
 def render(content):
-    return Response(publish_parts(content), mimetype='text/html')
+    content = render_template("generic.html", content=publish_parts(content), override=request.args.get('css'))
+    return Response(content, mimetype='text/html')
 
 handlers = {
     'r': render
