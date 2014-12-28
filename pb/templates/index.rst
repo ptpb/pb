@@ -306,7 +306,7 @@ clipboard?
 
     pbs () {
       gm import -window ${1:-root} /tmp/$$.png
-      curl -sF c=@/tmp/$$.png -w "%{redirect_url}" https://ptpb.pw -o /dev/stderr | xsel -l /dev/null -b
+      pbx /tmp/$$.png
     }
 
 Now you can:
