@@ -19,7 +19,7 @@ DROP TABLE IF EXISTS private;
 CREATE TABLE private (
   digest BINARY(20) NOT NULL,
   secret BINARY(16) NOT NULL,
-  content BLOB NOT NULL,
+  content MEDIUMBLOB NOT NULL,
   PRIMARY KEY (digest),
   UNIQUE KEY (secret)
 )
@@ -30,7 +30,7 @@ CREATE TABLE vanity (
   label TINYBLOB NOT NULL,
   digest BINARY(20) NOT NULL,
   secret BINARY(16) NOT NULL,
-  content BLOB NOT NULL,
+  content MEDIUMBLOB NOT NULL,
   PRIMARY KEY (label(39)),
   UNIQUE KEY (digest),
   UNIQUE KEY (secret)
