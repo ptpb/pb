@@ -299,7 +299,7 @@ A slightly more elaborate variant:
 This uses xsel to set the ``CLIPBOARD`` selection with the url of the
 uploaded paste for immediate regurgitation elsewhere.
 
-How about uploading a screenshots then throwing that in your
+How about uploading a screenshot then throwing the URL in your
 clipboard?
 
 .. code:: bash
