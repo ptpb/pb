@@ -5,7 +5,7 @@
 
     paste url routes and views.
 
-    :copyright: Copyright (C) 2014 by the respective authors; see AUTHORS.
+    :copyright: Copyright (C) 2015 by the respective authors; see AUTHORS.
     :license: GPLv3, see LICENSE for details.
 """
 
@@ -18,7 +18,6 @@ from jinja2 import Markup
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import get_all_lexers
 
-from pb.db import cursor
 from pb.paste import model, handler as _handler
 from pb.util import highlight, redirect, request_content, id_url, publish_parts, any_url
 
@@ -44,79 +43,86 @@ def form():
 
 @paste.route('/', methods=['POST'])
 @paste.route('/<label:vanity>', methods=['POST'])
-@cursor
 def post(vanity=None):
     content, filename = request_content()
     if not content:
         return "Nope.\n", 400
 
-    uuid = None
-    id, digest, label = model.get_digest(content)
-    if not any((id, digest, label)):
+    cur = model.get_digest(content)
+    if not cur.count():
         if vanity:
-            label, name = vanity
-            uuid = model.insert_vanity(label, content)
+            label, _ = vanity
+            paste = model.insert(content, label=label)
         elif request.form.get('p'):
-            digest, uuid = model.insert_private(content)
+            paste = model.insert(content, private=1)
         else:
-            id, uuid = model.insert(content)
+            paste = model.insert(content)
+        uuid = str(UUID(hex=paste['_id']))
+    else:
+        paste = cur.__next__()
+        uuid = '<redacted>'
 
-    url = any_url(id, digest, label, filename=filename)
-    uuid = str(UUID(bytes=uuid)) if uuid else '<redacted>'
+    url = any_url(paste, filename=filename)
     return redirect(url, safe_dump(dict(url=url, uuid=uuid), default_flow_style=False))
 
 @paste.route('/<uuid:uuid>', methods=['PUT'])
-@cursor
 def put(uuid):
     content, filename = request_content()
     if not content:
         return "Nope.\n", 400
 
-    args = model.get_digest(content)
-    if any(args):
-        url = any_url(*args)
+    cur = model.get_digest(content)
+    if cur.count():
+        url = any_url(cur.__next__())
         return redirect(url, "Paste already exists.\n", 409)
 
-    args = model.put(uuid.bytes, content)
-    if any(args):
-        url = any_url(*args, filename=filename)
-        return redirect(url, "{} updated.\n".format(url), 200)
+    result = model.put(uuid, content)
+    if result['n']:
+        # FIXME: need to invalidate cache
+        return "{} pastes updated.\n".format(result['n']), 200
 
     return "Not found.\n", 404
 
 @paste.route('/<uuid:uuid>', methods=['DELETE'])
-@cursor
 def delete(uuid):
-    args = model.delete(uuid.bytes)
-    if any(args):
-        url = any_url(*args)
-        return redirect(url, "{} deleted.\n".format(url), 200)
+    result = model.delete(uuid)
+    if result['n']:
+        # FIXME: need to invalidate cache
+        return "{} pastes deleted.\n".format(result['n']), 200
     return "Not found.\n", 404
 
-@paste.route('/<id(length=4):b66>')
-@paste.route('/<id(length=4):b66>/<string(minlength=0):lexer>')
-@paste.route('/<string(length=1):handler>/<id(length=4):b66>')
+@paste.route('/<sid(length=8):sid>')
+@paste.route('/<sid(length=8):sid>/<string(minlength=0):lexer>')
+@paste.route('/<string(length=1):handler>/<sid(length=8):sid>')
 @paste.route('/<sha1:sha1>')
 @paste.route('/<sha1:sha1>/<string(minlength=0):lexer>')
 @paste.route('/<string(length=1):handler>/<sha1:sha1>')
 @paste.route('/<label:label>')
 @paste.route('/<label:label>/<string(minlength=0):lexer>')
 @paste.route('/<string(length=1):handler>/<label:label>')
-@cursor
-def get(b66=None, sha1=None, label=None, lexer=None, handler=None):
-    content = None
-    if b66:
-        id, name = b66
-        content = model.get_content(id)
+def get(sid=None, sha1=None, label=None, lexer=None, handler=None):
+    cur = None
+    if sid:
+        sid, name = sid
+        cur = model.get_content(
+            _id = {
+                '$regex': '{}$'.format(sid)
+            },
+            private = {
+                '$exists': False
+            }
+        )
     if sha1:
         digest, name = sha1
-        content = model.get_content_digest(digest)
+        cur = model.get_content(digest = digest).hint([('digest', 1)])
     if label:
         label, name = label
-        content = model.get_content_vanity(label)
+        cur = model.get_content(label = label).hint([('label', 1)])
 
-    if not content:
+    if not cur or not cur.count():
         return "Not found.\n", 404
+
+    content = cur.__next__()['content']
 
     mimetype, _ = guess_type(name)
 
@@ -130,10 +136,9 @@ def get(b66=None, sha1=None, label=None, lexer=None, handler=None):
     return content
 
 @paste.route('/s')
-@cursor
 def stats():
-    count, length = model.get_stats()
-    return safe_dump(dict(pastes=count, bytes=length), default_flow_style=False)
+    cur = model.get_stats()
+    return safe_dump(dict(pastes=cur.count()), default_flow_style=False)
 
 @paste.route('/static/highlight.css')
 def highlight_css():

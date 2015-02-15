@@ -5,10 +5,11 @@
 
     Utility functions.
 
-    :copyright: Copyright (C) 2014 by the respective authors; see AUTHORS.
+    :copyright: Copyright (C) 2015 by the respective authors; see AUTHORS.
     :license: GPLv3, see LICENSE for details.
 """
 
+import string
 from os import path
 
 from flask import Response, render_template, current_app, request, url_for
@@ -21,7 +22,7 @@ from pygments.util import ClassNotFound
 
 from docutils import core
 
-b66c = 'QwdJxskgt6BE.levhL0zWNj8~1P_ZbHDq7YrpGOIX5CyimfK-cMoAR49FaUn3VT2Su'
+b66c = string.ascii_uppercase + string.ascii_lowercase + string.digits + '-_~.'
 
 def redirect(location, rv, code=302):
     response = current_app.response_class(rv, code)
@@ -57,29 +58,17 @@ def request_content():
 
     return None, None
 
-def int_b66(length, i, filename=None):
-    b66 = ''
-    while i != 0:
-        i, n = divmod(i, len(b66c))
-        b66 = b66c[n] + b66
-    ext = path.splitext(filename)[1] if filename else ''
-    return '{:{zero}>{length}}{ext}'.format(b66, ext=ext, length=length, zero=b66c[0])
-
-def b66_int(s):
-    return sum(b66c.index(c) * len(b66c) ** (len(s) - i - 1) for i, c in enumerate(s))
-
 def id_url(**kwargs):
     proto = request.environ.get('HTTP_X_FORWARDED_PROTO')
     scheme = proto if proto else request.scheme
     return url_for('.get', _external=True, _scheme=scheme, **kwargs)
 
-def any_url(id, digest, label, filename=None):
-    if id:
-        return id_url(b66=(id, filename))
-    if digest:
-        return id_url(sha1=(digest, filename))
-    if label:
-        return id_url(label=(label, filename))
+def any_url(paste, filename=None):
+    if paste.get('private'):
+        return id_url(sha1=(paste['digest'], filename))
+    if paste.get('label'):
+        return id_url(label=(paste['label'], filename))
+    return id_url(sid=(paste['_id'], filename))
 
 def publish_parts(source):
     overrides = {'syntax_highlight': 'short'}

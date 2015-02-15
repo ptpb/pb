@@ -1,11 +1,9 @@
---allow-external mysql-connector-python
--e git+https://github.com/mitsuhiko/werkzeug.git#egg=werkzeug
 #Flask>=0.11 # FIXME: uncomment after release
 -e git+https://github.com/mitsuhiko/flask.git#egg=flask
-#Werkzeug>=0.10 # FIXME: uncomment after release
+Werkzeug>=0.10
 PyYAML>=3.11
-mysql-connector-python>=2.0.2
 Pygments>=2.0.1
 requests>=2.5.0
 docutils>=0.12
 pyxdg>=0.25
+pymongo==2.7.2

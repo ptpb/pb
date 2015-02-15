@@ -5,71 +5,55 @@
 
     paste database model.
 
-    :copyright: Copyright (C) 2014 by the respective authors; see AUTHORS.
+    :copyright: Copyright (C) 2015 by the respective authors; see AUTHORS.
     :license: GPLv3, see LICENSE for details.
 """
 
-from flask import request
-
 from uuid import uuid4
 from hashlib import sha1
+from datetime import datetime
 
-from mysql.connector import errors
+from pymongo import DESCENDING
 
-def insert(content):
-    secret = uuid4().bytes
-    args = (secret, content, None)
-    (_, _, id) = request.cur.callproc('paste_insert', args)
-    return int(id) if id else None, secret
+from pb.db import get_db
 
-def insert_private(content):
-    secret = uuid4().bytes
-    args = (secret, content, None)
-    (_, _, digest) = request.cur.callproc('paste_insert_private', args)
-    return bytes(digest) if digest else None, secret
+def insert(content, **kwargs):
+    d = dict(
+        content = content,
+        digest = sha1(content).hexdigest(),
+        _id = uuid4().hex,
+        date = datetime.utcnow(),
+        **kwargs
+    )
+    get_db().pastes.insert(d)
+    return d
 
-def insert_vanity(label, content):
-    secret = uuid4().bytes
-    args = (label, secret, content)
-
-    try:
-        request.cur.callproc('paste_insert_vanity', args)
-        return secret
-    except errors.IntegrityError:
-        return None
-
-def put(secret, content):
-    args = (secret, content, None, None, None)
-    (_, _, id, digest, label) = request.cur.callproc('paste_put', args)
-    return int(id) if id else None, bytes(digest) if digest else None, bytes(label) if label else None
+def put(uuid, content):
+    return get_db().pastes.update(dict(
+        _id = uuid.hex
+    ), {
+        '$set': dict(
+            content = content,
+            digest = sha1(content).hexdigest()
+        )
+    })
 
 def delete(uuid):
-    args = (uuid, None, None, None)
-    (_, id, digest, label) = request.cur.callproc('paste_delete', args)
-    return int(id) if id else None, bytes(digest) if digest else None, bytes(label) if label else None
+    return get_db().pastes.remove(dict(
+        _id = uuid.hex
+    ))
 
 def get_digest(content):
-    digest = sha1(content).digest()
-    args = (digest, None, None, None)
-    (_, id, label, exists) = request.cur.callproc('paste_get_digest', args)
-    return int(id) if id else None, digest if exists else None, bytes(label) if label else None
+    return get_db().pastes.find(dict(
+        digest = sha1(content).hexdigest()
+    )).sort('date', DESCENDING)
 
-def get_content(id):
-    args = (id,) + (None,)
-    (_, content) = request.cur.callproc('paste_get_content', args)
-    return content
-
-def get_content_digest(digest):
-    args = (digest, None)
-    (_, content) = request.cur.callproc('paste_get_content_digest', args)
-    return content
-
-def get_content_vanity(label):
-    args = (label, None)
-    (_, content) = request.cur.callproc('paste_get_content_vanity', args)
-    return content
+def get_content(**kwargs):
+    return get_db().pastes.find(dict(
+        **kwargs
+    ), dict(
+        content = 1
+    )).sort('date', DESCENDING)
 
 def get_stats():
-    args = (None, None)
-    (count, length) = request.cur.callproc('paste_get_stats', args)
-    return int(count) if count else 0, int(length) if length else 0
+    return get_db().pastes.find()

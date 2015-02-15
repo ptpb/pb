@@ -13,7 +13,7 @@ def test_get_digest():
         c = c
     ))
 
-    digest = sha1(c.encode('utf-8')).digest()
+    digest = sha1(c.encode('utf-8')).hexdigest()
     with app.test_request_context():
         url = url_for('paste.get', sha1=digest)
 
