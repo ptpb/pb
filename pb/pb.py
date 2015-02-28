@@ -29,7 +29,7 @@ class TextResponse(Response):
 class SIDConverter(BaseConverter):
     def __init__(self, map, length):
         super().__init__(map)
-        self.regex = '(([A-Za-z0-9_-~.]{{{}}})(?:[.][^/]*)?)'.format(length)
+        self.regex = '(([A-Za-z0-9_~.-]{{{}}})(?:[.][^/]*)?)'.format(length)
         self.sre = re.compile(self.regex)
         if length % 4 != 0:
             raise NotImplementedError('{} % 4 != 0; kthx'.format(length))
