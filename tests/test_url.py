@@ -12,7 +12,7 @@ def test_url_post():
     app = create_app()
 
     with app.test_request_context():
-        url = url_for('url.post')
+        url = url_for('paste.url')
 
     rv = app.test_client().post(url)
     assert rv.status_code == 400
@@ -30,7 +30,7 @@ def test_url_get():
     app = create_app()
 
     with app.test_request_context():
-        url = url_for('url.post')
+        url = url_for('paste.url')
 
     rv = app.test_client().post(url, data=dict(
         c = str(time())

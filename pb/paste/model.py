@@ -52,7 +52,8 @@ def get_content(**kwargs):
     return get_db().pastes.find(dict(
         **kwargs
     ), dict(
-        content = 1
+        content = 1,
+        redirect = 1
     )).sort('date', DESCENDING)
 
 def get_stats():

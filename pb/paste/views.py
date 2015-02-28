@@ -63,7 +63,16 @@ def post(vanity=None):
         uuid = '<redacted>'
 
     url = any_url(paste, filename=filename)
-    return redirect(url, safe_dump(dict(url=url, uuid=uuid), default_flow_style=False))
+    long = current_app.url_map.converters['sid'].to_url(None, paste['_id'], 12)
+
+    body = {
+        'url': url,
+        'long': long,
+        'uuid': uuid,
+        'sha1': paste['digest']
+    }
+
+    return redirect(url, safe_dump(body, default_flow_style=False))
 
 @paste.route('/<uuid:uuid>', methods=['PUT'])
 def put(uuid):
@@ -94,6 +103,9 @@ def delete(uuid):
 @paste.route('/<sid(length=8):sid>')
 @paste.route('/<sid(length=8):sid>/<string(minlength=0):lexer>')
 @paste.route('/<string(length=1):handler>/<sid(length=8):sid>')
+@paste.route('/<sid(length=4):sid>')
+@paste.route('/<sid(length=4):sid>/<string(minlength=0):lexer>')
+@paste.route('/<string(length=1):handler>/<sid(length=4):sid>')
 @paste.route('/<sha1:sha1>')
 @paste.route('/<sha1:sha1>/<string(minlength=0):lexer>')
 @paste.route('/<string(length=1):handler>/<sha1:sha1>')
@@ -103,15 +115,22 @@ def delete(uuid):
 def get(sid=None, sha1=None, label=None, lexer=None, handler=None):
     cur = None
     if sid:
-        sid, name = sid
-        cur = model.get_content(
-            _id = {
-                '$regex': '{}$'.format(sid)
-            },
-            private = {
+        sid, name, value = sid
+        cur = model.get_content(**{
+            '$or' : [
+                {
+                    '_id': {
+                        '$regex': '{}$'.format(sid)
+                    }
+                },
+                {
+                    'label' : value
+                }
+            ],
+            'private': {
                 '$exists': False
             }
-        )
+        })
     if sha1:
         digest, name = sha1
         cur = model.get_content(digest = digest).hint([('digest', 1)])
@@ -122,7 +141,12 @@ def get(sid=None, sha1=None, label=None, lexer=None, handler=None):
     if not cur or not cur.count():
         return "Not found.\n", 404
 
-    content = cur.__next__()['content']
+    paste = cur.__next__()
+
+    content = paste.get('content')
+    if paste.get('redirect'):
+        content = content.decode('utf-8')
+        return redirect(content, '{}\n'.format(content))
 
     mimetype, _ = guess_type(name)
 
@@ -134,6 +158,23 @@ def get(sid=None, sha1=None, label=None, lexer=None, handler=None):
         return Response(content, mimetype=mimetype)
 
     return content
+
+@paste.route('/u', methods=['POST'])
+def url():
+    content, _ = request_content()
+    if not content:
+        return "Nope.\n", 400
+
+    content = content.decode('utf-8').split('\n')[0].encode('utf-8')
+
+    cur = model.get_digest(content)
+    if not cur.count():
+        url = model.insert(content, redirect=1)
+    else:
+        url = cur.__next__()
+
+    url = id_url(sid=url['_id'])
+    return redirect(url, "{}\n".format(url), 200)
 
 @paste.route('/s')
 def stats():

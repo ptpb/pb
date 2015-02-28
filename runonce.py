@@ -16,6 +16,6 @@ if __name__ == "__main__":
     with app.app_context():
         db = get_db()
         db.pastes.ensure_index('digest', unique=True)
-        db.pastes.ensure_index('date', unique=True)
+        db.pastes.ensure_index('date')
         db.pastes.ensure_index('label', unique=True, sparse=True)
         db.pastes.ensure_index('private', sparse=True)

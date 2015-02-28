@@ -16,11 +16,10 @@ import re
 import yaml
 from os import path
 from xdg import BaseDirectory
-from binascii import unhexlify, hexlify
+from binascii import unhexlify, hexlify, Error as BinError
 from base64 import urlsafe_b64encode, urlsafe_b64decode
 
 from pb.paste.views import paste
-from pb.url.views import url
 from pb.db import init_db
 from pb.cache import init_cache, invalidate
 
@@ -30,7 +29,7 @@ class TextResponse(Response):
 class SIDConverter(BaseConverter):
     def __init__(self, map, length):
         super().__init__(map)
-        self.regex = '(([A-Za-z0-9_-]{{{}}})(?:[.][^/]*)?)'.format(length)
+        self.regex = '(([A-Za-z0-9_-~.]{{{}}})(?:[.][^/]*)?)'.format(length)
         self.sre = re.compile(self.regex)
         if length % 4 != 0:
             raise NotImplementedError('{} % 4 != 0; kthx'.format(length))
@@ -38,10 +37,14 @@ class SIDConverter(BaseConverter):
 
     def to_python(self, value):
         name, sid = self.sre.match(value).groups()
-        return hexlify(urlsafe_b64decode(sid)).decode('utf-8'), name
+        try:
+            _hex = hexlify(urlsafe_b64decode(sid)).decode('utf-8')
+        except BinError:
+            _hex = None
+        return _hex, name, value
 
-    def to_url(self, value):
-        f = lambda v: urlsafe_b64encode(unhexlify(v[-self.length:])).decode('utf-8')
+    def to_url(self, value, length=None):
+        f = lambda v: urlsafe_b64encode(unhexlify(v[-(length if length else self.length):])).decode('utf-8')
         if isinstance(value, str):
             return f(value)
         uuid, filename = value
@@ -100,6 +103,5 @@ def create_app(config_filename='config.yaml'):
     init_cache(app)
 
     app.register_blueprint(paste)
-    app.register_blueprint(url)
 
     return app
