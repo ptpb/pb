@@ -12,14 +12,14 @@ Requirements
 ------------
 
 - python >= 3.4 `requirements.txt <requirements.txt>`_
-- mysqld >= 5.5
+- mongodb >= 2.6
 - varnish >= 4.0 (optional)
 - gunicorn >= 19.1 (optional, or `any other WSGI server <http://wsgi.readthedocs.org/en/latest/servers.html>`_)
 
 Deployment
 ----------
 
-This assumes you have at least a working ``python`` and ``mysqld`` with
+This assumes you have at least a working ``python`` and ``mongodb`` with
 versions strictly matching the the above. Consult your distribution's
 documentation on how to do that.
 
@@ -29,27 +29,6 @@ Start by `cloning <http://git-scm.com/docs/git-clone>`_ ``pb``:
 
     $ git clone https://github.com/silverp1/pb.git
 
-You should then proceed to `create a database
-<https://dev.mysql.com/doc/refman/5.5/en/create-database.html>`_ and
-optionally `database user
-<https://dev.mysql.com/doc/refman/5.5/en/adding-users.html>`_ for
-``pb``:
-
-.. code:: console
-
-    $ mysql -u root <<EOF
-    CREATE USER 'pb'@'localhost' IDENTIFIED BY 'green socks and sharp knives';
-    CREATE DATABASE pb;
-    GRANT ALL PRIVILEGES ON pb.* to 'pb'@'localhost';
-    FLUSH PRIVILEGES;
-    EOF
-
-The schema also needs to be present:
-
-.. code:: console
-
-    $ mysql -u root pb < pb/schema.sql
-
 Next, copy ``pb/config.yaml.example`` to ``~/.config/pb/config.yaml``, and
 edit it appropriately. If you've followed the above steps exactly, its
 contents should look something like:
@@ -58,10 +37,11 @@ contents should look something like:
 
     DEBUG: true
 
-    MYSQL:
-      user: pb
-      password: green socks and sharp knives
-      database: pb
+    MONGO:
+      host: localhost
+      port: 27017
+
+    MONGO_DATABASE: pb
 
 A ``pb`` development `environment
 <https://virtualenv.pypa.io/en/latest/virtualenv.html#usage>`_ could
@@ -74,10 +54,17 @@ be created with something like:
     $ source pbenv/bin/activate
     (pbenv)$ pip install -r pb/requirements.txt
 
+You should use ``runonce.py`` to create indexes before you run ``pb``
+for the first time on a new database:
+
+.. code:: console
+
+    (pbenv)$ cd pb
+    (pbenv)$ ./runonce.py
+
 You can then start a ``pb`` instance via werkzeug's built-in `WSGI
 server <http://werkzeug.pocoo.org/docs/0.9/serving/>`_.
 
 .. code:: console
 
-    (pbenv)$ (cd pb; ./run.py)
-
+    (pbenv)$ ./run.py
