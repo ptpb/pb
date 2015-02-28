@@ -19,13 +19,17 @@ from pygments.formatters import HtmlFormatter
 from pygments.lexers import get_all_lexers
 
 from pb.paste import model, handler as _handler
-from pb.util import highlight, redirect, request_content, id_url, publish_parts, any_url
+from pb.util import highlight, redirect, request_content, id_url, rst, markdown, any_url
 
 paste = Blueprint('paste', __name__)
 
 @paste.app_template_filter(name='rst')
 def filter_rst(source):
-    return Markup(publish_parts(source))
+    return Markup(rst(source))
+
+@paste.app_template_filter(name='markdown')
+def filter_rst(source):
+    return Markup(markdown(source))
 
 @paste.app_template_global()
 def include_raw(filename):
@@ -153,7 +157,7 @@ def get(sid=None, sha1=None, label=None, lexer=None, handler=None):
     if lexer != None:
         return highlight(content, lexer)
     if handler != None:
-        return _handler.get(handler, content)
+        return _handler.get(handler, content, mimetype)
     if mimetype:
         return Response(content, mimetype=mimetype)
 

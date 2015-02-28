@@ -11,18 +11,29 @@
 
 from flask import Response, render_template, url_for, request
 
-from pb.util import publish_parts
+from pb.util import rst, markdown
 
-def render(content):
-    content = render_template("generic.html", content=publish_parts(content), override=request.args.get('css'))
+from mimetypes import add_type
+
+add_type('text/x-markdown', '.md')
+add_type('text/x-rst', '.rst')
+
+mimetypes = {
+    'text/x-markdown': markdown,
+    'text/x-rst': rst
+}
+
+def render(content, mimetype):
+    renderer = mimetypes.get(mimetype, rst)
+    content = render_template("generic.html", content=renderer(content), override=request.args.get('css'))
     return Response(content, mimetype='text/html')
 
 handlers = {
     'r': render
 }
 
-def get(handler, content):
+def get(handler, content, mimetype):
     h = handlers.get(handler)
     if not h:
         return "Invalid handler: '{}'.".format(handler), 400
-    return h(content)
+    return h(content, mimetype)
