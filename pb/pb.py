@@ -5,7 +5,7 @@
 
     pb is a lightweight pastebin.
 
-    :copyright: Copyright (C) 2014 by the respective authors; see AUTHORS.
+    :copyright: Copyright (C) 2015 by the respective authors; see AUTHORS.
     :license: GPLv3, see LICENSE for details.
 """
 
@@ -17,65 +17,70 @@ import yaml
 from os import path
 from xdg import BaseDirectory
 from binascii import unhexlify, hexlify
+from base64 import urlsafe_b64encode, urlsafe_b64decode
 
 from pb.paste.views import paste
 from pb.url.views import url
 from pb.db import init_db
 from pb.cache import init_cache, invalidate
-from pb.util import b66_int, int_b66
 
 class TextResponse(Response):
     default_mimetype = 'text/plain'
 
-class IDConverter(BaseConverter):
+class SIDConverter(BaseConverter):
     def __init__(self, map, length):
         super().__init__(map)
-        self.regex = '(([A-Za-z0-9.~_-]{{{}}})([.][^/]*)?)'.format(length)
+        self.regex = '(([A-Za-z0-9_-]{{{}}})(?:[.][^/]*)?)'.format(length)
         self.sre = re.compile(self.regex)
-        self.length = length
+        if length % 4 != 0:
+            raise NotImplementedError('{} % 4 != 0; kthx'.format(length))
+        self.length = 6 * (length // 4)
 
     def to_python(self, value):
-        (name, id, _) = self.sre.match(value).groups()
-        return b66_int(id), name
+        name, sid = self.sre.match(value).groups()
+        return hexlify(urlsafe_b64decode(sid)).decode('utf-8'), name
 
     def to_url(self, value):
-        if isinstance(value, int):
-            return int_b66(self.length, value)
-        return int_b66(self.length, *value)
+        f = lambda v: urlsafe_b64encode(unhexlify(v[-self.length:])).decode('utf-8')
+        if isinstance(value, str):
+            return f(value)
+        uuid, filename = value
+        ext = path.splitext(filename)[1] if filename else ''
+        return '{}{}'.format(f(uuid), ext)
 
 class SHA1Converter(BaseConverter):
     def __init__(self, map):
         super().__init__(map)
-        self.regex = '(([A-Za-z0-9]{40})([.][^/]*)?)'
+        self.regex = '(([A-Za-z0-9]{40})(?:[.][^/]*)?)'
         self.sre = re.compile(self.regex)
 
     def to_python(self, value):
-        (name, hexdigest, _) = self.sre.match(value).groups()
-        return unhexlify(hexdigest), name
+        name, hexdigest = self.sre.match(value).groups()
+        return hexdigest, name
 
     def to_url(self, value):
-        if isinstance(value, bytes):
-            return hexlify(value).decode('utf-8')
-        digest, filename = value
+        if isinstance(value, str):
+            return value
+        hexdigest, filename = value
         ext = path.splitext(filename)[1] if filename else ''
-        return '{}{}'.format(hexlify(digest).decode('utf-8'), ext)
+        return '{}{}'.format(hexdigest, ext)
 
 class LabelConverter(BaseConverter):
     def __init__(self, map):
         super().__init__(map)
-        self.regex = '(([^/.]{6,39})([.][^/]*)?)'
+        self.regex = '((~[^/.]+)(?:[.][^/]*)?)'
         self.sre = re.compile(self.regex)
 
     def to_python(self, value):
-        (name, label, _) = self.sre.match(value).groups()
-        return label.encode('utf-8'), name
+        name, label = self.sre.match(value).groups()
+        return label, name
 
     def to_url(self, value):
-        if isinstance(value, bytes):
-            return value.decode('utf-8')
+        if isinstance(value, str):
+            return value
         label, filename = value
         ext = path.splitext(filename)[1] if filename else ''
-        return '{}{}'.format(label.decode('utf-8'), ext)
+        return '{}{}'.format(label, ext)
 
 def load_yaml(app, filename):
     for filename in BaseDirectory.load_config_paths('pb', filename):
@@ -86,7 +91,7 @@ def load_yaml(app, filename):
 def create_app(config_filename='config.yaml'):
     app = Flask(__name__)
     app.response_class = TextResponse
-    app.url_map.converters['id'] = IDConverter
+    app.url_map.converters['sid'] = SIDConverter
     app.url_map.converters['sha1'] = SHA1Converter
     app.url_map.converters['label'] = LabelConverter
 

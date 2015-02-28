@@ -5,7 +5,7 @@
 
     intended to be conveniently used by wsgi servers.
 
-    :copyright: Copyright (C) 2014 by the respective authors; see AUTHORS.
+    :copyright: Copyright (C) 2015 by the respective authors; see AUTHORS.
     :license: GPLv3, see LICENSE for details.
 """
 

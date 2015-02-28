@@ -5,25 +5,36 @@
 
     url database model.
 
-    :copyright: Copyright (C) 2014 by the respective authors; see AUTHORS.
+    :copyright: Copyright (C) 2015 by the respective authors; see AUTHORS.
     :license: GPLv3, see LICENSE for details.
 """
 
+from uuid import uuid4
 from hashlib import sha1
+from datetime import datetime
 
-from flask import request
+from pymongo import DESCENDING
+
+from pb.db import get_db
 
 def insert(content):
-    args = (content, None)
-    (_, id) = request.cur.callproc('url_insert', args)
-    return int(id) if id else None
+    d = dict(
+        content = content,
+        digest = sha1(content).hexdigest(),
+        _id = uuid4().hex,
+        date = datetime.utcnow(),
+    )
+    get_db().urls.insert(d)
+    return d
 
 def get_digest(content):
-    args = (sha1(content).digest(), None)
-    (_, id) = request.cur.callproc('url_get_digest', args)
-    return int(id) if id else None
+    return get_db().urls.find(dict(
+        digest = sha1(content).hexdigest()
+    )).sort('date', DESCENDING)
 
-def get_content(id):
-    args = (id, None)
-    (_, content) = request.cur.callproc('url_get_content', args)
-    return content
+def get_content(**kwargs):
+    return get_db().urls.find(dict(
+        **kwargs
+    ), dict(
+        content = 1
+    )).sort('date', DESCENDING)

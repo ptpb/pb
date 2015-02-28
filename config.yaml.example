@@ -1,9 +1,9 @@
-SECRET_KEY: super sekrit
 DEBUG: true
 
-MYSQL:
-  user: foo
-  password: bar
-  database: spam
+MONGO:
+  host: localhost
+  port: 27017
+
+MONGO_DATABASE: pb
 
 VARNISH_BASE: 'http://[::1]:8080/'
