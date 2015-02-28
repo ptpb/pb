@@ -11,6 +11,7 @@
 
 import string
 from os import path
+from io import BytesIO
 
 from flask import Response, render_template, current_app, request, url_for
 
@@ -52,10 +53,10 @@ def highlight(content, lexer_name):
 def request_content():
     c = request.form.get('c')
     if c:
-        return c.encode('utf-8'), None
+        return BytesIO(c.encode('utf-8')), None
     fs = request.files.get('c')
     if fs:
-        return fs.stream.read(), fs.filename
+        return fs.stream, fs.filename
 
     return None, None
 
