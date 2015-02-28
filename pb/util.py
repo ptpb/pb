@@ -21,6 +21,7 @@ from pygments.formatters import HtmlFormatter
 from pygments.util import ClassNotFound
 
 from docutils import core
+from markdown import markdown as _markdown
 
 b66c = string.ascii_uppercase + string.ascii_lowercase + string.digits + '-_~.'
 
@@ -70,7 +71,22 @@ def any_url(paste, filename=None):
         return id_url(label=(paste['label'], filename))
     return id_url(sid=(paste['_id'], filename))
 
-def publish_parts(source):
+def rst(source):
     overrides = {'syntax_highlight': 'short'}
-    parts = core.publish_parts(source, writer_name='html', settings_overrides=overrides)
+    parts = core.publish_parts(source.decode('utf-8'), writer_name='html', settings_overrides=overrides)
     return parts['html_body']
+
+def markdown(source):
+    md = _markdown(source.decode('utf-8'), extensions=[
+        'markdown.extensions.extra',
+        'markdown.extensions.admonition',
+        'markdown.extensions.codehilite',
+        'markdown.extensions.meta',
+        'markdown.extensions.toc',
+        'markdown.extensions.wikilinks'
+    ], extension_configs = {
+        'markdown.extensions.codehilite': {
+            'css_class': 'code'
+        }
+    })
+    return md

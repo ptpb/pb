@@ -6,4 +6,5 @@ Pygments>=2.0.1
 requests>=2.5.0
 docutils>=0.12
 pyxdg>=0.25
-pymongo==2.7.2
+pymongo>=2.7.2
+Markdown>=2.6
