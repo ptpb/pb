@@ -12,6 +12,7 @@
 from yaml import safe_dump
 from uuid import UUID
 from mimetypes import guess_type
+from io import BytesIO
 
 from flask import Blueprint, Response, request, render_template, current_app, url_for
 from jinja2 import Markup
@@ -48,19 +49,19 @@ def form():
 @paste.route('/', methods=['POST'])
 @paste.route('/<label:vanity>', methods=['POST'])
 def post(vanity=None):
-    content, filename = request_content()
-    if not content:
+    stream, filename = request_content()
+    if not stream:
         return "Nope.\n", 400
 
-    cur = model.get_digest(content)
+    cur = model.get_digest(stream)
     if not cur.count():
         if vanity:
             label, _ = vanity
-            paste = model.insert(content, label=label)
+            paste = model.insert(stream, label=label)
         elif request.form.get('p'):
-            paste = model.insert(content, private=1)
+            paste = model.insert(stream, private=1)
         else:
-            paste = model.insert(content)
+            paste = model.insert(stream)
         uuid = str(UUID(hex=paste['_id']))
     else:
         paste = cur.__next__()
@@ -80,16 +81,16 @@ def post(vanity=None):
 
 @paste.route('/<uuid:uuid>', methods=['PUT'])
 def put(uuid):
-    content, filename = request_content()
-    if not content:
+    stream, filename = request_content()
+    if not stream:
         return "Nope.\n", 400
 
-    cur = model.get_digest(content)
+    cur = model.get_digest(stream)
     if cur.count():
         url = any_url(cur.__next__())
         return redirect(url, "Paste already exists.\n", 409)
 
-    result = model.put(uuid, content)
+    result = model.put(uuid, stream)
     if result['n']:
         # FIXME: need to invalidate cache
         return "{} pastes updated.\n".format(result['n']), 200
@@ -146,8 +147,8 @@ def get(sid=None, sha1=None, label=None, lexer=None, handler=None):
         return "Not found.\n", 404
 
     paste = cur.__next__()
+    content = model._get(paste.get('content'))
 
-    content = paste.get('content')
     if paste.get('redirect'):
         content = content.decode('utf-8')
         return redirect(content, '{}\n'.format(content))
@@ -165,15 +166,15 @@ def get(sid=None, sha1=None, label=None, lexer=None, handler=None):
 
 @paste.route('/u', methods=['POST'])
 def url():
-    content, _ = request_content()
-    if not content:
+    stream, _ = request_content()
+    if not stream:
         return "Nope.\n", 400
 
-    content = content.decode('utf-8').split('\n')[0].encode('utf-8')
+    stream = BytesIO(stream.read().decode('utf-8').split('\n')[0].encode('utf-8'))
 
-    cur = model.get_digest(content)
+    cur = model.get_digest(stream)
     if not cur.count():
-        url = model.insert(content, redirect=1)
+        url = model.insert(stream, redirect=1)
     else:
         url = cur.__next__()
 

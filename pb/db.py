@@ -11,6 +11,7 @@
 
 from flask import g, request, current_app
 from pymongo import MongoClient
+from gridfs import GridFS
 
 def get_db():
     con = getattr(g, 'con', None)
@@ -18,6 +19,12 @@ def get_db():
         g.con = con = MongoClient(**current_app.config['MONGO'])
         g.db = con[current_app.config['MONGO_DATABASE']]
     return g.db
+
+def get_fs():
+    fs = getattr(g, 'fs', None)
+    if fs is None:
+        g.fs = GridFS(get_db())
+    return g.fs
 
 def init_db(app):
     @app.teardown_appcontext
