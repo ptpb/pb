@@ -41,7 +41,7 @@ class SIDConverter(BaseConverter):
             _hex = hexlify(urlsafe_b64decode(sid)).decode('utf-8')
         except BinError:
             _hex = None
-        return _hex, name, value
+        return _hex, name, value[:4]
 
     def to_url(self, value, length=None):
         f = lambda v: urlsafe_b64encode(unhexlify(v[-(length if length else self.length):])).decode('utf-8')
