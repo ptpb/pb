@@ -74,7 +74,7 @@ def any_url(paste, filename=None):
 
 def rst(source):
     overrides = {'syntax_highlight': 'short'}
-    parts = core.publish_parts(source.decode('utf-8'), writer_name='html', settings_overrides=overrides)
+    parts = core.publish_parts(source, writer_name='html', settings_overrides=overrides)
     return parts['html_body']
 
 def markdown(source):
