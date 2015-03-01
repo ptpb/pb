@@ -68,11 +68,12 @@ def post(vanity=None):
         uuid = '<redacted>'
 
     url = any_url(paste, filename=filename)
-    long = current_app.url_map.converters['sid'].to_url(None, paste['digest'], 12)
+    gs = lambda l: current_app.url_map.converters['sid'].to_url(None, paste['digest'], l)
 
     body = {
         'url': url,
-        'long': long,
+        'long': gs(12),
+        'short': gs(6),
         'uuid': uuid,
         'sha1': paste['digest']
     }
