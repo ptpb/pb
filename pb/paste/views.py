@@ -68,7 +68,7 @@ def post(vanity=None):
         uuid = '<redacted>'
 
     url = any_url(paste, filename=filename)
-    long = current_app.url_map.converters['sid'].to_url(None, paste['_id'], 12)
+    long = current_app.url_map.converters['sid'].to_url(None, paste['digest'], 12)
 
     body = {
         'url': url,
@@ -124,7 +124,7 @@ def get(sid=None, sha1=None, label=None, lexer=None, handler=None):
         cur = model.get_content(**{
             '$or' : [
                 {
-                    '_id': {
+                    'digest': {
                         '$regex': '{}$'.format(sid)
                     }
                 },
@@ -178,7 +178,7 @@ def url():
     else:
         url = cur.__next__()
 
-    url = id_url(sid=url['_id'])
+    url = id_url(sid=url['digest'])
     return redirect(url, "{}\n".format(url), 200)
 
 @paste.route('/s')
