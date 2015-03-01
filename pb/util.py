@@ -70,7 +70,7 @@ def any_url(paste, filename=None):
         return id_url(sha1=(paste['digest'], filename))
     if paste.get('label'):
         return id_url(label=(paste['label'], filename))
-    return id_url(sid=(paste['_id'], filename))
+    return id_url(sid=(paste['digest'], filename))
 
 def rst(source):
     overrides = {'syntax_highlight': 'short'}
