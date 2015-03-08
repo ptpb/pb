@@ -72,7 +72,7 @@ def post(vanity=None):
 
     body = {
         'url': url,
-        'long': gs(12),
+        'long': gs(42),
         'short': gs(6),
         'uuid': uuid,
         'sha1': paste['digest']
@@ -106,9 +106,9 @@ def delete(uuid):
         return "{} pastes deleted.\n".format(result['n']), 200
     return "Not found.\n", 404
 
-@paste.route('/<sid(length=8):sid>')
-@paste.route('/<sid(length=8):sid>/<string(minlength=0):lexer>')
-@paste.route('/<string(length=1):handler>/<sid(length=8):sid>')
+@paste.route('/<sid(length=28):sha1>')
+@paste.route('/<sid(length=28):sha1>/<string(minlength=0):lexer>')
+@paste.route('/<string(length=1):handler>/<sid(length=28):sha1>')
 @paste.route('/<sid(length=4):sid>')
 @paste.route('/<sid(length=4):sid>/<string(minlength=0):lexer>')
 @paste.route('/<string(length=1):handler>/<sid(length=4):sid>')
@@ -138,7 +138,7 @@ def get(sid=None, sha1=None, label=None, lexer=None, handler=None):
             }
         })
     if sha1:
-        digest, name = sha1
+        digest, name = sha1[:2]
         cur = model.get_content(digest = digest).hint([('digest', 1)])
     if label:
         label, name = label

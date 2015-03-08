@@ -26,7 +26,25 @@ from pb.cache import init_cache, invalidate
 class TextResponse(Response):
     default_mimetype = 'text/plain'
 
-class SIDConverter(BaseConverter):
+class UnhexMixin:
+    def to_url(self, value, length=None):
+        length = length if length else self.length
+        def f(v):
+            v = '{:0>{length}}'.format(v[-(length):], length = length)
+            return urlsafe_b64encode(unhexlify(v)).decode('utf-8')
+
+        if isinstance(value, str):
+            return f(value)
+        sid, filename = value
+        ext = path.splitext(filename)[1] if filename else ''
+        return '{}{}'.format(f(sid), ext)
+
+class SREMixin:
+    def to_python(self, value):
+        name, label = self.sre.match(value).groups()
+        return label, name
+
+class SIDConverter(UnhexMixin, BaseConverter):
     def __init__(self, map, length):
         super().__init__(map)
         self.regex = '(([A-Za-z0-9_~.-]{{{}}})(?:[.][^/]*)?)'.format(length)
@@ -38,45 +56,23 @@ class SIDConverter(BaseConverter):
     def to_python(self, value):
         name, sid = self.sre.match(value).groups()
         try:
-            _hex = hexlify(urlsafe_b64decode(sid)).decode('utf-8')
+            _hex = hexlify(urlsafe_b64decode(sid)[-20:]).decode('utf-8')
         except BinError:
             _hex = None
         return _hex, name, value[:4]
 
-    def to_url(self, value, length=None):
-        f = lambda v: urlsafe_b64encode(unhexlify(v[-(length if length else self.length):])).decode('utf-8')
-        if isinstance(value, str):
-            return f(value)
-        uuid, filename = value
-        ext = path.splitext(filename)[1] if filename else ''
-        return '{}{}'.format(f(uuid), ext)
-
-class SHA1Converter(BaseConverter):
+class SHA1Converter(UnhexMixin, SREMixin, BaseConverter):
     def __init__(self, map):
         super().__init__(map)
         self.regex = '(([A-Za-z0-9]{40})(?:[.][^/]*)?)'
         self.sre = re.compile(self.regex)
+        self.length = 42
 
-    def to_python(self, value):
-        name, hexdigest = self.sre.match(value).groups()
-        return hexdigest, name
-
-    def to_url(self, value):
-        if isinstance(value, str):
-            return value
-        hexdigest, filename = value
-        ext = path.splitext(filename)[1] if filename else ''
-        return '{}{}'.format(hexdigest, ext)
-
-class LabelConverter(BaseConverter):
+class LabelConverter(SREMixin, BaseConverter):
     def __init__(self, map):
         super().__init__(map)
         self.regex = '((~[^/.]+)(?:[.][^/]*)?)'
         self.sre = re.compile(self.regex)
-
-    def to_python(self, value):
-        name, label = self.sre.match(value).groups()
-        return label, name
 
     def to_url(self, value):
         if isinstance(value, str):
