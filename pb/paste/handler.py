@@ -23,17 +23,19 @@ mimetypes = {
     'text/x-rst': rst
 }
 
-def render(content, mimetype):
+def render(content, mimetype, partial=False, **kwargs):
     renderer = mimetypes.get(mimetype, rst)
-    content = render_template("generic.html", content=renderer(content), override=request.args.get('css'))
+    content = renderer(content)
+    if not partial:
+        content = render_template("generic.html", content=content, override=request.args.get('css'))
     return Response(content, mimetype='text/html')
 
 handlers = {
     'r': render
 }
 
-def get(handler, content, mimetype):
+def get(handler, content, mimetype, **kwargs):
     h = handlers.get(handler)
     if not h:
         return "Invalid handler: '{}'.".format(handler), 400
-    return h(content, mimetype)
+    return h(content, mimetype, **kwargs)
