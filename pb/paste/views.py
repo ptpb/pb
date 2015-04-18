@@ -165,6 +165,16 @@ def get(sid=None, sha1=None, label=None, lexer=None, handler=None):
 
     return content
 
+@paste.route('/<string(length=1):handler>', methods=['POST'])
+def preview(handler):
+    stream, filename = request_content()
+    if not stream:
+        return "Nope.\n", 400
+
+    mimetype, _ = guess_type(filename)
+
+    return _handler.get(handler, stream.read(), mimetype)
+
 @paste.route('/u', methods=['POST'])
 def url():
     stream, _ = request_content()
