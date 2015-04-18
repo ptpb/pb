@@ -28,6 +28,13 @@ def load_yaml(app, filename):
             obj = yaml.load(f)
             app.config.from_mapping(obj)
 
+def cors(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Headers'] = 'content-type'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+    print(response.data)
+    return response
+
 def create_app(config_filename='config.yaml'):
     app = Flask(__name__)
     app.response_class = TextResponse
@@ -38,6 +45,8 @@ def create_app(config_filename='config.yaml'):
     load_yaml(app, config_filename)
     init_db(app)
     init_cache(app)
+
+    app.after_request(cors)
 
     app.register_blueprint(paste)
 

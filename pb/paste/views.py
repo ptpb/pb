@@ -171,7 +171,9 @@ def preview(handler):
     if not stream:
         return "Nope.\n", 400
 
-    mimetype, _ = guess_type(filename)
+    mimetype = None
+    if filename:
+        mimetype, _ = guess_type(filename)
 
     return _handler.get(handler, stream.read(), mimetype)
 
