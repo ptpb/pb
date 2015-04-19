@@ -1,10 +1,10 @@
 #Flask>=0.11 # FIXME: uncomment after release
 -e git+https://github.com/mitsuhiko/flask.git#egg=flask
-Werkzeug>=0.10
+Werkzeug>=0.10.4
 PyYAML>=3.11
-Pygments>=2.0.1
-requests>=2.5.0
+Pygments>=2.0.2
+requests>=2.6.0
 docutils>=0.12
 pyxdg>=0.25
-pymongo>=2.7.2
-Markdown>=2.6
+pymongo>=3.0
+Markdown>=2.6.1
