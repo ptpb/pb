@@ -31,4 +31,4 @@ def init_db(app):
     def teardown_db(exception):
         con = getattr(g, 'con', None)
         if con is not None:
-            con.disconnect()
+            con.close()

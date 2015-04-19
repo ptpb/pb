@@ -9,7 +9,6 @@
     :license: GPLv3, see LICENSE for details.
 """
 
-from yaml import safe_dump
 from uuid import UUID
 from mimetypes import guess_type
 from io import BytesIO
@@ -20,7 +19,7 @@ from pygments.formatters import HtmlFormatter
 from pygments.lexers import get_all_lexers
 
 from pb.paste import model, handler as _handler
-from pb.util import highlight, redirect, request_content, id_url, rst, markdown, any_url
+from pb.util import highlight, redirect, request_content, id_url, rst, markdown, any_url, dict_response
 
 paste = Blueprint('paste', __name__)
 
@@ -78,7 +77,7 @@ def post(vanity=None):
         'sha1': paste['digest']
     }
 
-    return redirect(url, safe_dump(body, default_flow_style=False))
+    return dict_response(body)
 
 @paste.route('/<uuid:uuid>', methods=['PUT'])
 def put(uuid):
@@ -169,6 +168,9 @@ def get(sid=None, sha1=None, label=None, lexer=None, handler=None):
 def preview(handler):
     stream, filename = request_content()
 
+    if not stream:
+        return ''
+
     mimetype = None
     if filename:
         mimetype, _ = guess_type(filename)
@@ -195,7 +197,7 @@ def url():
 @paste.route('/s')
 def stats():
     cur = model.get_stats()
-    return safe_dump(dict(pastes=cur.count()), default_flow_style=False)
+    return dict_response(dict(pastes=cur.count()))
 
 @paste.route('/static/highlight.css')
 def highlight_css():

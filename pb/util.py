@@ -9,6 +9,8 @@
     :license: GPLv3, see LICENSE for details.
 """
 
+from yaml import safe_dump
+import json
 import string
 from os import path
 from io import BytesIO
@@ -21,6 +23,8 @@ from pygments.lexers import get_lexer_by_name
 from pygments.formatters import HtmlFormatter
 from pygments.util import ClassNotFound
 
+from werkzeug import http
+
 from docutils import core
 from markdown import markdown as _markdown
 
@@ -30,6 +34,13 @@ def redirect(location, rv, code=302):
     response = current_app.response_class(rv, code)
     response.headers['Location'] = location
     return response
+
+def dict_response(data):
+    accept = http.parse_list_header(request.headers.get('Accept',''))
+    if accept:
+        if 'application/json' in accept:
+            return json.dumps(data)
+    return safe_dump(data, default_flow_style=False)
 
 def highlight(content, lexer_name):
     try:
@@ -51,6 +62,16 @@ def highlight(content, lexer_name):
     return Response(template, mimetype='text/html')
 
 def request_content():
+    content_type = http.parse_options_header(request.headers.get('Content-Type', ''))
+    if content_type:
+        content_type, _ = content_type
+
+    if content_type == 'application/json':
+        content = request.json.get('c')
+        if content:
+            content = BytesIO(content.encode('utf-8'))
+        return content, request.json.get('filename')
+
     c = request.form.get('c')
     if c:
         return BytesIO(c.encode('utf-8')), None
@@ -67,10 +88,10 @@ def id_url(**kwargs):
 
 def any_url(paste, filename=None):
     if paste.get('private'):
-        return id_url(sha1=((paste['digest'], filename),))
+        return id_url(sha1=(paste['digest'], filename))
     if paste.get('label'):
-        return id_url(label=((paste['label'], filename),))
-    return id_url(sid=((paste['digest'], filename),))
+        return id_url(label=(paste['label'], filename))
+    return id_url(sid=(paste['digest'], filename))
 
 def rst(source):
     overrides = {'syntax_highlight': 'short'}
