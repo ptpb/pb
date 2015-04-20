@@ -1,19 +1,17 @@
 {% extends "layout.html" %}
 
 {% block body %}
-<div class="container">
 <form method="post" enctype="multipart/form-data">
   <div>
-    <textarea name="c"></textarea>
+    <textarea class="form-control" name="c"></textarea>
   </div>
   <div>
-    <input type="file" name="c">
+    <input class="btn" type="file" name="c">
   </div>
   <div>
-    <button formaction="/">Paste</button>
-    <button formaction="/" name="p" value="1">Private</button>
-    <button formaction="/u">URL</button>
+    <button type="submit" class="btn btn-default" formaction="/">Paste</button>
+    <button type="submit" class="btn btn-default" formaction="/" name="p" value="1">Private</button>
+    <button type="submit" class="btn btn-default" formaction="/u">URL</button>
   </div>
 </form>
-</div>
 {% endblock %}
