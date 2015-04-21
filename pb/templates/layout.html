@@ -2,15 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  {% block head %}
   <title>ptpb.pw</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="{{ url_for('static', filename='pbs.css') }}" type="text/css" rel="stylesheet"/>
   <link href="{{ url_for('static', filename='highlight.css') }}" type="text/css" rel="stylesheet"/>
+  {% block head %}
+  <link href="{{ url_for('static', filename='pbs.css') }}" type="text/css" rel="stylesheet"/>
   {% endblock %}
 </head>
 <body>
-  <div class="container">
+  <div class="{{ cc|default('container') }}">
     {% block body %}
     {% endblock %}
   </div>

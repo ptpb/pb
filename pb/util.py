@@ -57,7 +57,7 @@ def highlight(content, lexer_name):
     else:
         content = _highlight(content, lexer, formatter)
 
-    template = render_template('generic.html', content=content)
+    template = render_template('generic.html', cc='container-fluid', content=content)
 
     return Response(template, mimetype='text/html')
 
