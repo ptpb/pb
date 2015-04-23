@@ -38,16 +38,16 @@ def form():
     return Response(render_template("form.html"), mimetype='text/html')
 
 @paste.route('/', methods=['POST'])
-@paste.route('/<label:vanity>', methods=['POST'])
-def post(vanity=None):
+@paste.route('/<label:label>', methods=['POST'])
+def post(label=None):
     stream, filename = request_content()
     if not stream:
         return "Nope.\n", 400
 
     cur = model.get_digest(stream)
     if not cur.count():
-        if vanity:
-            label, _ = vanity
+        if label:
+            label, _ = label
             paste = model.insert(stream, label=label)
         elif request.form.get('p'):
             paste = model.insert(stream, private=1)
