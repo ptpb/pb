@@ -1,5 +1,5 @@
 pkgname=pb-git
-pkgver=r240.b5b3b4e
+pkgver=r240.3d70152
 pkgrel=1
 pkgdesc="My attempt at a light pastebin"
 arch=('any')

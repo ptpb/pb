@@ -1,8 +1,8 @@
-====
-ptpb
-====
+==
+pb
+==
 
-ptpb is a lightweight pastebin (and url shortener) built using flask.
+pb is a lightweight pastebin (and url shortener) built using flask.
 
 contents
 --------
@@ -16,7 +16,7 @@ Create a new paste from the output of ``cmd``:
 
 .. code:: sh
 
-    cmd | curl -F c=@- https://ptpb.pw
+    cmd | curl -F c=@- {{ url('.post') }}
 
 A `HTML form </f>`_ is also provided for convenience paste and
 file-uploads from web browsers.
@@ -24,21 +24,30 @@ file-uploads from web browsers.
 terminology
 -----------
 
+shortid
+^^^^^^^
+
+base64-encoded last 3 bytes of sha1 digest
+
+longid
+^^^^^^
+
+base64-encoded sha1 digest, left-zero-padded to 21 bytes
+
 id
 ^^
 
 One of:
 
-- a four character base66 paste id
-- a four character base66 paste id, followed by a period-delimiter and
-  a mimetype extension
+- a {short,long}id
+- a {short,long}id, followed by a period-delimiter and a mimetype
+  extension
 - a 40 character sha1 hexdigest
 - a 40 character sha1 hexdigest, followed by a period-delimiter and a
   mimetype extension
 - a 'vanity' label
-- a 'vanity' label, followed by a period-delimiter
-  and a mimetype extension
-- a three character base66 url redirect id
+- a 'vanity' label, followed by a period-delimiter and a mimetype
+  extension
 
 A mimetype extension, when specified, is first matched with a matching
 mimetype known to the system, then returned in the HTTP response
@@ -47,8 +56,8 @@ headers.
 vanity
 ^^^^^^
 
-Any unicode string excluding the characters '/' and '.' of 5 < length
-< 40.
+The character '~' followed by any number of unicode characters,
+excluding '/' and '.'
 
 lexer
 ^^^^^
@@ -74,8 +83,7 @@ handlers
 r
 ^
 
-**render**: This expects reStructuredText in the paste content and
-gives HTML output.
+**render**: If a matching mimetype extension is provided, render reStructuredText or Markdown, respectively. Fallback to reStructuredText when no mimetype extension is provided/matched.
 
 routes
 ------
@@ -104,6 +112,12 @@ individual lines within the paste.
 
 Like the above, but paste content is mangled by said handler before
 being returned.
+
+``POST /<handler>``
+^^^^^^^^^^^^^^^^^^^
+
+Run the request body through the handler and return the mangled output
+in the response body--do not pass go, do not collect $200.
 
 ``POST /``
 ^^^^^^^^^^
@@ -170,6 +184,32 @@ size.
 Returns `available lexers </l>`_, newline-delimited, with
 space-delimited aliases.
 
+request format
+--------------
+
+In addition to ``multipart/form-data`` and
+``application/x-www-form-urlencoded``, paste data can be provided in
+the following alternative formats:
+
+``json``
+^^^^^^^^
+
+If ``Content-Type: application/json`` is present, pb will json-decode
+the entire request body. The ``c`` and ``filename`` keys are then
+evaluated if present.
+
+response format
+---------------
+
+Where complex data structures are present in responses, the default
+output format is yaml. Alternative output formats are also supported:
+
+``json``
+^^^^^^^^
+
+If ``Accept: application/json`` is present, pb will provide a json
+representation of the complex response in the response body.
+
 examples
 --------
 
@@ -183,8 +223,11 @@ Create a paste from the output of 'dmesg':
 
 .. code:: console
 
-    $ dmesg | curl -F c=@- https://ptpb.pw
-    https://ptpb.pw/QQQP
+    $ dmesg | curl -F c=@- {{ url('.post') }}
+    long: AGhkV6JANmmQRVssSUzFWa_0VNyq
+    sha1: 686457a240366990455b2c494cc559aff454dcaa
+    short: VNyq
+    url: {{ url('.get', label='VNyq') }}
     uuid: 17c5829d-81a0-4eb6-8681-ba72f83ffbf3
 
 updating pastes
@@ -194,8 +237,8 @@ Take that paste, and replace it with a picture of a baby skunk:
 
 .. code:: console
 
-    $ curl -X PUT -F c=@- https://ptpb.pw/17c5829d-81a0-4eb6-8681-ba72f83ffbf3 < baby-skunk.jpg
-    https://ptpb.pw/QQQP updated.
+    $ curl -X PUT -F c=@- {{ url('.put', uuid='17c5829d-81a0-4eb6-8681-ba72f83ffbf3') }} < baby-skunk.jpg
+    {{ url('.get', label='ullp') }} updated.
 
 using mimetypes
 ^^^^^^^^^^^^^^^
@@ -203,9 +246,9 @@ using mimetypes
 Append '.jpg' to hint at browsers that they should probably display a
 jpeg image:
 
-::
+.. code:: text
 
-    https://ptpb.pw/QQQP.jpg
+    {{ url('.get', label='ullp.jpg') }}
 
 deleting pastes
 ^^^^^^^^^^^^^^^
@@ -215,36 +258,39 @@ and make a shorturl instead:
 
 .. code:: console
 
-    $ curl -X DELETE https://ptpb.pw/17c5829d-81a0-4eb6-8681-ba72f83ffbf3
-    https://ptpb.pw/QQQP deleted.
+    $ curl -X DELETE {{ url('.delete', uuid='17c5829d-81a0-4eb6-8681-ba72f83ffbf3') }}
+    {{ url('.get', label='ullp') }} deleted.
 
 shortening URLs
 ^^^^^^^^^^^^^^^
 
 .. code:: console
 
-    $ curl -F c=@- https://ptpb.pw/u <<< https://i.imgur.com/CT7DWCA.jpg
-    https://ptpb.pw/QQ0
+    $ curl -F c=@- {{ url('.url') }} <<< https://i.imgur.com/CT7DWCA.jpg
+    {{ url('.get', label='qYTr') }}
 
 Well, it *is*  shorter..
 
 syntax highlighting
 ^^^^^^^^^^^^^^^^^^^
 
-Put my latest 'hax.py' script on ptpb:
+Put my latest 'hax.py' script on pb:
 
 .. code:: console
 
-    $ curl -F c=@- https://ptpb.pw < hax.py
-    https://ptpb.pw/QQx8
-    uuid: [redacted]
+    $ curl -F c=@- {{ url('.post') }} < hax.py
+    long: AEnOPO7bF9Qyyt_WUltBlYWHs_-G
+    sha1: 49ce3ceedb17d432cadfd6525b41958587b3ff86
+    short: s_-G
+    url: {{ url('.get', label='2AcJ') }}
+    uuid: bfd41875-dcac-4b6b-92e9-97a55d4f8d89
 
 Now I want to syntax highlight and draw attention to one particular
 line:
 
-::
+.. code:: text
 
-    https://ptpb.pw/QQQ_/py#L-7
+    {{ url('.get', label='2AcJ/py#L-7') }}
 
 private pastes
 ^^^^^^^^^^^^^^
@@ -254,9 +300,12 @@ guessable by base66 id:
 
 .. code:: console
 
-    $ curl -F c=@- -F p=1 https://ptpb.pw < SEKRIT_hax.py
-    url: http://localhost:10002/1c5dd062b6a3359cf60989d0e1c8746944608304
-    uuid: e5860f7a-b074-4e5d-88d4-747cfacc1fcd
+    $ curl -F c=@- -F p=1 {{ url('.post') }} < SEKRIT_hax.py
+    long: ACCzjDcun9TqySwSUjy_yRpGxWIK
+    sha1: 20b38c372e9fd4eac92c12523cbfc91a46c5620a
+    short: xWIK
+    url: {{ url('.get', label='ACCzjDcun9TqySwSUjy_yRpGxWIK') }}
+    uuid: 876e09b5-09d4-454c-8570-b627af54abd1
 
 vanity pastes
 ^^^^^^^^^^^^^
@@ -265,10 +314,13 @@ Witness the gloriousness:
 
 .. code:: console
 
-    $ curl -F c=@- https://ptpb.pw/polyzen <<< boats and hoes
-    url: https://ptpb.pw/polyzen
-    uuid: <redacted>
-    $ curl https://ptpb.pw/polyzen
+    $ curl -F c=@- {{ url('.post', label='~polyzen') }} <<< "boats and hoes"
+    long: AEz1_jLk-awIvq73RxQq_n1aQ46a
+    sha1: 4cf5fe32e4f9ac08beaef747142afe7d5a438e9a
+    short: Q46a
+    url: {{ url('.get', label='~polyzen') }}
+    uuid: ab505051-0766-41dd-85d9-e739e62de58d
+    $ curl {{ url('.get', label='~polyzen') }}
     boats and hoes
 
 shell functions
@@ -278,7 +330,7 @@ Like it? Here's some convenience shell functions:
 
 .. code:: bash
 
-    pb () { curl -F "c=@${1:--}" https://ptpb.pw }
+    pb () { curl -F "c=@${1:--}" {{ url('.post') }} }
 
 This uploads paste content stdin unless an argument is provided,
 otherwise uploading the specified file.
@@ -294,7 +346,7 @@ A slightly more elaborate variant:
 
 .. code:: bash
 
-    pbx () { curl -sF "c=@${1:--}" -w "%{redirect_url}" https://ptpb.pw -o /dev/stderr | xsel -l /dev/null -b }
+    pbx () { curl -sF "c=@${1:--}" -w "%{redirect_url}" '{{ url('.post', r=1) }}' -o /dev/stderr | xsel -l /dev/null -b }
 
 This uses xsel to set the ``CLIPBOARD`` selection with the url of the
 uploaded paste for immediate regurgitation elsewhere.
@@ -322,4 +374,4 @@ while the first uses the root window.
 duck sauce
 ----------
 
-`https://github.com/silverp1/pb <https://github.com/silverp1/pb>`_
+`https://github.com/ptpb/pb <https://github.com/ptpb/pb>`_

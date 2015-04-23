@@ -13,33 +13,25 @@ from uuid import UUID
 from mimetypes import guess_type
 from io import BytesIO
 
-from flask import Blueprint, Response, request, render_template, current_app, url_for
+from flask import Blueprint, Response, request, render_template, current_app
 from jinja2 import Markup
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import get_all_lexers
 
 from pb.paste import model, handler as _handler
-from pb.util import highlight, redirect, request_content, id_url, rst, markdown, any_url, dict_response
+from pb.util import highlight, redirect, request_content, id_url, rst, markdown, any_url, dict_response, absolute_url
 
 paste = Blueprint('paste', __name__)
 
-@paste.app_template_filter(name='rst')
-def filter_rst(source):
-    return Markup(rst(source))
-
-@paste.app_template_filter(name='markdown')
-def filter_rst(source):
-    return Markup(markdown(source))
-
-@paste.app_template_global()
-def include_raw(filename):
-    env = current_app.jinja_env
-    source = current_app.jinja_loader.get_source(env, filename)[0]
-    return Markup(source)
+@paste.app_template_global(name='url')
+def _url(endpoint, **kwargs):
+    return absolute_url(endpoint, **kwargs)
 
 @paste.route('/')
 def index():
-    return Response(render_template("index.html"), mimetype='text/html')
+    content = rst(render_template("index.rst"))
+
+    return Response(render_template("generic.html", content=content), mimetype='text/html')
 
 @paste.route('/f')
 def form():
@@ -77,7 +69,7 @@ def post(vanity=None):
         'sha1': paste['digest']
     }
 
-    return dict_response(body)
+    return dict_response(body, url=url)
 
 @paste.route('/<uuid:uuid>', methods=['PUT'])
 def put(uuid):

@@ -35,12 +35,17 @@ def redirect(location, rv, code=302):
     response.headers['Location'] = location
     return response
 
-def dict_response(data):
+def dict_response(data, url=None):
     accept = http.parse_list_header(request.headers.get('Accept',''))
     if accept:
         if 'application/json' in accept:
             return json.dumps(data)
-    return safe_dump(data, default_flow_style=False)
+
+    response = safe_dump(data, default_flow_style=False)
+
+    if url and request.args.get('r'):
+        return redirect(url, response)
+    return response
 
 def highlight(content, lexer_name):
     try:
@@ -81,10 +86,13 @@ def request_content():
 
     return None, None
 
-def id_url(**kwargs):
+def absolute_url(endpoint, **kwargs):
     proto = request.environ.get('HTTP_X_FORWARDED_PROTO')
     scheme = proto if proto else request.scheme
-    return url_for('.get', _external=True, _scheme=scheme, **kwargs)
+    return url_for(endpoint, _external=True, _scheme=scheme, **kwargs)
+
+def id_url(**kwargs):
+    return absolute_url('.get', **kwargs)
 
 def any_url(paste, filename=None):
     if paste.get('private'):
