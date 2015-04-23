@@ -9,10 +9,12 @@
     :license: GPLv3, see LICENSE for details.
 """
 
-from run import app
+from pb.pb import create_app
 from pb.db import get_db
 
 if __name__ == "__main__":
+    app = create_app()
+
     with app.app_context():
         db = get_db()
         db.pastes.ensure_index('digest', unique=True)

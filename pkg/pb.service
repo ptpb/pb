@@ -1,0 +1,13 @@
+[Unit]
+Description=pb service unit
+Requires=uwsgi@pb.service mongodb.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python -m pb.runonce
+ExecReload=/usr/bin/systemctl reload uwsgi@pb.service
+ExecStop=/usr/bin/systemctl stop uwsgi@pb.service
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

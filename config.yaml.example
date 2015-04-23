@@ -1,4 +1,4 @@
-DEBUG: true
+#DEBUG: true
 
 MONGO:
   host: localhost
@@ -6,4 +6,4 @@ MONGO:
 
 MONGO_DATABASE: pb
 
-VARNISH_BASE: 'http://[::1]:8080/'
+#VARNISH_BASE: 'http://[::1]:8080/'
