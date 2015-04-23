@@ -1,5 +1,5 @@
 pkgname=pb-git
-pkgver=r238.6955024
+pkgver=r240.b5b3b4e
 pkgrel=1
 pkgdesc="My attempt at a light pastebin"
 arch=('any')
@@ -9,9 +9,9 @@ license=('GPLv3')
 depends=('python' 'python-werkzeug' 'python-flask-git' 'python-yaml'
          'python-requests' 'python-docutils' 'python-xdg'
          'python-pymongo' 'python-markdown' 'uwsgi'
-         'uwsgi-plugin-python' 'nodejs-less' 'git')
+         'uwsgi-plugin-python')
 
-makedepends=('python-setuptools')
+makedepends=('python-setuptools' 'nodejs-less' 'git')
 #checkdepends=('tox' 'python-pytest' 'python-pytest-cov')
 
 provides=('pb')
@@ -30,7 +30,7 @@ prepare() {
 
   git submodule update --init --recursive
 
-  lessc pbs/less/pbs.less pb/static/pbs.css
+  lessc --strict-math=on pbs/less/pbs.less pb/static/pbs.css
 }
 
 build() {
