@@ -17,6 +17,7 @@ from flask import Blueprint, Response, request, render_template, current_app
 from jinja2 import Markup
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import get_all_lexers
+from pymongo import errors
 
 from pb.paste import model, handler as _handler
 from pb.util import highlight, redirect, request_content, id_url, rst, markdown, any_url, dict_response, absolute_url
@@ -48,7 +49,10 @@ def post(label=None):
     if not cur.count():
         if label:
             label, _ = label
-            paste = model.insert(stream, label=label)
+            try:
+                paste = model.insert(stream, label=label)
+            except errors.DuplicateKeyError:
+                return "label already exists.\n", 409
         elif request.form.get('p'):
             paste = model.insert(stream, private=1)
         else:
