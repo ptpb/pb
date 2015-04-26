@@ -5,7 +5,7 @@
     "license": "GPLv3",
     "repository": {
         "type": "git",
-        "url": "https://github.com/ptpb/pbs.git"
+        "url": "https://github.com/ptpb/pb.git"
     },
     "dependencies": {
         "grunt": ">=0.4.5",
