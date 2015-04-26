@@ -43,12 +43,14 @@ look something like:
 
     MONGO_DATABASE: pb
 
-You'll also need to build ``pbs.css``, which requires ``lessc``:
+You'll also need to build ``pbs``, which requires
+``grunt-cli``:
 
 .. code:: console
 
-    # npm install -g less
-    $ lessc --strict-math=on pb/{pbs/less/pbs.less,pb/static/pbs.css}
+    # npm install -g grunt-cli
+    $ npm install
+    $ grunt
 
 A ``pb`` development `environment
 <https://virtualenv.pypa.io/en/latest/virtualenv.html#usage>`_ could
