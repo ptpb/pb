@@ -1,12 +1,20 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
   <title>pb</title>
+
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  {% for size in ['32', '128', '512'] %}
+  <link rel="icon" type="image/png"
+        href="{{ url_for('static', filename='images/ptpb-{}.png'.format(size)) }}"
+        sizes="{{size}}x{{size}}">
+  {% endfor %}
+
   <link href="{{ url_for('static', filename='highlight.css') }}" type="text/css" rel="stylesheet"/>
   {% block head %}
-  <link href="{{ url_for('static', filename='pbs.css') }}" type="text/css" rel="stylesheet"/>
+  <link href="{{ url_for('static', filename='css/pbs.css') }}" type="text/css" rel="stylesheet"/>
   {% endblock %}
 </head>
 <body>

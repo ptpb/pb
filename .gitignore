@@ -10,3 +10,4 @@ config.yaml
 *.egg-info
 build/
 dist/
+node_modules/

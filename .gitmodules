@@ -1,3 +1,0 @@
-[submodule "pbs"]
-	path = pbs
-	url = https://github.com/ptpb/pbs.git
