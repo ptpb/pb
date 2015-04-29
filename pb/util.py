@@ -30,22 +30,24 @@ from markdown import markdown as _markdown
 
 b66c = string.ascii_uppercase + string.ascii_lowercase + string.digits + '-_~.'
 
-def redirect(location, rv, code=302):
-    response = current_app.response_class(rv, code)
+def redirect(location, rv, code=302, **kwargs):
+    response = current_app.response_class(rv, code, **kwargs)
     response.headers['Location'] = location
     return response
 
 def dict_response(data, url=None):
     accept = http.parse_list_header(request.headers.get('Accept',''))
-    if accept:
-        if 'application/json' in accept:
-            return json.dumps(data)
 
-    response = safe_dump(data, default_flow_style=False)
+    mime = 'text/x-yaml'
+    if accept and 'application/json' in accept:
+        body = json.dumps(data)
+        mime = 'application/json'
+    else:
+        body = safe_dump(data, default_flow_style=False)
 
     if url and request.args.get('r'):
-        return redirect(url, response)
-    return response
+        return redirect(url, response, mimetype=mime)
+    return current_app.response_class(body, mimetype=mime)
 
 def any_url(paste, **kwargs):
     idu = lambda k,v: id_url(**{k: (paste[v], kwargs.get('filename'))})

@@ -20,7 +20,7 @@ from pygments.lexers import get_all_lexers
 from pymongo import errors
 
 from pb.paste import model, handler as _handler
-from pb.util import highlight, redirect, request_content, id_url, rst, markdown, any_url, complex_response, absolute_url
+from pb.util import highlight, redirect, request_content, id_url, rst, markdown, complex_response, absolute_url
 from pb.cache import invalidate
 
 paste = Blueprint('paste', __name__)
@@ -59,11 +59,13 @@ def post(label=None):
         else:
             paste = model.insert(stream)
         uuid = str(UUID(hex=paste['_id']))
+        status = "created"
     else:
         paste = cur.__next__()
         uuid = None
+        status = "already exists"
 
-    return complex_response(paste, filename=filename, uuid=uuid, status="created")
+    return complex_response(paste, filename=filename, uuid=uuid, status=status)
 
 @paste.route('/<uuid:uuid>', methods=['PUT'])
 def put(uuid):
@@ -73,12 +75,13 @@ def put(uuid):
 
     cur = model.get_digest(stream)
     if cur.count():
-        url = any_url(cur.__next__(), filename=filename)
-        return redirect(url, "Paste already exists.\n", 409)
+        return complex_response(cur.__next__(), filename=filename, status="already exists")
 
-    paste = invalidate(uuid)
+    # FIXME: such query; wow
+    invalidate(uuid)
     result = model.put(uuid, stream)
     if result['n']:
+        paste = model.get_meta(_id=uuid.hex).__next__()
         return complex_response(paste, status="updated")
 
     return "Not found.\n", 404
