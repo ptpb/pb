@@ -21,6 +21,7 @@ from pymongo import errors
 
 from pb.paste import model, handler as _handler
 from pb.util import highlight, redirect, request_content, id_url, rst, markdown, any_url, dict_response, absolute_url
+from pb.cache import invalidate
 
 paste = Blueprint('paste', __name__)
 
@@ -86,18 +87,18 @@ def put(uuid):
         url = any_url(cur.__next__())
         return redirect(url, "Paste already exists.\n", 409)
 
+    invalidate(uuid)
     result = model.put(uuid, stream)
     if result['n']:
-        # FIXME: need to invalidate cache
         return "{} pastes updated.\n".format(result['n']), 200
 
     return "Not found.\n", 404
 
 @paste.route('/<uuid:uuid>', methods=['DELETE'])
 def delete(uuid):
+    invalidate(uuid)
     result = model.delete(uuid)
     if result['n']:
-        # FIXME: need to invalidate cache
         return "{} pastes deleted.\n".format(result['n']), 200
     return "Not found.\n", 404
 

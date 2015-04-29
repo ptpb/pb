@@ -81,5 +81,14 @@ def get_content(**kwargs):
     )).sort('date', DESCENDING)
     return paste
 
+def get_meta(**kwargs):
+    return get_db().pastes.find(dict(
+        **kwargs
+    ), dict(
+        digest = 1,
+        label = 1,
+        _id = 1
+    ))
+
 def get_stats():
     return get_db().pastes.find()

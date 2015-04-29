@@ -64,7 +64,7 @@ class LabelConverter(SREMixin, BaseConverter):
         self.regex = '((~[^/.]+)(?:[.][^/]*)?)'
         self.sre = re.compile(self.regex)
 
-    def to_url(self, value):
+    def to_url(self, value, length=None):
         if isinstance(value, str):
             return value
         label, filename = value
