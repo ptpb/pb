@@ -30,6 +30,9 @@ from markdown import markdown as _markdown
 
 b66c = string.ascii_uppercase + string.ascii_lowercase + string.digits + '-_~.'
 
+def dsid(digest, length=6):
+    return current_app.url_map.converters['sid'].to_url(None, digest, length)
+
 def redirect(location, rv, code=302):
     response = current_app.response_class(rv, code)
     response.headers['Location'] = location

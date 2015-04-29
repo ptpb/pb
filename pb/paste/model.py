@@ -17,8 +17,9 @@ from pymongo import DESCENDING
 from bson import ObjectId
 
 from pb.db import get_db, get_fs
+from pb.util import dsid
 
-def _put(stream):
+def _put(stream, **kwargs):
     b = stream.read()
     digest = sha1(b).hexdigest()
     try:
@@ -27,10 +28,15 @@ def _put(stream):
     except AttributeError:
         # FIXME: what the actual fuck, mitsuhiko?
         b = get_fs().put(b)
-    return dict(
+    d = dict(
         content = b,
         digest = digest
     )
+
+    if kwargs.get('label') == 1:
+        d['label'] = dsid(digest)
+
+    return d
 
 def _get(content):
     if isinstance(content, ObjectId):
@@ -38,7 +44,7 @@ def _get(content):
     return content
 
 def insert(stream, **kwargs):
-    kwargs.update(**_put(stream))
+    kwargs.update(**_put(stream, **kwargs))
     d = dict(
         _id = uuid4().hex,
         date = datetime.utcnow(),
