@@ -46,14 +46,14 @@ def get_session():
     return s
 
 def invalidate(uuid):
-    base = current_app.config.get('VARNISH_BASE')
-    if not base:
-        return
-
     cur = model.get_meta(_id=uuid.hex)
     if not cur or not cur.count():
         return
     paste = cur.__next__()
+
+    base = current_app.config.get('VARNISH_BASE')
+    if not base:
+        return paste
 
     s = get_session()
 
@@ -61,6 +61,8 @@ def invalidate(uuid):
         url = urljoin(base, '/.*{}.*'.format(url))
         headers = {'Host': get_host(request.environ)}
         s.executor.submit(s.request, 'BAN', url, headers=headers)
+
+    return paste
 
 def add_cache_header(response):
     if request.method == 'GET' and not response.cache_control.public:

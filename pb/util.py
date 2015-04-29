@@ -47,6 +47,32 @@ def dict_response(data, url=None):
         return redirect(url, response)
     return response
 
+def any_url(paste, **kwargs):
+    idu = lambda k,v: id_url(**{k: (paste[v], kwargs.get('filename'))})
+    if paste.get('private'):
+        return idu('sha1', 'digest')
+    if paste.get('label'):
+        return idu('label', 'label')
+    return idu('sid', 'digest')
+
+def complex_response(paste, **kwargs):
+    gs = lambda l: current_app.url_map.converters['sid'].to_url(None, paste['digest'], l)
+
+    d = {k:v for k,v in {
+        'url': any_url(paste, **kwargs),
+        'long': gs(42),
+        'short': gs(6),
+        'sha1': paste['digest'],
+        'uuid': kwargs.get('uuid'),
+        'status': kwargs.get('status'),
+        'label': paste.get('label')
+    }.items() if v}
+
+    if paste.get('private'):
+        del body['short']
+
+    return dict_response(d, d['url'])
+
 def highlight(content, lexer_name):
     try:
         lexer = get_lexer_by_name(lexer_name)
@@ -93,13 +119,6 @@ def absolute_url(endpoint, **kwargs):
 
 def id_url(**kwargs):
     return absolute_url('.get', **kwargs)
-
-def any_url(paste, filename=None):
-    if paste.get('private'):
-        return id_url(sha1=(paste['digest'], filename))
-    if paste.get('label'):
-        return id_url(label=(paste['label'], filename))
-    return id_url(sid=(paste['digest'], filename))
 
 def rst(source):
     overrides = {'syntax_highlight': 'short'}
