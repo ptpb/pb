@@ -71,7 +71,7 @@ def complex_response(paste, **kwargs):
     }.items() if v}
 
     if paste.get('private'):
-        del body['short']
+        del d['short']
 
     return dict_response(d, d['url'])
 
