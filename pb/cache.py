@@ -21,6 +21,23 @@ from requests.sessions import Session
 from werkzeug.wrappers import get_host
 from flask import request, current_app, g
 
+from pb.paste import model
+
+_methods = {
+    'sid': 'digest',
+    'sha1': 'digest',
+    'label': 'label'
+}
+
+def all_urls(paste):
+    for key, value in _methods.items():
+        if value in paste:
+            if key == 'sha1':
+                yield paste[value]
+                continue
+            conv = current_app.url_map.converters[key]
+            yield conv.to_url(None, paste[value], 6)
+
 def get_session():
     s = getattr(g, '_session', None)
     if s is None:
@@ -28,19 +45,22 @@ def get_session():
         s.executor = ThreadPoolExecutor(4)
     return s
 
-def invalidate(url):
-
+def invalidate(uuid):
     base = current_app.config.get('VARNISH_BASE')
     if not base:
         return
+
+    cur = model.get_meta(_id=uuid.hex)
+    if not cur or not cur.count():
+        return
+    paste = cur.__next__()
+
     s = get_session()
 
-    url = urlsplit(url).path
-    url = path.splitext(url.split('/')[1])[0]
-    url = urljoin(base, '/.*{}.*'.format(url))
-    headers = {'Host': get_host(request.environ)}
-
-    return s.executor.submit(s.request, 'BAN', url, headers=headers)
+    for url in all_urls(paste):
+        url = urljoin(base, '/.*{}.*'.format(url))
+        headers = {'Host': get_host(request.environ)}
+        s.executor.submit(s.request, 'BAN', url, headers=headers)
 
 def add_cache_header(response):
     if request.method == 'GET' and not response.cache_control.public:
@@ -52,12 +72,6 @@ def add_cache_header(response):
         response.make_conditional(request)
     return response
 
-def invalidate_cache(response):
-    location = response.headers.get('Location')
-    if location and request.blueprint == 'paste':
-        invalidate(location)
-    return response
-
 def teardown_cache(exception):
     s = getattr(g, '_session', None)
     if s is not None:
@@ -66,4 +80,3 @@ def teardown_cache(exception):
 def init_cache(app):
     app.teardown_appcontext(teardown_cache)
     app.after_request(add_cache_header)
-    app.after_request(invalidate_cache)
