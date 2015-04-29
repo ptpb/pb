@@ -46,7 +46,7 @@ def dict_response(data, url=None):
         body = safe_dump(data, default_flow_style=False)
 
     if url and request.args.get('r'):
-        return redirect(url, response, mimetype=mime)
+        return redirect(url, body, mimetype=mime)
     return current_app.response_class(body, mimetype=mime)
 
 def any_url(paste, **kwargs):
