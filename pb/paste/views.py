@@ -20,7 +20,7 @@ from pygments.lexers import get_all_lexers
 from pymongo import errors
 
 from pb.paste import model, handler as _handler
-from pb.util import highlight, redirect, request_content, id_url, rst, markdown, any_url, dict_response, absolute_url
+from pb.util import highlight, redirect, request_content, id_url, rst, markdown, any_url, dict_response, absolute_url, dsid
 from pb.cache import invalidate
 
 paste = Blueprint('paste', __name__)
@@ -57,19 +57,20 @@ def post(label=None):
         elif request.form.get('p'):
             paste = model.insert(stream, private=1)
         else:
-            paste = model.insert(stream)
+            paste = model.insert(stream, label=1)
         uuid = str(UUID(hex=paste['_id']))
     else:
         paste = cur.__next__()
         uuid = '<redacted>'
 
     url = any_url(paste, filename=filename)
-    gs = lambda l: current_app.url_map.converters['sid'].to_url(None, paste['digest'], l)
+
+    _gs = lambda l: dsid(paste['digest'], l)
 
     body = {
         'url': url,
-        'long': gs(42),
-        'short': gs(6),
+        'long': _gs(42),
+        'short': _gs(6),
         'uuid': uuid,
         'sha1': paste['digest']
     }
