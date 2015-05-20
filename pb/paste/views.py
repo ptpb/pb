@@ -17,6 +17,8 @@ from flask import Blueprint, Response, request, render_template, current_app
 from jinja2 import Markup
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import get_all_lexers
+from pygments.styles import get_all_styles
+from pygments.util import ClassNotFound
 from pymongo import errors
 
 from pb.paste import model, handler as _handler
@@ -188,12 +190,20 @@ def stats():
     cur = model.get_stats()
     return dict_response(dict(pastes=cur.count()))
 
-@paste.route('/static/highlight.css')
-def highlight_css():
-    css = HtmlFormatter().get_style_defs('.code')
+@paste.route('/static/<style>.css')
+def highlight_css(style="default"):
+    try:
+        css = HtmlFormatter(style=style).get_style_defs('.code')
+    except ClassNotFound:
+        return "Nope.\n", 404
+
     return Response(css, mimetype='text/css')
 
 @paste.route('/l')
 def list_lexers():
     lexers = '\n'.join(' '.join(i) for _, i, _, _ in get_all_lexers())
     return '{}\n'.format(lexers)
+
+@paste.route('/ls')
+def list_styles():
+    return '{}\n'.format('\n'.join(get_all_styles()))

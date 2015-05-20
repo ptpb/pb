@@ -12,9 +12,9 @@
         sizes="{{size}}x{{size}}">
   {% endfor %}
 
-  <link href="{{ url_for('static', filename='highlight.css') }}" type="text/css" rel="stylesheet"/>
   {% block head %}
   <link href="{{ url_for('static', filename='css/pbs.css') }}" type="text/css" rel="stylesheet"/>
+  <link href="{{ url_for('static', filename='default.css') }}" type="text/css" rel="stylesheet"/>
   {% endblock %}
 </head>
 <body>

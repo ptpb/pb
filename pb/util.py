@@ -75,6 +75,9 @@ def complex_response(paste, **kwargs):
 
     return dict_response(d, d['url'])
 
+def style_args():
+    return {k:request.args.get(k) for k in ['style','css']}
+
 def highlight(content, lexer_name):
     try:
         lexer = get_lexer_by_name(lexer_name)
@@ -90,7 +93,7 @@ def highlight(content, lexer_name):
     else:
         content = _highlight(content, lexer, formatter)
 
-    template = render_template('generic.html', cc='container-fluid', content=content)
+    template = render_template("generic.html", content=content, **style_args())
 
     return Response(template, mimetype='text/html')
 
