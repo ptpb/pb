@@ -24,6 +24,12 @@ file-uploads from web browsers.
 terminology
 -----------
 
+sunset
+^^^^^^
+
+time in-seconds that the paste should persist before being
+automatically deleted
+
 shortid
 ^^^^^^^
 
@@ -138,6 +144,12 @@ Unless the 'filename' disposition extension parameter is specified,
 the form data is decoded. The value of the 'filename' parameter is
 split by period-delimited extension, and appended to the location in
 the response.
+
+If the 'sunset' disposition extension parameter is specified, the paste
+will be deleted after the given amount of time has passed. Its value
+must be a positive integer and represents the number of seconds (after
+having been pasted) that the paste should survive before being
+automatically deleted.
 
 ``POST /<vanity>``
 ^^^^^^^^^^^^^^^^^^
