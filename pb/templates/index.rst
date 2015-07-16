@@ -33,7 +33,7 @@ automatically deleted
 shortid
 ^^^^^^^
 
-base64-encoded last 3 bytes of sha1 digest
+base64-encoded last 4 bytes of sha1 digest
 
 longid
 ^^^^^^
