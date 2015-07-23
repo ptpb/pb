@@ -11,7 +11,7 @@
 
 from flask import Response, render_template, url_for, request
 
-from pb.util import rst, markdown
+from pb.util import rst, markdown, style_args
 
 from mimetypes import add_type
 

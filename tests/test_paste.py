@@ -4,7 +4,6 @@ from os import urandom, path
 from urllib import parse
 
 from yaml import load
-from flask import url_for
 
 from pb.pb import create_app
 
