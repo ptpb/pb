@@ -26,9 +26,8 @@ mimetypes = {
 def render(content, mimetype, partial=False, **kwargs):
     renderer = mimetypes.get(mimetype, rst)
     content = renderer(content)
-    print(request.args)
     if not partial:
-        content = render_template("generic.html", content=content, **style_args())
+        content = render_template("generic.html", cc='container-fluid', content=content, **style_args())
     return Response(content, mimetype='text/html')
 
 handlers = {
