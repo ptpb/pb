@@ -3,6 +3,7 @@ from io import BytesIO
 from os import urandom, path
 from urllib import parse
 
+from yaml import load
 from flask import url_for
 
 from pb.pb import create_app
@@ -16,24 +17,13 @@ def test_post_content():
     rv = app.test_client().post('/', data=dict(
         c = str(time())
     ))
-    assert rv.status_code == 302
-
-    location = rv.headers.get('Location')
-    assert location
-
-    rv = app.test_client().get(location)
     assert rv.status_code == 200
 
-    # FIXME
-    #url_path = parse.urlsplit(location).path
-    #id = b66_int(path.split(url_path)[-1])
-    #assert id != 0
+    data = load(rv.get_data())
+    assert data['url']
 
-    #with app.test_request_context():
-    #    url = url_for('paste.get', b66=id+10)
-
-    #rv = app.test_client().get(url)
-    #assert rv.status_code == 404
+    rv = app.test_client().get(data['url'])
+    assert rv.status_code == 200
 
 def test_post_file():
     app = create_app()
@@ -44,13 +34,13 @@ def test_post_file():
         c = (BytesIO(c), 'foo.{}'.format(ext))
     ))
 
-    location = rv.headers.get('Location')
-    assert '.{}'.format(ext) in location
+    data = load(rv.get_data())
+    assert '.{}'.format(ext) in data['url']
 
-    rv = app.test_client().get(location)
+    rv = app.test_client().get(data['url'])
     assert c == rv.get_data()
 
-def test_post_unqiue():
+def test_post_unique():
     app = create_app()
 
     f = lambda c: app.test_client().post('/', data=dict(
@@ -60,13 +50,13 @@ def test_post_unqiue():
     rv1 = f(monotonic())
     rv2 = f(monotonic())
 
-    assert rv1.headers.get('Location') != rv2.headers.get('Location')
+    assert load(rv1.get_data())['url'] != load(rv2.get_data())['url']
 
     c = time()
     rv1 = f(c)
     rv2 = f(c)
 
-    assert rv1.headers.get('Location') == rv2.headers.get('Location')
+    assert load(rv1.get_data())['url'] == load(rv2.get_data())['url']
 
 def test_get_mimetype():
     app = create_app()
@@ -75,6 +65,6 @@ def test_get_mimetype():
         c = str('ello')
     ))
 
-    rv = app.test_client().get('{}.py'.format(rv.headers.get('Location')))
+    rv = app.test_client().get('{}.py'.format(load(rv.get_data())['url']))
 
     assert 'text/x-python' in rv.headers.get('Content-Type')

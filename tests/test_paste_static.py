@@ -31,7 +31,7 @@ def test_get_css():
     app = create_app()
 
     with app.test_request_context():
-        url = url_for('paste.highlight_css')
+        url = url_for('paste.highlight_css', style='default')
 
     rv = app.test_client().get(url)
     assert rv.status_code == 200

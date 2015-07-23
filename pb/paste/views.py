@@ -22,7 +22,7 @@ from pygments.util import ClassNotFound
 from pymongo import errors
 
 from pb.paste import model, handler as _handler
-from pb.util import highlight, redirect, request_content, id_url, rst, markdown, complex_response, absolute_url
+from pb.util import highlight, redirect, request_content, id_url, rst, markdown, complex_response, absolute_url, dict_response
 from pb.cache import invalidate
 
 paste = Blueprint('paste', __name__)

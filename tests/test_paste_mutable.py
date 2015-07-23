@@ -20,7 +20,7 @@ def test_put():
 
     with app.test_request_context():
         url = url_for('paste.put', uuid=data.get('uuid'))
-        
+
     f = lambda c: app.test_client().put(url, data=dict(
         c = str(c) if c else c
     ))
@@ -29,13 +29,14 @@ def test_put():
     assert rv.status_code == 400
 
     rv = f(t1)
-    assert rv.status_code == 409
+    assert load(rv.get_data())['status'] == 'already exists'
 
     t2 = time()
     rv = f(t2)
     assert rv.status_code == 200
 
-    rv = app.test_client().get(data.get('url'))
+
+    rv = app.test_client().get(load(rv.get_data())['url'])
     assert rv.get_data().decode('utf-8') == str(t2)
 
 def test_delete():
@@ -52,7 +53,7 @@ def test_delete():
 
     rv = app.test_client().delete(url)
     assert rv.status_code == 200
-    
+
     rv = app.test_client().delete(url)
     assert rv.status_code == 404
 
