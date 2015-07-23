@@ -77,7 +77,10 @@ def get_content(**kwargs):
         **kwargs
     ), dict(
         content = 1,
-        redirect = 1
+        redirect = 1,
+        sunset = 1,
+        date = 1,
+        _id = 1
     )).sort('date', DESCENDING)
     return paste
 

@@ -13,6 +13,8 @@ from uuid import UUID
 from mimetypes import guess_type
 from io import BytesIO
 
+from datetime import timedelta, datetime
+
 from flask import Blueprint, Response, request, render_template, current_app
 from jinja2 import Markup
 from pygments.formatters import HtmlFormatter
@@ -49,17 +51,24 @@ def post(label=None):
         return "Nope.\n", 400
 
     cur = model.get_digest(stream)
+
+    args = {}
+    if request.form.get('p'):
+        args['private'] = 1
+    if request.form.get('s'):
+        try:
+            args['sunset'] = int(request.form['s'])
+        except ValueError:
+            return "Invalid sunset value.\n", 400
+    if label:
+        label, _ = label
+        args['label'] = label
+
     if not cur.count():
-        if label:
-            label, _ = label
-            try:
-                paste = model.insert(stream, label=label)
-            except errors.DuplicateKeyError:
-                return "label already exists.\n", 409
-        elif request.form.get('p'):
-            paste = model.insert(stream, private=1)
-        else:
-            paste = model.insert(stream)
+        try:
+            paste = model.insert(stream, **args)
+        except errors.DuplicateKeyError:
+            return "label already exists.\n", 409
         uuid = str(UUID(hex=paste['_id']))
         status = "created"
     else:
@@ -138,6 +147,11 @@ def get(sid=None, sha1=None, label=None, lexer=None, handler=None):
         return "Not found.\n", 404
 
     paste = cur.__next__()
+    if paste.get('sunset'):
+        if paste['date'] + timedelta(seconds=paste['sunset']) < datetime.utcnow():
+            model.delete(UUID(hex=paste['_id']))
+            return dict_response(dict(status="expired"))
+
     content = model._get(paste.get('content'))
 
     if paste.get('redirect'):
