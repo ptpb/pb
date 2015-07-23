@@ -14,6 +14,8 @@ import json
 import string
 from os import path
 from io import BytesIO
+from datetime import timedelta, datetime
+from dateutil.tz import tzutc
 
 from flask import Response, render_template, current_app, request, url_for
 
@@ -72,6 +74,8 @@ def complex_response(paste, **kwargs):
 
     if paste.get('private'):
         del d['short']
+    if paste.get('sunset'):
+        d['sunset'] = paste['date'].replace(tzinfo=tzutc()) + timedelta(seconds=paste['sunset'])
 
     return dict_response(d, d['url'])
 

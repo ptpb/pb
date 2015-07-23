@@ -8,3 +8,4 @@ docutils>=0.12
 pyxdg>=0.25
 pymongo>=3.0
 Markdown>=2.6.1
+python-dateutil>=2.4.2
