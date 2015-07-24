@@ -148,7 +148,14 @@ def get(sid=None, sha1=None, label=None, lexer=None, handler=None):
 
     paste = cur.__next__()
     if paste.get('sunset'):
+        request.max_age = (paste['date'] + timedelta(seconds=paste['sunset'])) - datetime.utcnow()
+        if request.max_age < timedelta():
+            request.max_age = 0
+        else:
+            request.max_age = request.max_age.seconds
+
         if paste['date'] + timedelta(seconds=paste['sunset']) < datetime.utcnow():
+            max_age = datetime.utcnow() - (paste['date'] + timedelta(seconds=paste['sunset']))
             uuid = UUID(hex=paste['_id'])
             paste = invalidate(uuid)
             result = model.delete(uuid)

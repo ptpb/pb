@@ -70,7 +70,10 @@ def add_cache_header(response):
         etag = "{}-{}".format(prefix, sha1(response.data).hexdigest())
         response.set_etag(etag)
         response.cache_control.public = True
-        response.cache_control.max_age = current_app.get_send_file_max_age(request.path)
+        if hasattr(request, 'max_age'):
+            response.cache_control.max_age = request.max_age
+        else:
+            response.cache_control.max_age = current_app.get_send_file_max_age(request.path)
         response.make_conditional(request)
     return response
 
