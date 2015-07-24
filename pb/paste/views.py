@@ -149,8 +149,12 @@ def get(sid=None, sha1=None, label=None, lexer=None, handler=None):
     paste = cur.__next__()
     if paste.get('sunset'):
         if paste['date'] + timedelta(seconds=paste['sunset']) < datetime.utcnow():
-            model.delete(UUID(hex=paste['_id']))
-            return dict_response(dict(status="expired"))
+            uuid = UUID(hex=paste['_id'])
+            paste = invalidate(uuid)
+            result = model.delete(uuid)
+            if not result['n']:
+                return "This should not happen.", 500
+            return complex_response(paste, status="expired")
 
     content = model._get(paste.get('content'))
 
