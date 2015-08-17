@@ -40,7 +40,7 @@ def redirect(location, rv, code=302, **kwargs):
 def dict_response(data, url=None):
     accept = http.parse_list_header(request.headers.get('Accept',''))
 
-    mime = 'text/x-yaml'
+    mime = 'text/plain'
     if accept and 'application/json' in accept:
         body = json.dumps(data)
         mime = 'application/json'
