@@ -201,7 +201,7 @@ def url():
     if not stream:
         return "Nope.\n", 400
 
-    stream = BytesIO(stream.read().decode('utf-8').split('\n')[0].encode('utf-8'))
+    stream = BytesIO(stream.read().decode('utf-8').split()[0].encode('utf-8'))
 
     cur = model.get_digest(stream)
     if not cur.count():
