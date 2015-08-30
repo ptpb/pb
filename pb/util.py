@@ -37,12 +37,16 @@ def redirect(location, rv, code=302, **kwargs):
     response.headers['Location'] = location
     return response
 
+def json_datetime(obj):
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+
 def dict_response(data, url=None):
     accept = http.parse_list_header(request.headers.get('Accept',''))
 
     mime = 'text/plain'
     if accept and 'application/json' in accept:
-        body = json.dumps(data)
+        body = json.dumps(data, default=json_datetime)
         mime = 'application/json'
     else:
         body = safe_dump(data, default_flow_style=False)
