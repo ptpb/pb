@@ -113,6 +113,12 @@ via HTML/CSS.
 Line numbering and fragments are included, and can be used to link to
 individual lines within the paste.
 
+``GET /<id>/<lexer>/<formatter>``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Like the above, but uses the specified 'formatter' (a special case of
+'html' is used when not specified).
+
 ``GET /<handler>/<id>``
 ^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -195,6 +201,18 @@ size.
 
 Returns `available lexers </l>`_, newline-delimited, with
 space-delimited aliases.
+
+
+``GET /lf``
+^^^^^^^^^^
+
+Returns `available formatters </lf>`_, newline-delimited, with
+space-delimited aliases.
+
+``GET /ls``
+^^^^^^^^^^
+
+Returns `available styles </ls>`_, newline-delimited.
 
 request format
 --------------
