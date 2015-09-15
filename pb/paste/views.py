@@ -17,7 +17,7 @@ from datetime import timedelta, datetime
 
 from flask import Blueprint, Response, request, render_template, current_app
 from jinja2 import Markup
-from pygments.formatters import HtmlFormatter
+from pygments.formatters import HtmlFormatter, get_all_formatters
 from pygments.lexers import get_all_lexers
 from pygments.styles import get_all_styles
 from pygments.util import ClassNotFound
@@ -107,17 +107,21 @@ def delete(uuid):
 
 @paste.route('/<sid(length=28):sha1>')
 @paste.route('/<sid(length=28):sha1>/<string(minlength=0):lexer>')
+@paste.route('/<sid(length=28):sha1>/<string(minlength=0):lexer>/<formatter>')
 @paste.route('/<string(length=1):handler>/<sid(length=28):sha1>')
 @paste.route('/<sid(length=4):sid>')
 @paste.route('/<sid(length=4):sid>/<string(minlength=0):lexer>')
+@paste.route('/<sid(length=4):sid>/<string(minlength=0):lexer>/<formatter>')
 @paste.route('/<string(length=1):handler>/<sid(length=4):sid>')
 @paste.route('/<sha1:sha1>')
 @paste.route('/<sha1:sha1>/<string(minlength=0):lexer>')
+@paste.route('/<sha1:sha1>/<string(minlength=0):lexer>/<formatter>')
 @paste.route('/<string(length=1):handler>/<sha1:sha1>')
 @paste.route('/<label:label>')
 @paste.route('/<label:label>/<string(minlength=0):lexer>')
+@paste.route('/<label:label>/<string(minlength=0):lexer>/<formatter>')
 @paste.route('/<string(length=1):handler>/<label:label>')
-def get(sid=None, sha1=None, label=None, lexer=None, handler=None):
+def get(sid=None, sha1=None, label=None, lexer=None, handler=None, formatter=None):
     cur = None
     if sid:
         sid, name, value = sid
@@ -174,7 +178,7 @@ def get(sid=None, sha1=None, label=None, lexer=None, handler=None):
         mimetype = paste.get('mimetype')
 
     if lexer != None:
-        return highlight(content, lexer)
+        return highlight(content, lexer, formatter)
     if handler != None:
         return _handler.get(handler, content, mimetype)
     if mimetype:
@@ -225,6 +229,11 @@ def highlight_css(style="default"):
         return "Nope.\n", 404
 
     return Response(css, mimetype='text/css')
+
+@paste.route('/lf')
+def list_formatters():
+    formatters = '\n'.join(' '.join(i.aliases) for i in get_all_formatters())
+    return '{}\n'.format(formatters)
 
 @paste.route('/l')
 def list_lexers():

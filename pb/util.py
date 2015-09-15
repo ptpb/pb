@@ -22,7 +22,7 @@ from flask import Response, render_template, current_app, request, url_for
 from pygments import highlight as _highlight, format as _format
 from pygments.token import Token
 from pygments.lexers import get_lexer_by_name
-from pygments.formatters import HtmlFormatter
+from pygments.formatters import HtmlFormatter, get_formatter_by_name
 from pygments.util import ClassNotFound
 
 from werkzeug import http
@@ -86,20 +86,26 @@ def complex_response(paste, **kwargs):
 def style_args():
     return {k:request.args.get(k) for k in ['style','css']}
 
-def highlight(content, lexer_name):
+def highlight(content, lexer_name, formatter):
     try:
         lexer = get_lexer_by_name(lexer_name)
     except ClassNotFound:
         if lexer_name != '':
             return "No such lexer.", 400
 
-    formatter = HtmlFormatter(linenos='table', anchorlinenos=True, lineanchors='L', linespans='L')
+    if formatter:
+        formatter = get_formatter_by_name(formatter)
+    else:
+        formatter = HtmlFormatter(linenos='table', anchorlinenos=True, lineanchors='L', linespans='L')
 
     if lexer_name == '':
         tokens = ((Token.Text, '{}\n'.format(c.decode('utf-8'))) for c in content.splitlines())
         content = _format(tokens, formatter)
     else:
         content = _highlight(content, lexer, formatter)
+
+    if not isinstance(formatter, HtmlFormatter):
+        return content
 
     template = render_template("generic.html", cc='container-fluid', content=content, **style_args())
 
