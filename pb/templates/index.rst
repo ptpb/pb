@@ -204,13 +204,13 @@ space-delimited aliases.
 
 
 ``GET /lf``
-^^^^^^^^^^
+^^^^^^^^^^^
 
 Returns `available formatters </lf>`_, newline-delimited, with
 space-delimited aliases.
 
 ``GET /ls``
-^^^^^^^^^^
+^^^^^^^^^^^
 
 Returns `available styles </ls>`_, newline-delimited.
 
