@@ -23,10 +23,15 @@ class TextResponse(Response):
     default_mimetype = 'text/plain'
 
 def load_yaml(app, filename):
+    config = {}
     for filename in BaseDirectory.load_config_paths('pb', filename):
         with open(filename) as f:
             obj = yaml.load(f)
-            app.config.from_mapping(obj)
+            config.update(obj)
+    if app:
+        app.config.from_mapping(config)
+    return config
+
 
 def cors(response):
     response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
