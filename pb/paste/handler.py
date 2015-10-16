@@ -9,6 +9,7 @@
     :license: GPLv3, see LICENSE for details.
 """
 
+from json import dumps
 from flask import Response, render_template, url_for, request
 
 from pb.util import rst, markdown, style_args
@@ -30,11 +31,25 @@ def render(content, mimetype, partial=False, **kwargs):
         content = render_template("generic.html", cc='container-fluid', content=content, **style_args())
     return Response(content, mimetype='text/html')
 
+options = ['autoPlay', 'loop', 'startAt', 'speed', 'snapshot',
+           'fontSize', 'theme', 'title', 'author', 'authorURL', 'authorImgURL']
+
+def lazy_int(num):
+    try:
+        return int(num)
+    except ValueError:
+        return num
+
 def terminal(content, mimetype, path=None, **kwargs):
     # FIXME: this is really bad, because the db bothered to give us
     # content, and we discard it here.
     url = url_for('paste.get', label='{}.json'.format(path))
-    content = render_template("asciinema.html", url=url)
+    duration = lazy_int(request.args.get('d', 10))
+    data = {'autoPlay': True}
+    data.update({k:lazy_int(v) for k,v in request.args.items() if k in options})
+    data.update({k:bool(data[k]) for k in ['autoPlay', 'loop'] if k in data.keys()})
+    content = render_template("asciinema.html", url=url,
+                              duration=duration, data=dumps(data))
     return Response(content, mimetype='text/html')
 
 handlers = {

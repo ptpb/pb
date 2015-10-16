@@ -12,8 +12,8 @@
     document.getElementById('player-container'),
     -1, -1,
     '{{ url }}',
-    10,
-    {}
+    {{ duration }},
+    {{ data|safe }}
   );
 </script>
 {% endblock %}
