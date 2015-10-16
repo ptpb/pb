@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+
+{% block head %}
+<link href="/static/hack/asciinema.css" type="text/css" rel="stylesheet"/>
+{% endblock %}
+
+{% block body %}
+<div id="player-container"></div>
+<script src="/static/hack/asciinema.js"></script>
+<script type="text/javascript">
+  asciinema_player.core.CreatePlayer(
+    document.getElementById('player-container'),
+    -1, -1,
+    '{{ url }}',
+    10,
+    {}
+  );
+</script>
+{% endblock %}

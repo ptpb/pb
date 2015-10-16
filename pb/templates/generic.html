@@ -2,7 +2,7 @@
 
 {% block head %}
 {% if css is defined and css %}
-<link href="/{{ override }}.css" type="text/css" rel="stylesheet"/>
+<link href="/{{ css }}.css" type="text/css" rel="stylesheet"/>
 {% elif style is defined and style %}
 <!-- fixme: hack -->
 <link href="{{ url_for('static', filename='hack/hack.css') }}" type="text/css" rel="stylesheet"/>

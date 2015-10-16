@@ -11,3 +11,6 @@ config.yaml
 build/
 dist/
 node_modules/
+
+pb/static/hack/asciinema.js
+pb/static/hack/asciinema.css

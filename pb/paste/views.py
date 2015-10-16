@@ -125,6 +125,7 @@ def get(sid=None, sha1=None, label=None, lexer=None, handler=None, formatter=Non
     cur = None
     if sid:
         sid, name, value = sid
+        path = value
         cur = model.get_content(**{
             '$or' : [
                 {
@@ -142,9 +143,11 @@ def get(sid=None, sha1=None, label=None, lexer=None, handler=None, formatter=Non
         })
     if sha1:
         digest, name = sha1[:2]
+        path = digest
         cur = model.get_content(digest = digest).hint([('digest', 1)])
     if label:
         label, name = label
+        path = label
         cur = model.get_content(label = label).hint([('label', 1)])
 
     if not cur or not cur.count():
@@ -180,7 +183,7 @@ def get(sid=None, sha1=None, label=None, lexer=None, handler=None, formatter=Non
     if lexer != None:
         return highlight(content, lexer, formatter)
     if handler != None:
-        return _handler.get(handler, content, mimetype)
+        return _handler.get(handler, content, mimetype, path=path)
     if mimetype:
         return Response(content, mimetype=mimetype)
 

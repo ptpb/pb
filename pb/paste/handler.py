@@ -30,8 +30,16 @@ def render(content, mimetype, partial=False, **kwargs):
         content = render_template("generic.html", cc='container-fluid', content=content, **style_args())
     return Response(content, mimetype='text/html')
 
+def terminal(content, mimetype, path=None, **kwargs):
+    # FIXME: this is really bad, because the db bothered to give us
+    # content, and we discard it here.
+    url = url_for('paste.get', label='{}.json'.format(path))
+    content = render_template("asciinema.html", url=url)
+    return Response(content, mimetype='text/html')
+
 handlers = {
-    'r': render
+    'r': render,
+    't': terminal
 }
 
 def get(handler, content, mimetype, **kwargs):
