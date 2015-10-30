@@ -9,18 +9,15 @@
     :license: GPLv3, see LICENSE for details.
 """
 
-from flask import Flask, Response, request
+from flask import Flask, request
 
 import yaml
 from xdg import BaseDirectory
 
 from pb.paste.views import paste
 from pb.db import init_db
-from pb.cache import init_cache, invalidate
+from pb.cache import init_cache
 from pb.converters import SIDConverter, SHA1Converter, LabelConverter
-
-class TextResponse(Response):
-    default_mimetype = 'text/plain'
 
 def load_yaml(app, filename):
     config = {}
@@ -44,7 +41,6 @@ def cors(response):
 
 def create_app(config_filename='config.yaml'):
     app = Flask(__name__)
-    app.response_class = TextResponse
     app.url_map.converters['sid'] = SIDConverter
     app.url_map.converters['sha1'] = SHA1Converter
     app.url_map.converters['label'] = LabelConverter

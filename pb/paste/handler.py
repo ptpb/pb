@@ -10,9 +10,10 @@
 """
 
 from json import dumps
-from flask import Response, render_template, url_for, request
+from flask import render_template, url_for, request
 
 from pb.util import rst, markdown, style_args
+from pb.responses import StatusResponse
 
 from mimetypes import add_type
 
@@ -29,7 +30,7 @@ def render(content, mimetype, partial=False, **kwargs):
     content = renderer(content)
     if not partial:
         content = render_template("generic.html", cc='container-fluid', content=content, **style_args())
-    return Response(content, mimetype='text/html')
+    return content
 
 options = ['autoPlay', 'loop', 'startAt', 'speed', 'snapshot',
            'fontSize', 'theme', 'title', 'author', 'authorURL', 'authorImgURL']
@@ -50,7 +51,7 @@ def terminal(content, mimetype, path=None, **kwargs):
     data.update({k:bool(data[k]) for k in ['autoPlay', 'loop'] if k in data.keys()})
     content = render_template("asciinema.html", url=url,
                               duration=duration, data=dumps(data))
-    return Response(content, mimetype='text/html')
+    return content
 
 handlers = {
     'r': render,
@@ -60,5 +61,5 @@ handlers = {
 def get(handler, content, mimetype, **kwargs):
     h = handlers.get(handler)
     if not h:
-        return "Invalid handler: '{}'.".format(handler), 400
+        return StatusResponse({"invalid handler": handler}, 400)
     return h(content, mimetype, **kwargs)

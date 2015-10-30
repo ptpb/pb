@@ -9,15 +9,9 @@
     :license: GPLv3, see LICENSE for details.
 """
 
-from yaml import safe_dump
-import json
-import string
-from os import path
 from io import BytesIO
-from datetime import timedelta, datetime
-from dateutil.tz import tzutc
 
-from flask import Response, render_template, current_app, request, url_for
+from flask import render_template, request, url_for
 
 from pygments import highlight as _highlight, format as _format
 from pygments.token import Token
@@ -29,59 +23,6 @@ from werkzeug import http
 
 from docutils import core
 from markdown import markdown as _markdown
-
-b66c = string.ascii_uppercase + string.ascii_lowercase + string.digits + '-_~.'
-
-def redirect(location, rv, code=302, **kwargs):
-    response = current_app.response_class(rv, code, **kwargs)
-    response.headers['Location'] = location
-    return response
-
-def json_datetime(obj):
-    if isinstance(obj, datetime):
-        return obj.isoformat()
-
-def dict_response(data, url=None):
-    accept = http.parse_list_header(request.headers.get('Accept',''))
-
-    mime = 'text/plain'
-    if accept and 'application/json' in accept:
-        body = json.dumps(data, default=json_datetime)
-        mime = 'application/json'
-    else:
-        body = safe_dump(data, default_flow_style=False)
-
-    if url and request.args.get('r'):
-        return redirect(url, body, mimetype=mime)
-    return current_app.response_class(body, mimetype=mime)
-
-def any_url(paste, **kwargs):
-    idu = lambda k,v: id_url(**{k: (paste[v], kwargs.get('filename'))})
-    if paste.get('private'):
-        return idu('sha1', 'digest')
-    if paste.get('label'):
-        return idu('label', 'label')
-    return idu('sid', 'digest')
-
-def complex_response(paste, **kwargs):
-    gs = lambda l: current_app.url_map.converters['sid'].to_url(None, paste['digest'], l)
-
-    d = {k:v for k,v in {
-        'url': any_url(paste, **kwargs),
-        'long': gs(42),
-        'short': gs(6),
-        'sha1': paste['digest'],
-        'uuid': kwargs.get('uuid'),
-        'status': kwargs.get('status'),
-        'label': paste.get('label')
-    }.items() if v}
-
-    if paste.get('private'):
-        del d['short']
-    if paste.get('sunset'):
-        d['sunset'] = paste['date'].replace(tzinfo=tzutc()) + timedelta(seconds=paste['sunset'])
-
-    return dict_response(d, d['url'])
 
 def style_args():
     return {k:request.args.get(k) for k in ['style','css']}
@@ -109,7 +50,7 @@ def highlight(content, lexer_name, formatter):
 
     template = render_template("generic.html", cc='container-fluid', content=content, **style_args())
 
-    return Response(template, mimetype='text/html')
+    return template
 
 def request_content():
     content_type = http.parse_options_header(request.headers.get('Content-Type', ''))
@@ -135,9 +76,6 @@ def absolute_url(endpoint, **kwargs):
     proto = request.environ.get('HTTP_X_FORWARDED_PROTO')
     scheme = proto if proto else request.scheme
     return url_for(endpoint, _external=True, _scheme=scheme, **kwargs)
-
-def id_url(**kwargs):
-    return absolute_url('.get', **kwargs)
 
 def rst(source):
     overrides = {'syntax_highlight': 'short'}
