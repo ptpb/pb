@@ -72,6 +72,8 @@ class PasteResponse(DictResponse):
 
         super().__init__(dict(self))
 
+        self.headers['Location'] = self.url
+
     def __dir__(self):
         return ['url', 'long', 'short',
                 'uuid', 'status', 'label', 'sunset',
