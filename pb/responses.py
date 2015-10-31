@@ -70,7 +70,8 @@ class PasteResponse(DictResponse):
         self.uuid = uuid
         self.url = any_url(paste, filename)
 
-        super().__init__(dict(self))
+        code = 302 if request.args.get('r') else 200
+        super().__init__(dict(self), code)
 
         self.headers['Location'] = self.url
 
