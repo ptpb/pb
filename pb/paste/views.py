@@ -178,8 +178,6 @@ def get(sid=None, sha1=None, label=None, lexer=None, handler=None, formatter=Non
         return redirect(content, content)
 
     mimetype, _ = guess_type(name)
-    if not mimetype:
-        mimetype = paste.get('mimetype')
 
     if lexer != None:
         return highlight(content, lexer, formatter)

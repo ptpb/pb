@@ -15,13 +15,11 @@ from datetime import datetime
 
 from pymongo import DESCENDING
 from bson import ObjectId
-from magic import from_buffer as magic
 
 from pb.db import get_db, get_fs
 
 def _put(stream):
     b = stream.read()
-    mimetype = magic(b, mime=True).decode('utf-8')
     digest = sha1(b).hexdigest()
     try:
         if stream.getbuffer().nbytes > 2 ** 23:
@@ -31,8 +29,7 @@ def _put(stream):
         b = get_fs().put(b)
     return dict(
         content = b,
-        digest = digest,
-        mimetype = mimetype
+        digest = digest
     )
 
 def _get(content):
@@ -83,8 +80,7 @@ def get_content(**kwargs):
         redirect = 1,
         sunset = 1,
         date = 1,
-        _id = 1,
-        mimetype = 1
+        _id = 1
     )).sort('date', DESCENDING)
     return paste
 
