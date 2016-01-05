@@ -360,7 +360,9 @@ Like it? Here's some convenience shell functions:
 
 .. code:: bash
 
-    pb () { curl -F "c=@${1:--}" {{ url('.post') }} }
+    pb () {
+      curl -F "c=@${1:--}" {{ url('.post') }}
+    }
 
 This uploads paste content stdin unless an argument is provided,
 otherwise uploading the specified file.
@@ -376,7 +378,9 @@ A slightly more elaborate variant:
 
 .. code:: bash
 
-    pbx () { curl -sF "c=@${1:--}" -w "%{redirect_url}" '{{ url('.post', r=1) }}' -o /dev/stderr | xsel -l /dev/null -b }
+    pbx () {
+      curl -sF "c=@${1:--}" -w "%{redirect_url}" '{{ url('.post', r=1) }}' -o /dev/stderr | xsel -l /dev/null -b
+    }
 
 This uses xsel to set the ``CLIPBOARD`` selection with the url of the
 uploaded paste for immediate regurgitation elsewhere.
