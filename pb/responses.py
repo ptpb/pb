@@ -32,6 +32,7 @@ class DictResponse(Response):
     def __init__(self, obj, *args, **kwargs):
         response = self._dump(obj)
         super().__init__(response, *args, **kwargs)
+        self.headers['Vary'] = 'Accept'
 
     @property
     def default_mimetype(self):
