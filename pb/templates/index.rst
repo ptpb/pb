@@ -91,6 +91,11 @@ r
 
 **render**: If a matching mimetype extension is provided, render reStructuredText or Markdown, respectively. Fallback to reStructuredText when no mimetype extension is provided/matched.
 
+t
+^
+
+**terminal**: The provided paste ID is expected to be asciicast json v1. The output is an asciinema-player that is fed the paste content. This is used for playback of terminal recordings.
+
 routes
 ------
 
@@ -353,6 +358,30 @@ Witness the gloriousness:
     $ curl {{ url('.get', label='~polyzen') }}
     boats and hoes
 
+terminal recording
+^^^^^^^^^^^^^^^^^^
+
+Create and upload a recording using `asciinema <https://asciinema.org/docs/installation>`_:
+
+.. code:: console
+
+    $ asciinema rec term.json
+    ~ Asciicast recording started.
+    ~ Hit Ctrl-D or type "exit" to finish.
+    $ echo tralalalala
+    tralalalala
+    $ exit
+    ~ Asciicast recording finished.
+    $ curl -F c=@term.json {{ url('.post') }}
+    digest: f9704e9ae63bb5f5aad145a871f260557673d185
+    long: APlwTprmO7X1qtFFqHHyYFV2c9GF
+    short: c9GF
+    status: created
+    url: {{ url('.get', label='c9GF') }}
+    uuid: 9dffb318-04f5-437c-9899-6e7c7eed04af
+
+Then watch the playback with the ``t`` handler ({{ url('.get', label='c9GF', handler='t') }} in this case).
+
 shell functions
 ---------------
 
@@ -404,6 +433,17 @@ Now you can:
 
 The second command would allow you to select an individual window
 while the first uses the root window.
+
+Perhaps we'd like to do the terminal recording with a single command.
+
+.. code:: bash
+
+    pbs () {
+      asciinema rec /tmp/$$.json
+      pbx /tmp/$$.json
+    }
+
+View the recording by prepending a ``t/`` to the paste id.
 
 duck sauce
 ----------
