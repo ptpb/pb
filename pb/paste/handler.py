@@ -45,12 +45,7 @@ def terminal(content, mimetype, path=None, **kwargs):
     # FIXME: this is really bad, because the db bothered to give us
     # content, and we discard it here.
     url = url_for('paste.get', label='{}.json'.format(path))
-    duration = lazy_int(request.args.get('d', 10))
-    data = {'autoPlay': True}
-    data.update({k:lazy_int(v) for k,v in request.args.items() if k in options})
-    data.update({k:bool(data[k]) for k in ['autoPlay', 'loop'] if k in data.keys()})
-    content = render_template("asciinema.html", url=url,
-                              duration=duration, data=dumps(data))
+    content = render_template("asciinema.html", url=url)
     return content
 
 handlers = {

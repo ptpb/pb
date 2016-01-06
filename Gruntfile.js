@@ -13,8 +13,8 @@ module.exports = function(grunt) {
             }
         },
         curl: {
-            'pb/static/hack/asciinema.css': 'https://raw.githubusercontent.com/ptpb/pb-asciinema/master/css/main.css',
-            'pb/static/hack/asciinema.js': 'https://raw.githubusercontent.com/ptpb/pb-asciinema/master/js/release.js'
+            'pb/static/hack/asciinema.css': 'https://github.com/asciinema/asciinema-player/releases/download/v2.0.0/asciinema-player.css',
+            'pb/static/hack/asciinema.js': 'https://github.com/asciinema/asciinema-player/releases/download/v2.0.0/asciinema-player.js'
         }
     });
 
