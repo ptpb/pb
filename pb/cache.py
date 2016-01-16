@@ -49,7 +49,7 @@ def invalidate(uuid):
     cur = model.get_meta(_id=uuid.hex)
     if not cur or not cur.count():
         return
-    paste = cur.__next__()
+    paste = next(cur)
 
     base = current_app.config.get('VARNISH_BASE')
     if not base:

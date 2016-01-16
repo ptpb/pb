@@ -73,7 +73,7 @@ def post(label=None):
         uuid = str(UUID(hex=paste['_id']))
         status = "created"
     else:
-        paste = cur.__next__()
+        paste = next(cur)
         uuid = None
         status = "already exists"
 
@@ -87,13 +87,13 @@ def put(uuid):
 
     cur = model.get_digest(stream)
     if cur.count():
-        return PasteResponse(cur.__next__(), "already exists", filename)
+        return PasteResponse(next(cur), "already exists", filename)
 
     # FIXME: such query; wow
     invalidate(uuid)
     result = model.put(uuid, stream)
     if result['n']:
-        paste = model.get_meta(_id=uuid.hex).__next__()
+        paste = next(model.get_meta(_id=uuid.hex))
         return PasteResponse(paste, "updated")
 
     return StatusResponse("not found", 404)
@@ -105,6 +105,47 @@ def delete(uuid):
     if result['n']:
         return PasteResponse(paste, "deleted")
     return StatusResponse("not found", 404)
+
+def _get_paste(cb, sid=None, sha1=None, label=None):
+    if sid:
+        sid, name, value = sid
+        path = value
+        return cb(**{
+            '$or' : [
+                {
+                    'digest': {
+                        '$regex': '{}$'.format(sid)
+                    }
+                },
+                {
+                    'label' : value
+                }
+            ],
+            'private': {
+                '$exists': False
+            }
+        })
+    if sha1:
+        digest, name = sha1[:2]
+        path = digest
+        return cb(digest = digest).hint([('digest', 1)])
+    if label:
+        label, name = label
+        path = label
+        return cb(label = label).hint([('label', 1)])
+
+@paste.route('/<sid(length=28):sha1>', methods=['REPORT'])
+@paste.route('/<sid(length=4):sid>', methods=['REPORT'])
+@paste.route('/<sha1:sha1>', methods=['REPORT'])
+@paste.route('/<label:label>', methods=['REPORT'])
+def report(sid=None, sha1=None, label=None):
+    cur = _get_paste(model.get_meta, sid, sha1, label)
+
+    if not cur or not cur.count():
+        return StatusResponse("not found", 404)
+
+    paste = next(cur)
+    return PasteResponse(paste, "found")
 
 @paste.route('/<sid(length=28):sha1>')
 @paste.route('/<sid(length=28):sha1>/<string(minlength=0):lexer>')
@@ -123,38 +164,12 @@ def delete(uuid):
 @paste.route('/<label:label>/<string(minlength=0):lexer>/<formatter>')
 @paste.route('/<string(length=1):handler>/<label:label>')
 def get(sid=None, sha1=None, label=None, lexer=None, handler=None, formatter=None):
-    cur = None
-    if sid:
-        sid, name, value = sid
-        path = value
-        cur = model.get_content(**{
-            '$or' : [
-                {
-                    'digest': {
-                        '$regex': '{}$'.format(sid)
-                    }
-                },
-                {
-                    'label' : value
-                }
-            ],
-            'private': {
-                '$exists': False
-            }
-        })
-    if sha1:
-        digest, name = sha1[:2]
-        path = digest
-        cur = model.get_content(digest = digest).hint([('digest', 1)])
-    if label:
-        label, name = label
-        path = label
-        cur = model.get_content(label = label).hint([('label', 1)])
+    cur = _get_paste(model.get_content, sid, sha1, label)
 
     if not cur or not cur.count():
         return StatusResponse("not found", 404)
 
-    paste = cur.__next__()
+    paste = next(cur)
     if paste.get('sunset'):
         request.max_age = (paste['date'] + timedelta(seconds=paste['sunset'])) - datetime.utcnow()
         if request.max_age < timedelta():
@@ -214,7 +229,7 @@ def url():
         url = model.insert(stream, redirect=1)
         status = "created"
     else:
-        url = cur.__next__()
+        url = next(cur)
         status = "already exists"
 
     return PasteResponse(url, status)
