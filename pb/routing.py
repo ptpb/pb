@@ -20,15 +20,11 @@ class Rule(BaseRule):
         if not self.namespace_only:
             return super().match(path)
 
-        print(self.rule)
-
         default = config.get('DEFAULT_NAMESPACE')
         host = get_host_name(request)
 
         if default and host != default:
             return super().match(path)
-
-        print('refusing to match', self.rule)
 
     def match_compare_key(self):
         return not bool(self.namespace_only), bool(self.arguments), -len(self._weights), self._weights
