@@ -81,4 +81,6 @@ def get_content(**kwargs):
     return paste
 
 def get_meta(**kwargs):
-    return get_db().pastes.find(kwargs)
+    return get_db().pastes.find(
+        _transform(kwargs)
+    )
