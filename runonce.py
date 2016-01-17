@@ -12,6 +12,7 @@
 
 from urllib import parse
 from pymongo import MongoClient
+import pymongo
 from argparse import ArgumentParser
 
 from pb.pb import load_yaml
@@ -28,8 +29,12 @@ def add_config_user(db):
 def add_indexes(db):
     db.pastes.create_index('digest', unique=True)
     db.pastes.create_index('date')
-    db.pastes.create_index('label', unique=True, sparse=True)
+    db.pastes.create_index(
+        [('label', pymongo.ASCENDING),
+         ('namespace', pymongo.ASCENDING)], unique=True, sparse=True)
     db.pastes.create_index('private', sparse=True)
+
+    db.namespaces.create_index('name', unique=True)
 
 def _admin(db):
     add_config_user(db)

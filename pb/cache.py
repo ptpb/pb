@@ -45,8 +45,8 @@ def get_session():
         s.executor = ThreadPoolExecutor(4)
     return s
 
-def invalidate(uuid):
-    cur = model.get_meta(_id=uuid.hex)
+def invalidate(**kwargs):
+    cur = model.get_meta(**kwargs)
     if not cur or not cur.count():
         return
     paste = next(cur)

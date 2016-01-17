@@ -1,5 +1,6 @@
 import yaml
 import json
+from uuid import UUID
 
 from datetime import timedelta, datetime
 from dateutil.tz import tzutc
@@ -17,6 +18,8 @@ def json_datetime(obj):
 
 def any_url(paste, filename=None):
     idu = lambda k,v: absolute_url('.get', **{k: (paste[v], filename)})
+    if paste.get('namespace'):
+        return idu('label', 'label')
     if paste.get('private'):
         return idu('sha1', 'digest')
     if paste.get('label'):
@@ -56,17 +59,31 @@ class DictResponse(Response):
     }
 
 class StatusResponse(DictResponse):
-    def __init__(self, status, *args, **kwargs):
+    def __init__(self, status, code=None, *args, **kwargs):
         obj = dict(
             status = status
         )
-        super().__init__(obj, *args, **kwargs)
+        super().__init__(obj, status=code, *args, **kwargs)
+
+class NamespaceResponse(DictResponse):
+    def __init__(self, namespace, status, code=None, *args, **kwargs):
+        uuid = str(UUID(hex=namespace['_id']))
+        namespace.update(dict(
+            uuid = uuid,
+            status = status
+        ))
+        del namespace['_id']
+        if status != 'created':
+            del namespace['uuid']
+
+        super().__init__(namespace, status=code, *args, **kwargs)
 
 class PasteResponse(DictResponse):
     _conv = SIDConverter
 
     def __init__(self, paste, status=None, filename=None, uuid=None):
         self._paste = paste
+        print(dict(self))
         paste['status'] = status # hack
         self.uuid = uuid
         self.url = any_url(paste, filename)
@@ -79,7 +96,7 @@ class PasteResponse(DictResponse):
     def __dir__(self):
         return ['url', 'long', 'short',
                 'uuid', 'status', 'label', 'sunset',
-                'redirect', 'digest']
+                'redirect', 'digest', 'namespace', 'date']
 
     def __getattr__(self, name):
         if name in dir(self):
@@ -92,7 +109,7 @@ class PasteResponse(DictResponse):
     def __iter__(self):
         for key in self.__dir__():
             value = getattr(self, key, None)
-            if value:
+            if value != None:
                 yield key, value
 
     def _sid(self, length):
@@ -100,11 +117,12 @@ class PasteResponse(DictResponse):
 
     @property
     def long(self):
-        return self._sid(42)
+        if 'namespace' not in self._paste:
+            return self._sid(42)
 
     @property
     def short(self):
-        if 'private' not in self._paste:
+        if all(i not in self._paste for i in ['namespace', 'private']):
             return self._sid(6)
 
     @property
