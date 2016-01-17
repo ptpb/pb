@@ -60,21 +60,14 @@ def _content_type():
         return content_type
 
 def request_content():
-    if _content_type() == 'application/json':
-        content = request.json.get('content', request.json.get('c'))
-        if content:
-            content = BytesIO(content.encode('utf-8'))
-        return content, request.json.get('filename')
+    content = request_key('content')
+    if content:
+        content = BytesIO(content.encode('utf-8'))
+        return content, request_key('filename')
 
-    c = request.form.get('c')
-    if c:
-        return BytesIO(c.encode('utf-8')), None
-
-    fs = request.files.get('c')
+    fs = request.files.get('content', request.files.get('c'))
     if fs:
-        return fs.stream, fs.filename
-
-    return None, None
+        return fs.stream, fs.filename or request_key('filename')
 
 def request_keys(*keys):
     for key in keys:
@@ -84,8 +77,8 @@ def request_keys(*keys):
 
 def request_key(key):
     if _content_type() == 'application/json':
-        return request.json.get(key)
-    return request.form.get(key[0])
+        return request.json.get(key, request.json.get(key[0]))
+    return request.form.get(key, request.form.get(key[0]))
 
 def absolute_url(endpoint, **kwargs):
     proto = request.environ.get('HTTP_X_FORWARDED_PROTO')
