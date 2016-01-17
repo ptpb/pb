@@ -10,41 +10,9 @@
     :license: GPLv3, see LICENSE for details.
 """
 
-from urllib import parse
-from pymongo import MongoClient
-import pymongo
 from argparse import ArgumentParser
 
-from pb.pb import load_yaml
-
-config = load_yaml(None, 'config.yaml')
-
-def add_config_user(db):
-    up = parse.urlparse(config['MONGO']['host'])
-
-    auth = [getattr(up, k) for k in ['username', 'password']]
-
-    db.client.admin.add_user(*auth, roles=[{'role': 'readWrite', 'db': config['MONGO_DATABASE']}])
-
-def add_indexes(db):
-    db.pastes.create_index('digest', unique=True)
-    db.pastes.create_index('date')
-    db.pastes.create_index(
-        [('label', pymongo.ASCENDING),
-         ('namespace', pymongo.ASCENDING)], unique=True, sparse=True)
-    db.pastes.create_index('private', sparse=True)
-
-    db.namespaces.create_index('name', unique=True)
-
-def _admin(db):
-    add_config_user(db)
-    add_indexes(db)
-
-def main(uri=None, func=add_indexes):
-    con = MongoClient(**config['MONGO'] if not uri else {'host':uri})
-    db = con[config['MONGO_DATABASE']]
-
-    func(db)
+from pb.runonce import main, _admin
 
 parser = ArgumentParser(description='Initial pb database setup')
 sub = parser.add_subparsers(metavar='[admin]')
