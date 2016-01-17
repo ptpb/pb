@@ -53,13 +53,15 @@ def highlight(content, lexer_name, formatter):
 
     return template
 
-def request_content():
+def _content_type():
     content_type = http.parse_options_header(request.headers.get('Content-Type', ''))
     if content_type:
         content_type, _ = content_type
+        return content_type
 
-    if content_type == 'application/json':
-        content = request.json.get('c')
+def request_content():
+    if _content_type() == 'application/json':
+        content = request.json.get('content', request.json.get('c'))
         if content:
             content = BytesIO(content.encode('utf-8'))
         return content, request.json.get('filename')
@@ -67,11 +69,23 @@ def request_content():
     c = request.form.get('c')
     if c:
         return BytesIO(c.encode('utf-8')), None
+
     fs = request.files.get('c')
     if fs:
         return fs.stream, fs.filename
 
     return None, None
+
+def request_keys(*keys):
+    for key in keys:
+        value = request_key(key)
+        if value:
+            yield key, value
+
+def request_key(key):
+    if _content_type() == 'application/json':
+        return request.json.get(key)
+    return request.form.get(key[0])
 
 def absolute_url(endpoint, **kwargs):
     proto = request.environ.get('HTTP_X_FORWARDED_PROTO')

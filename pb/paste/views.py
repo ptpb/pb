@@ -25,7 +25,7 @@ from pymongo import errors
 
 from pb.namespace import model as ns_model
 from pb.paste import model, handler as _handler
-from pb.util import highlight, request_content, rst, markdown, absolute_url, get_host_name
+from pb.util import highlight, request_content, request_keys, rst, markdown, absolute_url, get_host_name
 from pb.cache import invalidate
 from pb.responses import StatusResponse, PasteResponse, DictResponse, redirect
 
@@ -55,7 +55,6 @@ def _auth_namespace(namespace):
     except ValueError:
         return
 
-    print('model auth', namespace, uuid)
     cur = ns_model.auth(namespace, uuid)
     try:
         return next(cur)
@@ -73,13 +72,15 @@ def post(label=None, namespace=None):
     cur = model.get_digest(stream)
 
     args = {}
-    if request.form.get('p'):
-        args['private'] = 1
-    if request.form.get('s'):
+
+    for key, value in request_keys('private', 'sunset'):
         try:
-            args['sunset'] = int(request.form['s'])
+            args[key] = int(value)
         except ValueError:
-            return StatusResponse("invalid sunset value", 400)
+            return StatusResponse({
+                "invalid request params": {key: value}
+            }, 400)
+
     if label:
         label, _ = label
         args['label'] = label
@@ -92,7 +93,6 @@ def post(label=None, namespace=None):
             label = label,
             namespace = host
         ))
-        print(args)
 
     if not cur.count():
         try:

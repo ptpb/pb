@@ -83,7 +83,6 @@ class PasteResponse(DictResponse):
 
     def __init__(self, paste, status=None, filename=None, uuid=None):
         self._paste = paste
-        print(dict(self))
         paste['status'] = status # hack
         self.uuid = uuid
         self.url = any_url(paste, filename)
