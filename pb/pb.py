@@ -11,24 +11,13 @@
 
 from flask import Flask, request
 
-import yaml
-from xdg import BaseDirectory
-
 from pb.paste.views import paste
+from pb.namespace.views import namespace
 from pb.db import init_db
 from pb.cache import init_cache
-from pb.converters import SIDConverter, SHA1Converter, LabelConverter
-
-def load_yaml(app, filename):
-    config = {}
-    for filename in BaseDirectory.load_config_paths('pb', filename):
-        with open(filename) as f:
-            obj = yaml.load(f)
-            config.update(obj)
-    if app:
-        app.config.from_mapping(config)
-    return config
-
+from pb.converters import SIDConverter, SHA1Converter, LabelConverter, NamespaceConverter
+from pb.routing import Rule, RequestContext
+from pb.config import load_config
 
 def cors(response):
     response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
@@ -39,18 +28,32 @@ def cors(response):
 
     return response
 
-def create_app(config_filename='config.yaml'):
-    app = Flask(__name__)
-    app.url_map.converters['sid'] = SIDConverter
-    app.url_map.converters['sha1'] = SHA1Converter
-    app.url_map.converters['label'] = LabelConverter
 
-    load_yaml(app, config_filename)
+class App(Flask):
+    url_rule_class = Rule
+
+    def request_context(self, environ):
+        return RequestContext(self, environ)
+
+def create_app(config_filename='config.yaml'):
+    app = App(__name__)
+    app.url_map.converters.update(dict(
+        sid = SIDConverter,
+        sha1 = SHA1Converter,
+        label = LabelConverter,
+        namespace = NamespaceConverter
+    ))
+
+    load_config(app, config_filename)
     init_db(app)
     init_cache(app)
 
     app.after_request(cors)
 
     app.register_blueprint(paste)
+    app.register_blueprint(namespace)
+
+    app.url_map.update()
+    #print('\n'.join(repr(i) for i in app.url_map._rules))
 
     return app

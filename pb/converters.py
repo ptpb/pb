@@ -14,6 +14,7 @@ from os import path
 from binascii import unhexlify, hexlify, Error as BinError
 from base64 import urlsafe_b64encode, urlsafe_b64decode
 
+from flask import current_app, request
 from werkzeug.routing import BaseConverter
 
 class UnhexMixin:
@@ -52,16 +53,18 @@ class SIDConverter(UnhexMixin, BaseConverter):
         return _hex, name, value[:4]
 
 class SHA1Converter(UnhexMixin, SREMixin, BaseConverter):
+    regex = '(([A-Za-z0-9]{40})(?:[.][^/]*)?)'
+
     def __init__(self, map):
         super().__init__(map)
-        self.regex = '(([A-Za-z0-9]{40})(?:[.][^/]*)?)'
         self.sre = re.compile(self.regex)
         self.length = 42
 
 class LabelConverter(SREMixin, BaseConverter):
+    regex = '((~[^/.]+)(?:[.][^/]*)?)'
+
     def __init__(self, map):
         super().__init__(map)
-        self.regex = '((~[^/.]+)(?:[.][^/]*)?)'
         self.sre = re.compile(self.regex)
 
     def to_url(self, value, length=None):
@@ -70,3 +73,7 @@ class LabelConverter(SREMixin, BaseConverter):
         label, filename = value
         ext = path.splitext(filename)[1] if filename else ''
         return '{}{}'.format(label, ext)
+
+class NamespaceConverter(LabelConverter):
+    regex = '(([^/.]*)(?:[.][^/]*)?)'
+    weight = 120

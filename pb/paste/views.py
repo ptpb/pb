@@ -23,8 +23,9 @@ from pygments.styles import get_all_styles
 from pygments.util import ClassNotFound
 from pymongo import errors
 
+from pb.namespace import model as ns_model
 from pb.paste import model, handler as _handler
-from pb.util import highlight, request_content, rst, markdown, absolute_url
+from pb.util import highlight, request_content, rst, markdown, absolute_url, get_host_name
 from pb.cache import invalidate
 from pb.responses import StatusResponse, PasteResponse, DictResponse, redirect
 
@@ -44,9 +45,27 @@ def index():
 def form():
     return render_template("form.html")
 
+def _auth_namespace(namespace):
+    uuid = request.headers.get('X-Namespace-Auth')
+    if not uuid:
+        return
+
+    try:
+        uuid = UUID(uuid)
+    except ValueError:
+        return
+
+    print('model auth', namespace, uuid)
+    cur = ns_model.auth(namespace, uuid)
+    try:
+        return next(cur)
+    except StopIteration:
+        pass
+
+@paste.route('/<namespace:namespace>', namespace_only=True, methods=['POST'])
 @paste.route('/', methods=['POST'])
 @paste.route('/<label:label>', methods=['POST'])
-def post(label=None):
+def post(label=None, namespace=None):
     stream, filename = request_content()
     if not stream:
         return StatusResponse("no post content", 400)
@@ -64,6 +83,16 @@ def post(label=None):
     if label:
         label, _ = label
         args['label'] = label
+    if namespace:
+        host = get_host_name(request)
+        if not _auth_namespace(host):
+            return StatusResponse("invalid auth", 403)
+        label, _ = namespace
+        args.update(dict(
+            label = label,
+            namespace = host
+        ))
+        print(args)
 
     if not cur.count():
         try:
@@ -73,39 +102,122 @@ def post(label=None):
         uuid = str(UUID(hex=paste['_id']))
         status = "created"
     else:
-        paste = cur.__next__()
+        paste = next(cur)
         uuid = None
         status = "already exists"
 
     return PasteResponse(paste, status, filename, uuid)
 
+def _namespace_kwargs(kwargs):
+    host = get_host_name(request)
+    if not _auth_namespace(host):
+        return StatusResponse("invalid auth", 403)
+    label, _ = kwargs['namespace']
+    return dict(
+        label = label,
+        namespace = host,
+    )
+
+@paste.route('/<namespace:namespace>', methods=['PUT'], namespace_only=True)
 @paste.route('/<uuid:uuid>', methods=['PUT'])
-def put(uuid):
+def put(**kwargs):
+    if 'namespace' in kwargs:
+        kwargs = _namespace_kwargs(kwargs)
+
     stream, filename = request_content()
     if not stream:
         return StatusResponse("no post content", 400)
 
     cur = model.get_digest(stream)
     if cur.count():
-        return PasteResponse(cur.__next__(), "already exists", filename)
+        return PasteResponse(next(cur), "already exists", filename)
 
     # FIXME: such query; wow
-    invalidate(uuid)
-    result = model.put(uuid, stream)
+    invalidate(**kwargs)
+    result = model.put(stream, **kwargs)
     if result['n']:
-        paste = model.get_meta(_id=uuid.hex).__next__()
+        paste = next(model.get_meta(**kwargs))
         return PasteResponse(paste, "updated")
 
     return StatusResponse("not found", 404)
 
+@paste.route('/<namespace:namespace>', methods=['DELETE'], namespace_only=True)
 @paste.route('/<uuid:uuid>', methods=['DELETE'])
-def delete(uuid):
-    paste = invalidate(uuid)
-    result = model.delete(uuid)
+def delete(**kwargs):
+    if 'namespace' in kwargs:
+        kwargs = _namespace_kwargs(kwargs)
+
+    paste = invalidate(**kwargs)
+    result = model.delete(**kwargs)
     if result['n']:
         return PasteResponse(paste, "deleted")
     return StatusResponse("not found", 404)
 
+def _get_paste(cb, sid=None, sha1=None, label=None, namespace=None):
+    if sid:
+        sid, name, value = sid
+        return cb(**{
+            '$or' : [
+                {
+                    'digest': {
+                        '$regex': '{}$'.format(sid)
+                    }
+                },
+                {
+                    'label' : value
+                }
+            ],
+            'private': {
+                '$exists': False
+            },
+            'namespace': {
+                '$exists': False
+            }
+        }), name, value
+    if sha1:
+        digest, name = sha1[:2]
+        return cb(**{
+            'digest': digest,
+            'namespace': {
+                '$exists': False
+            }
+        }).hint([('digest', 1)]), name, digest
+    if label:
+        label, name = label
+        return cb(**{
+            'label': label,
+            'namespace': {
+                '$exists': False
+            }
+        }).hint([('label', 1)]), name, label
+    if namespace:
+        label, name = namespace
+        host = get_host_name(request)
+        return cb(
+            label = label,
+            namespace = host
+        ), name, label
+
+    return None, None, None
+
+@paste.route('/<namespace:namespace>', methods=['REPORT'], namespace_only=True)
+@paste.route('/<sid(length=28):sha1>', methods=['REPORT'])
+@paste.route('/<sid(length=4):sid>', methods=['REPORT'])
+@paste.route('/<sha1:sha1>', methods=['REPORT'])
+@paste.route('/<label:label>', methods=['REPORT'])
+def report(sid=None, sha1=None, label=None, namespace=None):
+    cur, name, path = _get_paste(model.get_meta, sid, sha1, label, namespace)
+
+    if not cur or not cur.count():
+        return StatusResponse("not found", 404)
+
+    paste = next(cur)
+    return PasteResponse(paste, "found")
+
+@paste.route('/<namespace:namespace>', namespace_only=True)
+@paste.route('/<namespace:namespace>/<string(minlength=0):lexer>', namespace_only=True)
+@paste.route('/<namespace:namespace>/<string(minlength=0):lexer>/<formatter>', namespace_only=True)
+@paste.route('/<string(length=1):handler>/<namespace:namespace>', namespace_only=True)
 @paste.route('/<sid(length=28):sha1>')
 @paste.route('/<sid(length=28):sha1>/<string(minlength=0):lexer>')
 @paste.route('/<sid(length=28):sha1>/<string(minlength=0):lexer>/<formatter>')
@@ -122,39 +234,13 @@ def delete(uuid):
 @paste.route('/<label:label>/<string(minlength=0):lexer>')
 @paste.route('/<label:label>/<string(minlength=0):lexer>/<formatter>')
 @paste.route('/<string(length=1):handler>/<label:label>')
-def get(sid=None, sha1=None, label=None, lexer=None, handler=None, formatter=None):
-    cur = None
-    if sid:
-        sid, name, value = sid
-        path = value
-        cur = model.get_content(**{
-            '$or' : [
-                {
-                    'digest': {
-                        '$regex': '{}$'.format(sid)
-                    }
-                },
-                {
-                    'label' : value
-                }
-            ],
-            'private': {
-                '$exists': False
-            }
-        })
-    if sha1:
-        digest, name = sha1[:2]
-        path = digest
-        cur = model.get_content(digest = digest).hint([('digest', 1)])
-    if label:
-        label, name = label
-        path = label
-        cur = model.get_content(label = label).hint([('label', 1)])
+def get(sid=None, sha1=None, label=None, namespace=None, lexer=None, handler=None, formatter=None):
+    cur, name, path = _get_paste(model.get_content, sid, sha1, label, namespace)
 
     if not cur or not cur.count():
         return StatusResponse("not found", 404)
 
-    paste = cur.__next__()
+    paste = next(cur)
     if paste.get('sunset'):
         request.max_age = (paste['date'] + timedelta(seconds=paste['sunset'])) - datetime.utcnow()
         if request.max_age < timedelta():
@@ -165,7 +251,7 @@ def get(sid=None, sha1=None, label=None, lexer=None, handler=None, formatter=Non
         if paste['date'] + timedelta(seconds=paste['sunset']) < datetime.utcnow():
             max_age = datetime.utcnow() - (paste['date'] + timedelta(seconds=paste['sunset']))
             uuid = UUID(hex=paste['_id'])
-            paste = invalidate(uuid)
+            paste = invalidate(uuid=uuid)
             result = model.delete(uuid)
             if not result['n']:
                 return StatusResponse("this should not happen", 500)
@@ -214,14 +300,14 @@ def url():
         url = model.insert(stream, redirect=1)
         status = "created"
     else:
-        url = cur.__next__()
+        url = next(cur)
         status = "already exists"
 
     return PasteResponse(url, status)
 
 @paste.route('/s')
 def stats():
-    cur = model.get_stats()
+    cur = model.get_meta()
     return DictResponse(dict(pastes=cur.count()))
 
 @paste.route('/static/<style>.css')

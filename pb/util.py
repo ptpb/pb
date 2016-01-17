@@ -20,6 +20,7 @@ from pygments.formatters import HtmlFormatter, get_formatter_by_name
 from pygments.util import ClassNotFound
 
 from werkzeug import http
+from werkzeug.wrappers import get_host
 
 from docutils import core
 from markdown import markdown as _markdown
@@ -96,3 +97,9 @@ def markdown(source):
         }
     })
     return md
+
+def get_host_name(request):
+    host = get_host(request.environ)
+    if host:
+        host = host.split(':')[0]
+        return host
