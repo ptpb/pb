@@ -83,6 +83,7 @@ handler
 
 A one-character handler identifier.
 
+
 handlers
 --------
 
@@ -381,6 +382,51 @@ Create and upload a recording using `asciinema <https://asciinema.org/docs/insta
     uuid: 9dffb318-04f5-437c-9899-6e7c7eed04af
 
 Then watch the playback with the ``t`` handler ({{ url('.get', label='c9GF', handler='t') }} in this case).
+
+namespaces
+^^^^^^^^^^
+
+.. warning:: This feature is considered highly experimental, and its API/semantics changed in subtle but signtificant ways in the future
+
+First you'll need a DNS name that points to the pb instance you want
+to use namespaces with.
+
+Start by creating a new namespace:
+
+.. code:: console
+
+    $ curl -X POST {{ url('namespace.post', namespace='buh.io') }}
+    name: buh.io
+    status: created
+    uuid: 326117ad-2969-4a0a-a3d7-04eef09127ab
+
+With the namespace uuid, you can modify any paste in that
+namespace. Namespace pastes are a little different in that they are
+always referenced by label; while ``sids`` and ``uuids`` exist
+internally, no route can access namespace'ed pastes that way.
+
+You authorized yourself via the ``X-Namespace-Auth`` header:
+
+.. code:: console
+
+    $ auth=326117ad-2969-4a0a-a3d7-04eef09127ab
+    $ curl -H "X-Namespace-Auth: $auth" -F c=@- https://buh.io/foo <<< loltrain
+    date: 2016-01-17 02:52:29.179089
+    digest: 7bcbab9cb9dbf26c5cdbf02e1f67f93fdb6237ea
+    label: foo
+    namespace: buh.io
+    status: created
+    url: http://buh.io/foo
+    uuid: 5f9dc40c-35df-4298-977c-6baeeb56bed1
+
+You'll notice we access the namespace via its DNS name instead of the
+'real' pb domain name. This is what internally allows you to use the
+special ``namespace`` labels, which have relaxed restrictions: they
+can be any length (including zero-length), and don't need to start
+with a tilde.
+
+``DELETE`` and ``PUT`` work as usual, except you reference the paste
+via namespace+label instead of uuid.
 
 shell functions
 ---------------
