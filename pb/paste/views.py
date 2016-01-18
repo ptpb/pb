@@ -252,7 +252,7 @@ def get(sid=None, sha1=None, label=None, namespace=None, lexer=None, handler=Non
             max_age = datetime.utcnow() - (paste['date'] + timedelta(seconds=paste['sunset']))
             uuid = UUID(hex=paste['_id'])
             paste = invalidate(uuid=uuid)
-            result = model.delete(uuid)
+            result = model.delete(uuid=uuid)
             if not result['n']:
                 return StatusResponse("this should not happen", 500)
             return PasteResponse(paste, "expired")
