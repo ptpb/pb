@@ -21,10 +21,10 @@ from pb.config import load_config
 
 def cors(response):
     response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
-    for i in ('Headers', 'Methods'):
+    for i in ('Header', 'Method'):
         t = request.headers.get('Access-Control-Request-{}'.format(i))
         if t:
-            response.headers['Access-Control-Allow-{}'.format(i)] = t
+            response.headers['Access-Control-Allow-{}s'.format(i)] = t
 
     return response
 

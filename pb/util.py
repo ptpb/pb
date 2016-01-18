@@ -106,6 +106,8 @@ def markdown(source):
     return md
 
 def get_host_name(request):
+    if not request:
+        return
     host = get_host(request.environ)
     if host:
         host = host.split(':')[0]
