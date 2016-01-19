@@ -32,9 +32,7 @@ class UnhexMixin:
 
 class SREMixin:
     def to_python(self, value):
-        g = self.sre.match(value).groups()
-        print(g)
-        name, label = g
+        name, label = self.sre.match(value).groups()
         return label, name
 
 class SIDConverter(UnhexMixin, BaseConverter):
