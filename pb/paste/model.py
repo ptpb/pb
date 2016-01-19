@@ -21,7 +21,7 @@ from pb.db import get_db, get_fs
 def _transform(kwargs):
     for key, value in kwargs.items():
         if not value:
-           continue
+            continue
         if key == 'uuid':
             yield '_id', value.hex
         else:
