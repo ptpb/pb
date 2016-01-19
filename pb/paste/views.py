@@ -41,10 +41,6 @@ def index():
 
     return render_template("generic.html", content=content)
 
-@paste.route('/f')
-def form():
-    return render_template("form.html")
-
 def _auth_namespace(namespace):
     uuid = request.headers.get('X-Namespace-Auth')
     if not uuid:
@@ -83,6 +79,8 @@ def post(label=None, namespace=None):
 
     if label:
         label, _ = label
+        if len(label) == 1:
+            return StatusResponse("invalid label", 400)
         args['label'] = label
     if namespace:
         host = get_host_name(request)

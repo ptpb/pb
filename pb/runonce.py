@@ -28,6 +28,7 @@ def add_config_user(db):
 def add_indexes(db):
     db.pastes.create_index('digest', unique=True)
     db.pastes.create_index('date')
+    db.pastes.create_index('label', unique=True, sparse=True)
     db.pastes.create_index(
         [('label', pymongo.ASCENDING),
          ('namespace', pymongo.ASCENDING)], unique=True, sparse=True)

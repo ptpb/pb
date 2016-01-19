@@ -32,7 +32,9 @@ class UnhexMixin:
 
 class SREMixin:
     def to_python(self, value):
-        name, label = self.sre.match(value).groups()
+        g = self.sre.match(value).groups()
+        print(g)
+        name, label = g
         return label, name
 
 class SIDConverter(UnhexMixin, BaseConverter):
@@ -61,7 +63,7 @@ class SHA1Converter(UnhexMixin, SREMixin, BaseConverter):
         self.length = 42
 
 class LabelConverter(SREMixin, BaseConverter):
-    regex = '((~[^/.]+)(?:[.][^/]*)?)'
+    regex = '(((?:~[^/.]+)|(?:[^/.]{1}))(?:[.][^/]*)?)'
 
     def __init__(self, map):
         super().__init__(map)
