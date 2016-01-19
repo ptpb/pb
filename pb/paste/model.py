@@ -19,11 +19,16 @@ from bson import ObjectId
 from pb.db import get_db, get_fs
 
 def _transform(kwargs):
-    uuid = kwargs.get('uuid')
-    if uuid:
-        del kwargs['uuid']
-        kwargs['_id'] = uuid.hex
-    return kwargs
+    for key, value in kwargs.items():
+        if not value:
+           continue
+        if key == 'uuid':
+            yield '_id', value.hex
+        else:
+            yield key, value
+
+def transform(kwargs):
+    return dict(_transform(kwargs))
 
 def _put(stream):
     b = stream.read()
@@ -49,18 +54,20 @@ def insert(stream, **kwargs):
     d = dict(
         _id = uuid4().hex,
         date = datetime.utcnow(),
-        **kwargs
+        **transform(kwargs)
     )
     get_db().pastes.insert(d)
     return d
 
-def put(stream, **kwargs):
-    return get_db().pastes.update(_transform(kwargs), {
-        '$set': _put(stream)
+def put(stream, mimetype=None, **kwargs):
+    args = _put(stream)
+    args.update(mimetype=mimetype)
+    return get_db().pastes.update(transform(kwargs), {
+        '$set': transform(args)
     })
 
 def delete(**kwargs):
-    return get_db().pastes.remove(_transform(kwargs))
+    return get_db().pastes.remove(transform(kwargs))
 
 def get_digest(stream=None, content=None):
     paste = get_db().pastes.find(dict(
@@ -71,16 +78,17 @@ def get_digest(stream=None, content=None):
     return paste
 
 def get_content(**kwargs):
-    paste = get_db().pastes.find(kwargs, dict(
+    paste = get_db().pastes.find(transform(kwargs), dict(
         content = 1,
         redirect = 1,
         sunset = 1,
         date = 1,
-        _id = 1
+        _id = 1,
+        mimetype = 1
     )).sort('date', DESCENDING)
     return paste
 
 def get_meta(**kwargs):
     return get_db().pastes.find(
-        _transform(kwargs)
+        transform(kwargs)
     )

@@ -67,7 +67,7 @@ def request_content():
 
     fs = request.files.get('content', request.files.get('c'))
     if fs:
-        return fs.stream, fs.filename or request_key('filename')
+        return fs.stream, request_key('filename') or fs.filename
 
 def request_keys(*keys):
     for key in keys:

@@ -68,6 +68,8 @@ def post(label=None, namespace=None):
     cur = model.get_digest(stream)
 
     args = {}
+    if filename:
+        args['mimetype'], _ = guess_type(filename)
 
     for key, value in request_keys('private', 'sunset'):
         try:
@@ -129,6 +131,9 @@ def put(**kwargs):
     cur = model.get_digest(stream)
     if cur.count():
         return PasteResponse(next(cur), "already exists", filename)
+
+    if filename:
+        kwargs['mimetype'], _ = guess_type(filename)
 
     # FIXME: such query; wow
     invalidate(**kwargs)
@@ -263,7 +268,7 @@ def get(sid=None, sha1=None, label=None, namespace=None, lexer=None, handler=Non
 
     mimetype, _ = guess_type(name)
     if not mimetype:
-        mimetype = 'text/plain'
+        mimetype = paste.get('mimetype', 'text/plain')
 
     if lexer != None:
         return highlight(content, lexer, formatter)
