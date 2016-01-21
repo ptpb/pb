@@ -31,7 +31,10 @@ def redirect(location, rv, code=302, **kwargs):
     response.headers['Location'] = location
     return response
 
-class DictResponse(Response):
+class BaseResponse(Response):
+    _etag = True
+
+class DictResponse(BaseResponse):
     def __init__(self, obj, *args, **kwargs):
         response = self._dump(obj)
         super().__init__(response, *args, **kwargs)
@@ -59,6 +62,8 @@ class DictResponse(Response):
     }
 
 class StatusResponse(DictResponse):
+    _etag = False
+
     def __init__(self, status, code=None, *args, **kwargs):
         obj = dict(
             status = status
@@ -66,6 +71,8 @@ class StatusResponse(DictResponse):
         super().__init__(obj, status=code, *args, **kwargs)
 
 class NamespaceResponse(DictResponse):
+    _etag = False
+
     def __init__(self, namespace, status, code=None, *args, **kwargs):
         uuid = str(UUID(hex=namespace['_id']))
         namespace.update(dict(
@@ -79,6 +86,7 @@ class NamespaceResponse(DictResponse):
         super().__init__(namespace, status=code, *args, **kwargs)
 
 class PasteResponse(DictResponse):
+    _etag = False
     _conv = SIDConverter
 
     def __init__(self, paste, status=None, filename=None, uuid=None):

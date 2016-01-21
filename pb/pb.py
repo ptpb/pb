@@ -16,6 +16,7 @@ from pb.namespace.views import namespace
 from pb.db import init_db
 from pb.cache import init_cache
 from pb.converters import SIDConverter, SHA1Converter, LabelConverter, NamespaceConverter
+from pb.responses import BaseResponse
 from pb.routing import Rule, RequestContext
 from pb.config import load_config
 
@@ -28,8 +29,8 @@ def cors(response):
 
     return response
 
-
 class App(Flask):
+    response_class = BaseResponse
     url_rule_class = Rule
 
     def request_context(self, environ):

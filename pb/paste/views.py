@@ -15,7 +15,7 @@ from io import BytesIO
 
 from datetime import timedelta, datetime
 
-from flask import Blueprint, Response, request, render_template, current_app
+from flask import Blueprint, request, render_template, current_app
 from jinja2 import Markup
 from pygments.formatters import HtmlFormatter, get_all_formatters
 from pygments.lexers import get_all_lexers
@@ -27,7 +27,7 @@ from pb.namespace import model as ns_model
 from pb.paste import model, handler as _handler
 from pb.util import highlight, request_content, request_keys, rst, markdown, absolute_url, get_host_name
 from pb.cache import invalidate
-from pb.responses import StatusResponse, PasteResponse, DictResponse, redirect
+from pb.responses import BaseResponse, StatusResponse, PasteResponse, DictResponse, redirect
 
 paste = Blueprint('paste', __name__)
 
@@ -275,7 +275,7 @@ def get(sid=None, sha1=None, label=None, namespace=None, lexer=None, handler=Non
     if handler != None:
         return _handler.get(handler, content, mimetype, path=path)
 
-    return Response(content, mimetype=mimetype)
+    return BaseResponse(content, mimetype=mimetype)
 
 @paste.route('/<string(length=1):handler>', methods=['POST'])
 def preview(handler):
@@ -320,7 +320,7 @@ def highlight_css(style="default"):
     except ClassNotFound:
         return StatusResponse("not found", 404)
 
-    return Response(css, mimetype='text/css')
+    return BaseResponse(css, mimetype='text/css')
 
 @paste.route('/lf')
 def list_formatters():
