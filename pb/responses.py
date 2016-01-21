@@ -33,6 +33,7 @@ def redirect(location, rv, code=302, **kwargs):
 
 class BaseResponse(Response):
     _etag = True
+    default_mimetype = 'text/html'
 
 class DictResponse(BaseResponse):
     def __init__(self, obj, *args, **kwargs):
