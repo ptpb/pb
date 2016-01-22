@@ -258,7 +258,7 @@ def get(sid=None, sha1=None, label=None, namespace=None, lexer=None, handler=Non
             result = model.delete(uuid=uuid)
             if not result['n']:
                 return StatusResponse("this should not happen", 500)
-            return PasteResponse(paste, "expired")
+            return PasteResponse(paste, "expired", code=410)
 
     content = model._get(paste.get('content'))
 

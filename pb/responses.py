@@ -90,13 +90,13 @@ class PasteResponse(DictResponse):
     _etag = False
     _conv = SIDConverter
 
-    def __init__(self, paste, status=None, filename=None, uuid=None):
+    def __init__(self, paste, status=None, filename=None, uuid=None, code=None):
         self._paste = paste
         paste['status'] = status # hack
         self.uuid = uuid
         self.url = any_url(paste, filename)
 
-        code = 302 if request.args.get('r') else 200
+        code = code or (302 if request.args.get('r') else 200)
         super().__init__(dict(self), code)
 
         self.headers['Location'] = self.url
