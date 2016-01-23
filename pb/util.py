@@ -10,6 +10,8 @@
 """
 
 from io import BytesIO
+from datetime import datetime, timedelta
+from dateutil.parser import parse as datetime_parse
 
 from flask import render_template, request, url_for
 
@@ -113,3 +115,20 @@ def get_host_name(request):
     if host:
         host = host.split(':')[0]
         return host
+
+def parse_sunset(sunset, date=None, **kwargs):
+    if isinstance(sunset, datetime):
+        return sunset
+
+    def f(v, date=date):
+        if not date:
+            date = datetime.utcnow()
+        return date + timedelta(seconds=int(sunset))
+
+    if isinstance(sunset, str) and sunset.strip().isdigit():
+        return f(sunset.strip())
+
+    if isinstance(sunset, int):
+        return f(sunset)
+
+    return datetime_parse(sunset)

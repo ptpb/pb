@@ -25,7 +25,7 @@ from pymongo import errors
 
 from pb.namespace import model as ns_model
 from pb.paste import model, handler as _handler
-from pb.util import highlight, request_content, request_keys, rst, markdown, absolute_url, get_host_name
+from pb.util import highlight, request_content, request_keys, rst, markdown, absolute_url, get_host_name, parse_sunset
 from pb.cache import invalidate
 from pb.responses import BaseResponse, StatusResponse, PasteResponse, DictResponse, redirect
 
@@ -73,7 +73,10 @@ def post(label=None, namespace=None):
 
     for key, value in request_keys('private', 'sunset'):
         try:
-            args[key] = int(value)
+            if key == 'sunset':
+                args[key] = parse_sunset(value)
+            else:
+                args[key] = int(value)
         except ValueError:
             return StatusResponse({
                 "invalid request params": {key: value}
@@ -245,20 +248,15 @@ def get(sid=None, sha1=None, label=None, namespace=None, lexer=None, handler=Non
 
     paste = next(cur)
     if paste.get('sunset'):
-        request.max_age = (paste['date'] + timedelta(seconds=paste['sunset'])) - datetime.utcnow()
+        request.max_age = parse_sunset(**paste) - datetime.utcnow()
+        print('max_age', request.max_age)
         if request.max_age < timedelta():
-            request.max_age = 0
-        else:
-            request.max_age = request.max_age.seconds
-
-        if paste['date'] + timedelta(seconds=paste['sunset']) < datetime.utcnow():
-            max_age = datetime.utcnow() - (paste['date'] + timedelta(seconds=paste['sunset']))
             uuid = UUID(hex=paste['_id'])
             paste = invalidate(uuid=uuid)
             result = model.delete(uuid=uuid)
-            if not result['n']:
-                return StatusResponse("this should not happen", 500)
             return PasteResponse(paste, "expired", code=410)
+        else:
+            request.max_age = request.max_age.seconds
 
     content = model._get(paste.get('content'))
 

@@ -3,7 +3,7 @@ import json
 from uuid import UUID
 
 from datetime import timedelta, datetime
-from dateutil.tz import tzutc
+from pytz import utc
 
 from werkzeug.wrappers import Response
 from werkzeug.http import parse_list_header
@@ -134,7 +134,11 @@ class PasteResponse(DictResponse):
             return self._sid(6)
 
     @property
+    def date(self):
+        if 'date' in self._paste:
+            return utc.localize(self._paste['date'])
+
+    @property
     def sunset(self):
         if 'sunset' in self._paste:
-            date = self._paste['date'].replace(tzinfo=tzutc())
-            return date + timedelta(seconds=self._paste['sunset'])
+            return utc.localize(self._paste['sunset'])
