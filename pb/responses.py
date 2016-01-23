@@ -101,6 +101,11 @@ class PasteResponse(DictResponse):
 
         self.headers['Location'] = self.url
 
+    def _dump(self, obj):
+        if request.args.get('u'):
+            return self.url
+        return super()._dump(obj)
+
     def __dir__(self):
         return ['url', 'long', 'short',
                 'uuid', 'status', 'label', 'sunset',
