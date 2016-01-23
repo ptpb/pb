@@ -77,7 +77,7 @@ def post(label=None, namespace=None):
                 args[key] = parse_sunset(value)
             else:
                 args[key] = int(value)
-        except ValueError:
+        except (ValueError, OverflowError):
             return StatusResponse({
                 "invalid request params": {key: value}
             }, 400)
