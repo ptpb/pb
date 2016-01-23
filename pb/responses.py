@@ -103,7 +103,7 @@ class PasteResponse(DictResponse):
 
     def _dump(self, obj):
         if request.args.get('u'):
-            return self.url
+            return '{}\n'.format(self.url)
         return super()._dump(obj)
 
     def __dir__(self):
