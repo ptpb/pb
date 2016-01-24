@@ -33,6 +33,7 @@ def transform(kwargs):
 def _put(stream):
     b = stream.read()
     digest = sha1(b).hexdigest()
+    size = len(b)
     try:
         if stream.getbuffer().nbytes > 2 ** 23:
             b = get_fs().put(b)
@@ -42,7 +43,7 @@ def _put(stream):
     return dict(
         content = b,
         digest = digest,
-        size = len(b)
+        size = size
     )
 
 def _get(content):
