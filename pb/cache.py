@@ -65,8 +65,6 @@ def invalidate(**kwargs):
     return paste
 
 def add_cache_header(response):
-    if not response._etag:
-        return response
     if request.method == 'GET' and not response.cache_control.public:
         prefix = request.blueprint if request.blueprint else current_app.name
         # ugh
