@@ -41,7 +41,8 @@ def _put(stream):
         b = get_fs().put(b)
     return dict(
         content = b,
-        digest = digest
+        digest = digest,
+        size = len(b)
     )
 
 def _get(content):

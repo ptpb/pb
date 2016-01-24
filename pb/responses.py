@@ -109,7 +109,7 @@ class PasteResponse(DictResponse):
     def __dir__(self):
         return ['url', 'long', 'short',
                 'uuid', 'status', 'label', 'sunset',
-                'redirect', 'digest', 'namespace', 'date']
+                'redirect', 'digest', 'namespace', 'date', 'size']
 
     def __getattr__(self, name):
         if name in dir(self):
