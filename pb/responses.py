@@ -1,4 +1,5 @@
 import yaml
+from yaml.dumper import SafeDumper
 import json
 from uuid import UUID
 
@@ -30,6 +31,18 @@ def redirect(location, rv, code=302, **kwargs):
     response = current_app.response_class(rv, code, **kwargs)
     response.headers['Location'] = location
     return response
+
+
+def represent_datetime(self, data):
+    value = data.isoformat()
+    return self.represent_scalar(u'tag:yaml.org,2002:timestamp', value)
+
+
+SafeDumper.add_representer(
+    datetime,
+    represent_datetime
+)
+
 
 class BaseResponse(Response):
     default_mimetype = 'text/html'
