@@ -314,7 +314,7 @@ def stats():
 @paste.route('/static/<style>.css')
 def highlight_css(style="default"):
     try:
-        css = HtmlFormatter(style=style).get_style_defs('.code')
+        css = HtmlFormatter(style=style).get_style_defs('body')
     except ClassNotFound:
         return StatusResponse("not found", 404)
 
