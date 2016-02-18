@@ -491,8 +491,8 @@ Perhaps we'd like to do the terminal recording with a single command.
 
 View the recording by prepending a ``t/`` to the paste id.
 
-dedicated command-line clients
-------------------------------
+native clients
+--------------
 
 There are some native clients for interacting with pb, below are the ones we know of:
 
