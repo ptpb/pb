@@ -491,6 +491,12 @@ Perhaps we'd like to do the terminal recording with a single command.
 
 View the recording by prepending a ``t/`` to the paste id.
 
+dedicated command-line client
+-----------------------------
+
+For those who are interested in convenience (e.g., shortcuts to the various functions, tab-completion, automatic tracking of pastes, etc.),
+you may be interested in `pbpst <https://github.com/HalosGhost/pbpst.git>`_.
+
 duck sauce
 ----------
 
