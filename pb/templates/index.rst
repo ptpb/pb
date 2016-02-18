@@ -494,7 +494,7 @@ View the recording by prepending a ``t/`` to the paste id.
 dedicated command-line clients
 ------------------------------
 
-There are some native (i.e., not shell) clients for interacting with pb, below are the ones we know of:
+There are some native clients for interacting with pb, below are the ones we know of:
 
 - `pbpst <https://github.com/HalosGhost/pbpst.git>`_
 - `AndroPTPB <https://f-droid.org/repository/browse/?fdfilter=pb&fdid=io.github.phora.androptpb>`_
