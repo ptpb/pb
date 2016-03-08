@@ -11,6 +11,7 @@
 
 from json import dumps
 from flask import render_template, url_for, request
+from werkzeug.routing import BaseConverter
 
 from pb.util import rst, markdown, style_args
 from pb.responses import StatusResponse
@@ -58,3 +59,8 @@ def get(handler, content, mimetype, **kwargs):
     if not h:
         return StatusResponse({"invalid handler": handler}, 400)
     return h(content, mimetype, **kwargs)
+
+# dirtyhack
+class HandlerConverter(BaseConverter):
+    regex = '[{}]'.format(''.join(handlers))
+    weight = 50

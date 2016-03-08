@@ -16,6 +16,7 @@ from pb.namespace.views import namespace
 from pb.db import init_db
 from pb.cache import init_cache
 from pb.converters import SIDConverter, SHA1Converter, LabelConverter, NamespaceConverter
+from pb.paste.handler import HandlerConverter
 from pb.responses import BaseResponse
 from pb.routing import Rule, RequestContext
 from pb.config import load_config
@@ -42,7 +43,8 @@ def create_app(config_filename='config.yaml'):
         sid = SIDConverter,
         sha1 = SHA1Converter,
         label = LabelConverter,
-        namespace = NamespaceConverter
+        namespace = NamespaceConverter,
+        handler = HandlerConverter
     ))
 
     load_config(app, config_filename)

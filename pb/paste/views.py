@@ -223,23 +223,23 @@ def report(sid=None, sha1=None, label=None, namespace=None):
 @paste.route('/<namespace:namespace>', namespace_only=True)
 @paste.route('/<namespace:namespace>/<string(minlength=0):lexer>', namespace_only=True)
 @paste.route('/<namespace:namespace>/<string(minlength=0):lexer>/<formatter>', namespace_only=True)
-@paste.route('/<string(length=1):handler>/<namespace:namespace>', namespace_only=True)
+@paste.route('/<handler:handler>/<namespace:namespace>', namespace_only=True)
 @paste.route('/<sid(length=28):sha1>')
 @paste.route('/<sid(length=28):sha1>/<string(minlength=0):lexer>')
 @paste.route('/<sid(length=28):sha1>/<string(minlength=0):lexer>/<formatter>')
-@paste.route('/<string(length=1):handler>/<sid(length=28):sha1>')
+@paste.route('/<handler:handler>/<sid(length=28):sha1>')
 @paste.route('/<sid(length=4):sid>')
 @paste.route('/<sid(length=4):sid>/<string(minlength=0):lexer>')
 @paste.route('/<sid(length=4):sid>/<string(minlength=0):lexer>/<formatter>')
-@paste.route('/<string(length=1):handler>/<sid(length=4):sid>')
+@paste.route('/<handler:handler>/<sid(length=4):sid>')
 @paste.route('/<sha1:sha1>')
 @paste.route('/<sha1:sha1>/<string(minlength=0):lexer>')
 @paste.route('/<sha1:sha1>/<string(minlength=0):lexer>/<formatter>')
-@paste.route('/<string(length=1):handler>/<sha1:sha1>')
+@paste.route('/<handler:handler>/<sha1:sha1>')
 @paste.route('/<label:label>')
 @paste.route('/<label:label>/<string(minlength=0):lexer>')
 @paste.route('/<label:label>/<string(minlength=0):lexer>/<formatter>')
-@paste.route('/<string(length=1):handler>/<label:label>')
+@paste.route('/<handler:handler>/<label:label>')
 def get(sid=None, sha1=None, label=None, namespace=None, lexer=None, handler=None, formatter=None):
     cur, name, path = _get_paste(model.get_content, sid, sha1, label, namespace)
 
@@ -275,7 +275,7 @@ def get(sid=None, sha1=None, label=None, namespace=None, lexer=None, handler=Non
 
     return BaseResponse(content, mimetype=mimetype)
 
-@paste.route('/<string(length=1):handler>', methods=['POST'])
+@paste.route('/<handler:handler>', methods=['POST'])
 def preview(handler):
     stream, filename = request_content()
 

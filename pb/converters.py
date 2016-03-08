@@ -17,6 +17,9 @@ from base64 import urlsafe_b64encode, urlsafe_b64decode
 from flask import current_app, request
 from werkzeug.routing import BaseConverter
 
+from pb.paste import handler
+
+
 class UnhexMixin:
     def to_url(self, value, length=None):
         length = length if length else self.length
