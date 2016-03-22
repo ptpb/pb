@@ -359,6 +359,36 @@ Witness the gloriousness:
     $ curl {{ url('.get', label='~polyzen') }}
     boats and hoes
 
+sunsetting pastes
+^^^^^^^^^^^^^^^^^
+
+Create a paste that self destructs in 2 minutes:
+
+.. code:: console
+
+    $ curl -vX POST {{ url('.post') }} -d '{"content": "This message will self-destruct in two minutes", "sunset": 120}' --header "Content-Type: application/json"
+    date: 2016-03-22T17:15:50.396279+00:00
+    digest: 3a9c705adf9a941b175631a5e6f11eb575f067e6
+    long: ADqccFrfmpQbF1YxpebxHrV18Gfm
+    short: 8Gfm
+    size: 46
+    status: created
+    sunset: 2016-03-22T17:17:50.395045+00:00
+    url: {{ url('.get', label='8Gfm') }}
+    uuid: 751f7e0b-7ce1-4b81-852b-57c5844e8d3a
+    $ curl {{ url('.get', label='8Gfm') }}
+    This message will self-destruct in two minutes
+    $ sleep 2m
+    $ curl {{ url('.get', label='8Gfm') }}
+    date: 2016-03-22T17:15:50.396000+00:00
+    digest: 3a9c705adf9a941b175631a5e6f11eb575f067e6
+    long: ADqccFrfmpQbF1YxpebxHrV18Gfm
+    short: 8Gfm
+    size: 46
+    status: expired
+    sunset: 2016-03-22T17:17:50.395000+00:00
+    url: {{ url('.get', label='8Gfm') }}
+
 terminal recording
 ^^^^^^^^^^^^^^^^^^
 
