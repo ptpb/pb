@@ -366,7 +366,7 @@ Create a paste that self destructs in 2 minutes:
 
 .. code:: console
 
-    $ curl -vX POST {{ url('.post') }} -d '{"content": "This message will self-destruct in two minutes", "sunset": 120}' --header "Content-Type: application/json"
+    $ echo "This message will self-destruct in two minutes" | curl -F sunset=120 -F c=@- {{ url('.post') }}
     date: 2016-03-22T17:15:50.396279+00:00
     digest: 3a9c705adf9a941b175631a5e6f11eb575f067e6
     long: ADqccFrfmpQbF1YxpebxHrV18Gfm
