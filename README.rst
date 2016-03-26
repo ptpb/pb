@@ -13,8 +13,11 @@ Requirements
 
 - python >= 3.4 `requirements.txt <requirements.txt>`_
 - mongodb >= 2.6
+- npm
+- graphicsmagick
 - varnish >= 4.0 (optional)
 - gunicorn >= 19.1 (optional, or `any other WSGI server <http://wsgi.readthedocs.org/en/latest/servers.html>`_)
+- asciinema (optional)
 
 Deployment
 ----------
