@@ -266,6 +266,13 @@ Create a paste from the output of 'dmesg':
     url: {{ url('.get', label='VNyq') }}
     uuid: 17c5829d-81a0-4eb6-8681-ba72f83ffbf3
 
+Or, if you only care about getting the url back:
+
+.. code:: console
+
+    $ dmesg | curl -F c=@- {{ url('.post') }}?u=1
+    {{ url('.get', label='VNyq') }}
+
 updating pastes
 ^^^^^^^^^^^^^^^
 
