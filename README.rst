@@ -8,8 +8,13 @@ pb
 The official instance of ``pb`` can be found at `ptpb.pw
 <https://ptpb.pw>`_. Feel free to deploy ``pb`` elsewhere.
 
-Requirements
-------------
+Build Requirements
+------------------
+- npm
+- graphicsmagick
+
+Runtime Requirements
+--------------------
 
 - python >= 3.4 `requirements.txt <requirements.txt>`_
 - mongodb >= 2.6
