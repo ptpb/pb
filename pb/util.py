@@ -84,8 +84,7 @@ def request_key(key):
     return request.form.get(key, request.form.get(key[0]))
 
 def absolute_url(endpoint, **kwargs):
-    proto = request.environ.get('HTTP_X_FORWARDED_PROTO')
-    scheme = proto if proto else request.scheme
+    scheme = request.environ.get('HTTP_X_FORWARDED_PROTO', request.scheme)
     return url_for(endpoint, _external=True, _scheme=scheme, **kwargs)
 
 def rst(source):
