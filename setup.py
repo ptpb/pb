@@ -9,5 +9,6 @@ setup(
     maintainer='Zack Buhman',
     maintainer_email='zack@buhman.org',
     include_package_data=True,
-    packages=find_packages()
+    packages=find_packages(),
+    install_requires=open('requirements.txt').readlines(),
 )
