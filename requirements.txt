@@ -1,5 +1,4 @@
-#Flask>=1.0 # FIXME: uncomment after release
--e git+https://github.com/mitsuhiko/flask.git#egg=flask
+Flask>=0.11
 Werkzeug>=0.10.4
 PyYAML>=3.11
 Pygments>=2.0.2
