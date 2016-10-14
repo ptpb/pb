@@ -7,3 +7,5 @@ MONGO:
 MONGO_DATABASE: pb
 
 #VARNISH_BASE: 'http://[::1]:8080/'
+
+#CDN_PREFIX: '//d34zelngniy2d8.cloudfront.net'

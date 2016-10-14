@@ -8,12 +8,12 @@
 
   {% for size in ['32', '128', '512'] %}
   <link rel="icon" type="image/png"
-        href="{{ url_for('static', filename='images/ptpb-{}.png'.format(size)) }}"
+        href="{{ cdn_prefix }}{{ url_for('static', filename='images/ptpb-{}.png'.format(size)) }}"
         sizes="{{size}}x{{size}}">
   {% endfor %}
 
   {% block head %}
-  <link href="{{ url_for('static', filename='css/pbs.css') }}" type="text/css" rel="stylesheet"/>
+  <link href="{{ cdn_prefix }}{{ url_for('static', filename='css/pbs.css') }}" type="text/css" rel="stylesheet"/>
   <link href="{{ url_for('static', filename='default.css') }}" type="text/css" rel="stylesheet"/>
   {% endblock %}
 </head>

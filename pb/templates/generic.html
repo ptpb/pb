@@ -5,7 +5,7 @@
 <link href="/{{ css }}.css" type="text/css" rel="stylesheet"/>
 {% elif style is defined and style %}
 <!-- fixme: hack -->
-<link href="{{ url_for('static', filename='hack/hack.css') }}" type="text/css" rel="stylesheet"/>
+<link href="{{ cdn_prefix }}{{ url_for('static', filename='hack/hack.css') }}" type="text/css" rel="stylesheet"/>
 <link href="/static/{{ style }}.css" type="text/css" rel="stylesheet"/>
 {% else %}
 {{ super() }}
