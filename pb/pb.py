@@ -21,6 +21,7 @@ from pb.paste.handler import HandlerConverter
 from pb.responses import BaseResponse
 from pb.routing import Rule, RequestContext
 from pb.config import load_config
+from pb.logging import init_logging
 
 def cors(response):
     response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
@@ -52,6 +53,7 @@ def create_app(config_filename='config.yaml'):
     init_db(app)
     init_cache(app)
     init_cdn(app)
+    init_logging(app)
 
     app.after_request(cors)
 
