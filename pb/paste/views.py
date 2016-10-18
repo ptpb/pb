@@ -163,16 +163,7 @@ def _get_paste(cb, sid=None, sha1=None, label=None, namespace=None):
     if sid:
         sid, name, value = sid
         return cb(**{
-            '$or' : [
-                {
-                    'digest': {
-                        '$regex': '{}$'.format(sid)
-                    }
-                },
-                {
-                    'label' : value
-                }
-            ],
+            'short': sid,
             'private': {
                 '$exists': False
             },
