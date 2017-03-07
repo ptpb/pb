@@ -9,4 +9,3 @@ pymongo>=3.0
 Markdown>=2.6.1
 python-dateutil>=2.4.2
 pytz>=2015.6
-watchtower>=0.3.3
