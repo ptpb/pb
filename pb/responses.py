@@ -145,12 +145,17 @@ class PasteResponse(DictResponse):
         if all(i not in self._paste for i in ['namespace', 'private']):
             return self._sid(6)
 
+    def localize(self, dt):
+        if not dt.tzinfo:
+            return utc.localize(dt)
+        return dt
+
     @property
     def date(self):
         if 'date' in self._paste:
-            return utc.localize(self._paste['date'])
+            return self.localize(self._paste['date'])
 
     @property
     def sunset(self):
         if 'sunset' in self._paste:
-            return utc.localize(self._paste['sunset'])
+            return self.localize(self._paste['sunset'])
