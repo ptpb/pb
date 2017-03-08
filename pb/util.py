@@ -37,7 +37,7 @@ def highlight(content, lexer_name, formatter):
         if lexer_name != '':
             return "No such lexer.", 400
 
-    if formatter:
+    if formatter and formatter != 'html':
         formatter = get_formatter_by_name(formatter)
     else:
         formatter = HtmlFormatter(linenos='table', anchorlinenos=True, lineanchors='L', linespans='L')
