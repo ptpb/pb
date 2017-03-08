@@ -14,7 +14,7 @@
 
   {% block head %}
   <link href="{{ cdn_prefix }}{{ url_for('static', filename='css/pbs.css') }}" type="text/css" rel="stylesheet"/>
-  <link href="{{ url_for('static', filename='default.css') }}" type="text/css" rel="stylesheet"/>
+  <link href="{{ url_for('static', filename='{}.css'.format(style)) }}" type="text/css" rel="stylesheet"/>
   {% endblock %}
 </head>
 <body>

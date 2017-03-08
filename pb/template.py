@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-    cdn
-    ~~~
+    template
+    ~~~~~~~~
 
-    adds cdn prefix to template context
+    adds template context processors
 
     :copyright: Copyright (C) 2016 by the respective authors; see AUTHORS.
     :license: GPLv3, see LICENSE for details.
@@ -18,5 +18,10 @@ def inject_cdn():
     return dict(cdn_prefix=cdn_prefix)
 
 
-def init_cdn(app):
+def inject_style():
+    return dict(style='default')
+
+
+def init_template(app):
     app.context_processor(inject_cdn)
+    app.context_processor(inject_style)

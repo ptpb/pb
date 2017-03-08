@@ -15,7 +15,7 @@ from pb.paste.views import paste
 from pb.namespace.views import namespace
 from pb.db import init_db
 from pb.cache import init_cache
-from pb.cdn import init_cdn
+from pb.template import init_template
 from pb.converters import SIDConverter, SHA1Converter, LabelConverter, NamespaceConverter
 from pb.paste.handler import HandlerConverter
 from pb.responses import BaseResponse
@@ -52,7 +52,7 @@ def create_app(config_filename='config.yaml'):
     load_config(app, config_filename)
     init_db(app)
     init_cache(app)
-    init_cdn(app)
+    init_template(app)
     init_logging(app)
 
     app.after_request(cors)
