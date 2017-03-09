@@ -36,7 +36,7 @@ request only).
 
 # Group paste crud
 
-## create paste [POST /{vanity}]
+## create paste [POST /{label}]
 
 All request attributes (disposition names, json object fields) can be
 referenced by their full name or first letter.
@@ -47,9 +47,9 @@ present such a response as a "generic server-side error" to the user.
 
 + Parameters
 
-    + vanity (string, optional)
+    + label (string, optional)
 
-      create a paste with a vanity label
+      create a paste with a vanity label. A label currently must be at least two characters, and the first character must be `~`.
 
 + Request multipart
 
