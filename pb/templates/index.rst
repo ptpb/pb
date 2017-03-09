@@ -21,6 +21,11 @@ Create a new paste from the output of ``cmd``:
 A `HTML form </f>`_ is also provided for convenience paste and
 file-uploads from web browsers.
 
+api spec
+--------
+
+Implementers can read the complete API specification `here <https://ptpb.pw/a>`_.
+
 examples
 --------
 
