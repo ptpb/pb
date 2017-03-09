@@ -1,0 +1,401 @@
+FORMAT: 1A
+HOST: https://ptpb.pw
+
+# pb
+
+pb is a lightweight pastebin (and url shortener) built using flask.
+
+## API Media Types
+
+Most routes support multiple mixed request and response types, using
+the `Content-Type` and `Accept` headers, respectively.
+
+The primary use-cases are:
+
+| `Content-Type`        | `Accept`           |
+| --------------------- | ------------------ |
+| `multipart/form-data` | `text/x-yaml,*/*`  |
+| `multipart/mixed`     | `application/json` |
+| `application/json`    | `application/json` |
+
+All `text/*` responses from pb may also use `charset=utf-8`. All
+`text/plain` responses are valid yaml, and should be parsed as such.
+
+## Paste Media Types
+
+Pastes can have custom media types as well. For methods that support
+it, the `filename` request attribute is parsed, and converted
+to a mimetype (e.g: `foo.jpg` is parsed into `image/jpeg`). This
+mimetype, if successfully parsed, is returned in the `Content-Type`
+header for subsequent get requests for that paste.
+
+This behavior can also be controlled per-request by appending a
+mimetype extension to the paste ID (e.g: a paste with short `Z7_u` can
+be referenced as `Z7_u.png` and have the `image/png` mimetype for that
+request only).
+
+# Group paste crud
+
+## create paste [POST /{vanity}]
+
+All request attributes (disposition names, json object fields) can be
+referenced by their full name or first letter.
+
+A compliant client must be prepared to accept responses that do not
+match the requested response content type. A minimal client would
+present such a response as a "generic server-side error" to the user.
+
++ Parameters
+
+    + vanity (string, optional)
+
+      create a paste with a vanity label
+
++ Request multipart
+
+    + Headers
+
+            Content-Type: multipart/form-data; boundary=------------------------7742583d48a00ce6
+            Accept: */*
+
+    + Body
+
+            --------------------------7742583d48a00ce6
+            Content-Disposition: form-data; name="c"; filename="-"
+            Content-Type: application/octet-stream
+
+            test1234ba
+
+            --------------------------7742583d48a00ce6--
+
++ Response 200 (text/plain; charset=utf-8)
+
+    + Headers
+
+            Vary: Accept
+            Location: https://ptpb.pw/7Z_u
+
+    + Body
+
+            date: 2017-03-07T21:21:39.919155+00:00
+            digest: 5ca6c440b6e52fcd0a47dae3879b8ef99ded9fee
+            long: AFymxEC25S_NCkfa44ebjvmd7Z_u
+            short: 7Z_u
+            size: 10
+            status: created
+            url: https://ptpb.pw/7Z_u
+            uuid: 5dbe3f5b-78f3-4c2b-9965-58f88a0a5da5
+
++ Request json (application/json)
+
+    + Headers
+
+            Accept: application/json
+
+    + Attributes (Paste Request)
+
++ Response 200 (application/json)
+
+    + Headers
+
+            Vary: Accept
+            Location: https://ptpb.pw/ABgOBB3kOB-3GPA8RA5pfgyn-ooL.jpg
+
+    + Attributes (Paste Data)
+
++ Response 400 (application/json)
+
+    + Headers
+
+            Vary: Accept
+
+    + Attributes
+
+        + `status`: `no post content` (string, required)
+
+## read paste [GET /{id}]
+
+Returns paste content for a given paste id.
+
++ Parameters
+
+    + id (string, required)
+
+      paste id, any of the `long`, `short`, `label`, or `digest` attributes
+
++ Response 200
+
+        <!-- paste content -->
+
+## update paste [PUT /{id}]
+
+Replace paste attributes.
+
++ Parameters
+
+    + id (string, required)
+
+      paste id, the `uuid` attribute
+
++ Request json (application/json)
+
+    + Attributes (Paste Request)
+
++ Response 200 (application/json)
+
+    + Attributes
+
+        + Include Paste Data
+
++ Response 400 (application/json)
+
+    + Attributes
+
+        + `status`: `no post content` (string, required)
+
+## delete paste [DELETE /{id}]
+
+This type of deletion will make the paste no longer exist.
+
++ Parameters
+
+    + id (string, required)
+
+      paste id, the `uuid` attribute
+
++ Request json (application/json)
+
+    + Headers
+
+            Accept: application/json
+
++ Response 200 (application/json)
+
+    + Headers
+
+            Vary: Accept
+            Location: https://ptpb.pw/rHd5
+
+    + Attributes (Paste Data)
+
++ Response 404 (application/json)
+
+    + Headers
+
+            Vary: Accept
+
+    + Attributes
+
+        + `status`: `not found` (string, required)
+
+# Group short url
+
+## create short url [POST /u]
+
+This creates a new short url. This creates a special type of paste
+where the paste content is interpreted as a redirect destination. A `GET` request for this paste, instead of returning the paste body, will instead return a `301 Moved Permanently` response.
+
++ Request json (application/json)
+
+    + Attributes (Short URL Request)
+
++ Response 200 (application/json)
+
+    + Attributes (Paste Data)
+
+# Group syntax highlighting
+
+## highlight paste [GET /{id}/{lexer}/{formatter}{?style}]
+
+This applys syntax highlighting to the paste content.
+
++ Parameters
+
+    + id (string, required)
+
+      paste id, any of the `long`, `short`, `label`, or `digest` attributes
+
+    + lexer (string, required)
+
+      an alias of a pygments lexer; see `list lexers`
+
+    + formatter (string, optional)
+
+      an alias of a pygments formatter; see `list formatters`
+
+      + Default: `html`
+
+    + style (string, optional)
+
+      an alias of a pygments style; see `list styles`
+
+      + Default: `default`
+
++ Response 200 (text/html)
+
+## list lexers [GET /l]
+
+List all available lexer aliases.
+
+These aliases represent a language or type of syntax. This value should match the input paste content.
+
++ Response 200 (response/json)
+
+    + Attributes (array)
+
+        - (array)
+          + `python3`
+          + `py3`
+        - (array)
+          + `bash`
+          + `sh`
+          + `shell`
+
+## list formatters [GET /lf]
+
+List all available formatter aliases.
+
+These aliases represent different output formats. This value should match the desired presentation format.
+
++ Response 200 (response/json)
+
+    + Attributes (array)
+
+        - (array)
+          + `html`
+        - (array)
+          + `jpg`
+          + `jpeg`
+
+## list styles [GET /ls]
+
+List all available style aliases.
+
+These aliases represent different styles. These change the styles and colors applied to each type of syntax element.
+
++ Response 200 (response/json)
+
+    + Attributes (array)
+
+        + `default`
+        + `pastie`
+
+# Group paste transforms
+
+## render paste markup [GET /r/{id}]
+
+The paste or request mimetype is used to determine if the paste
+content is intended to be interpreted as reStructuredText or Markdown,
+falling back to reStructuredText if no such data is available, or does
+not match known mimetypes.
+
+The paste content is then transformed by a reStructuredText or
+Markdown renderer, accordingly.
+
++ Parameters
+
+    + id (string, required)
+
+      paste id, any of the `long`, `short`, `label`, or `digest` attributes
+
++ Response 200 (text/html)
+
+        <!-- rendered markup -->
+
+## render markup [POST /r]
+
+This is identical to `render paste markup`, except the request content
+is transformed instead of paste content.
+
++ Request json (application/json)
+
+        {
+          "content": "An h1 header\n============\n\nParagraphs are separated by a blank line.\n"
+        }
+
++ Response 200 (text/html)
+
+        <!-- rendered markup -->
+
+## render paste terminal session [GET /t/{id}]
+
+The paste content is expected to be asciicast json v1. The output is
+an asciinema-player that is fed the paste content. This is used for
+playback of terminal recordings.
+
++ Parameters
+
+    + id (string, required)
+
+      paste id, any of the `long`, `short`, `label`, or `digest` attributes
+
++ Response 200 (text/html)
+
+        <!-- asciinema-player -->
+
+## render terminal session [POST /t]
+
+This is identical to `render paste terminal session`, except the
+request content is transformed instead of paste content.
+
++ Request json (application/json)
+
+        {
+          "content": "{\"version\": 1, \"width\": 90, \"height\": 57, \"duration\": 2.26401, \"command\": \"/bin/zsh\", \"title\": \"\", \"env\": {\"TERM\": \"rxvt-unicode-256color\", \"SHELL\": \"/bin/zsh\"}, \"stdout\": []}"
+        }
+
++ Response 200 (text/html)
+
+        <!-- asciinema-player -->
+
+# Group server metadata
+
+## paste statistics [GET /s]
+
+Provides arbitrary interesting paste metadata.
+
++ Response 200 (application/json)
+
+    + Attributes
+
+        + `pastes`: 59226 (number, required) - the number of pastes in the database
+
+## Data Structures
+
+### Paste Data (object)
+
+  + `url`: `https://ptpb.pw/rHd5` (string, required)
+
+  + `long`: `AJJ1vikJUiGkSLlni-aYVR8UrHd5` (string, required)
+  + `short`: `rHd5` (string, optional)
+  + `digest`: `9275be29095221a448b9678be698551f14ac7779` (string, required)
+
+  + `date`: `2017-03-08T01:02:45.621000+00:00` (string, required)
+  + `size`: 11 (number, required)
+
+  + `uuid`: `5dbe3f5b-78f3-4c2b-9965-58f88a0a5da5` (string, optional)
+  + `label`: `f` (string, optional)
+  + `sunset`: `2017-03-08T01:02:45.621000+00:00` (string, optional)
+  + `status`: `created` (enum[string], required)
+
+    + Members
+      + `created`
+      + `deleted`
+      + `expired`
+      + `already exists`
+      + `found`
+      + `updated`
+
+  + `namespace`: ` ` - undocumented
+  + `redirect`: 1 (number, optional)
+
+### Paste Request (object)
+
+  + `content`: `Hello World!!` (string, required)
+  + `filename`: `kittens.jpg` (string, optional) - the extension of the provided filename is parsed into a mimetype, and stored internally.
+  + `private`: 1 (number, optional) - when specified, the paste will not be accessible via `short` id.
+  + `sunset`: `2017-03-07T21:49:37.654602+00:00` (string, optional) - when specified, the paste will become unavailable after the provided datetime.
+
+### Short URL Request (object)
+
+  + `content`: `https://apiblueprint.org/documentation/mson/specification.html`
