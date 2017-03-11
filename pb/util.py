@@ -28,7 +28,7 @@ from docutils import core
 from markdown import markdown as _markdown
 
 def style_args():
-    return {k:request.args.get(k) for k in ['style','css']}
+    return {k:request.args[k] for k in ['style','css'] if k in request.args}
 
 def highlight(content, lexer_name, formatter):
     try:
