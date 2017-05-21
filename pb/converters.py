@@ -17,8 +17,6 @@ from base64 import urlsafe_b64encode, urlsafe_b64decode
 from flask import current_app, request
 from werkzeug.routing import BaseConverter
 
-from pb.paste import handler
-
 
 class UnhexMixin:
     def to_url(self, value, length=None):
@@ -41,7 +39,7 @@ class SREMixin:
 class SIDConverter(UnhexMixin, BaseConverter):
     def __init__(self, map, length):
         super().__init__(map)
-        self.regex = '(([A-Za-z0-9_~.-]{{{}}})(?:[.][^/]*)?)'.format(length)
+        self.regex = '(([A-Za-z0-9_-]{{{}}})(?:[.][^/]*)?)'.format(length)
         self.sre = re.compile(self.regex)
         if length % 4 != 0:
             raise NotImplementedError('{} % 4 != 0; kthx'.format(length))
