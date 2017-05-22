@@ -10,6 +10,7 @@
 """
 
 from flask import Flask, request
+from xdg import BaseDirectory
 
 from pb.paste.views import paste
 from pb.namespace.views import namespace
@@ -39,8 +40,16 @@ class App(Flask):
     def request_context(self, environ):
         return RequestContext(self, environ)
 
+
+def xdg_static_folder():
+    for path in BaseDirectory.load_data_paths('pbs'):
+        return path
+    return 'static'
+
+
 def create_app(config_filename='config.yaml'):
-    app = App(__name__)
+
+    app = App(__name__, static_url_path='/static', static_folder=xdg_static_folder())
     app.url_map.converters.update(dict(
         sid = SIDConverter,
         sha1 = SHA1Converter,
