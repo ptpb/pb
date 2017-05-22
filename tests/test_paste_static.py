@@ -9,15 +9,6 @@ def test_get_index():
         rv = app.test_client().get(url_for('paste.index'))
         assert rv.status_code == 200
 
-def test_get_form():
-    app = create_app()
-
-    with app.test_request_context():
-        url = url_for('paste.form')
-
-    rv = app.test_client().get(url)
-    assert rv.status_code == 200
-
 def test_get_stats():
     app = create_app()
 
