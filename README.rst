@@ -2,6 +2,12 @@
 pb
 ==
 
+.. image:: https://img.shields.io/circleci/project/github/ptpb/pb.svg
+   :target: https://circleci.com/gh/ptpb/pb
+
+.. image:: https://img.shields.io/codecov/c/github/ptpb/pb.svg
+   :target: https://codecov.io/gh/ptpb/pb
+
 ``pb`` is a lightweight pastebin (and url shortener) built using
 `flask <http://flask.pocoo.org/docs/0.10/quickstart/>`_.
 
