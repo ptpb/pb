@@ -1,0 +1,5 @@
+# tox
+tox>=2.6.0
+
+# codecov
+codecov>=2.0.5
