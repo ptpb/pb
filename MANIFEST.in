@@ -1,5 +1,5 @@
 include LICENSE AUTHORS README.rst
 include run.py runonce.py
-recursive-include pb/static *
 recursive-include pb/templates *
 recursive-include tests *
+recursive-include requirements.txt
