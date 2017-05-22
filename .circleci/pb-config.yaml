@@ -1,0 +1,4 @@
+MONGO:
+  host: localhost
+
+MONGO_DATABASE: pb
