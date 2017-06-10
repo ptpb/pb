@@ -15,7 +15,6 @@ from binascii import Error as BinError
 from binascii import hexlify, unhexlify
 from os import path
 
-from flask import current_app, request
 from werkzeug.routing import BaseConverter
 
 

@@ -9,8 +9,7 @@
     :license: GPLv3, see LICENSE for details.
 """
 
-from datetime import datetime
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 from pb.db import get_db
 
