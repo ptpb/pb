@@ -2,11 +2,11 @@ import json
 from datetime import datetime
 from uuid import UUID
 
-import yaml
 from flask import current_app, request
 from pytz import utc
 from werkzeug.http import parse_list_header
 from werkzeug.wrappers import Response
+import yaml
 from yaml.dumper import SafeDumper
 
 from pb.converters import SIDConverter
@@ -63,9 +63,11 @@ class DictResponse(BaseResponse):
             return 'application/json'
         return 'text/plain'  # yaml
 
+    @staticmethod
     def _dump_json(obj):
         return json.dumps(obj, default=json_datetime)
 
+    @staticmethod
     def _dump_yaml(obj):
         return yaml.safe_dump(obj, default_flow_style=False)
 
@@ -135,7 +137,7 @@ class PasteResponse(DictResponse):
     def __iter__(self):
         for key in self.__dir__():
             value = getattr(self, key, None)
-            if value != None:
+            if value is not None:
                 yield key, value
 
     def _sid(self, length):
