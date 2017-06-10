@@ -10,11 +10,14 @@
 """
 
 
+import os
+
 from flask import current_app
 
 
 def inject_cdn():
-    cdn_prefix = current_app.config.get('CDN_PREFIX', '')
+    default_prefix = os.environ.get('CDN_PREFIX', '')
+    cdn_prefix = current_app.config.get('CDN_PREFIX', default_prefix)
     return dict(cdn_prefix=cdn_prefix)
 
 
