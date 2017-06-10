@@ -25,5 +25,5 @@ jobs:
       - run:
           command: |
             . venv/bin/activate
-            tox -e py36
+            tox -e check,py36,report
             codecov
