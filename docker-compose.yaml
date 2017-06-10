@@ -1,0 +1,16 @@
+version: '3.2'
+
+services:
+  pb:
+    build:
+      context: .
+    ports:
+      - '10002:10002'
+    volumes:
+      - .:/pb
+    environment:
+      - 'LISTEN_ADDRESS=::'
+      - 'LISTEN_PORT=10002'
+
+  mongodb:
+    image: mongo:latest
