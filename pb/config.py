@@ -1,5 +1,6 @@
-import yaml
 from xdg import BaseDirectory
+import yaml
+
 
 config = {}
 

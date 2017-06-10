@@ -254,7 +254,7 @@ def get(sid=None, sha1=None, label=None, namespace=None, lexer=None, handler=Non
         if request.max_age < timedelta():
             uuid = UUID(hex=paste['_id'])
             paste = invalidate(uuid=uuid)
-            result = model.delete(uuid=uuid)
+            model.delete(uuid=uuid)
             return PasteResponse(paste, "expired", code=410)
         else:
             request.max_age = request.max_age.seconds
@@ -269,9 +269,9 @@ def get(sid=None, sha1=None, label=None, namespace=None, lexer=None, handler=Non
     if not mimetype:
         mimetype = paste.get('mimetype', 'text/plain')
 
-    if lexer != None:
+    if lexer is not None:
         return highlight(content, lexer, formatter)
-    if handler != None:
+    if handler is not None:
         return _handler.get(handler, content, mimetype, path=path)
 
     return BaseResponse(content, mimetype=mimetype)
