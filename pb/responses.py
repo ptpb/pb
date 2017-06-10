@@ -13,12 +13,14 @@ from flask import request, current_app
 from pb.converters import SIDConverter
 from pb.util import absolute_url
 
+
 def json_datetime(obj):
     if isinstance(obj, datetime):
         return obj.isoformat()
 
+
 def any_url(paste, filename=None):
-    idu = lambda k,v: absolute_url('.get', **{k: (paste[v], filename)})
+    idu = lambda k, v: absolute_url('.get', **{k: (paste[v], filename)})
     if paste.get('namespace'):
         return idu('label', 'label')
     if paste.get('private'):
@@ -26,6 +28,7 @@ def any_url(paste, filename=None):
     if paste.get('label'):
         return idu('label', 'label')
     return idu('sid', 'digest')
+
 
 def redirect(location, rv, code=302, **kwargs):
     response = current_app.response_class(rv, code, **kwargs)
@@ -47,6 +50,7 @@ SafeDumper.add_representer(
 class BaseResponse(Response):
     default_mimetype = 'text/html'
 
+
 class DictResponse(BaseResponse):
     def __init__(self, obj, *args, **kwargs):
         response = self._dump(obj)
@@ -55,10 +59,10 @@ class DictResponse(BaseResponse):
 
     @property
     def default_mimetype(self):
-        accept = parse_list_header(request.headers.get('Accept',''))
+        accept = parse_list_header(request.headers.get('Accept', ''))
         if accept and 'application/json' in accept:
             return 'application/json'
-        return 'text/plain' # yaml
+        return 'text/plain'  # yaml
 
     def _dump_json(obj):
         return json.dumps(obj, default=json_datetime)
@@ -74,19 +78,21 @@ class DictResponse(BaseResponse):
         'text/plain': _dump_yaml
     }
 
+
 class StatusResponse(DictResponse):
     def __init__(self, status, code=None, *args, **kwargs):
         obj = dict(
-            status = status
+            status=status
         )
         super().__init__(obj, status=code, *args, **kwargs)
+
 
 class NamespaceResponse(DictResponse):
     def __init__(self, namespace, status, code=None, *args, **kwargs):
         uuid = str(UUID(hex=namespace['_id']))
         namespace.update(dict(
-            uuid = uuid,
-            status = status
+            uuid=uuid,
+            status=status
         ))
         del namespace['_id']
         if status != 'created':
@@ -94,12 +100,13 @@ class NamespaceResponse(DictResponse):
 
         super().__init__(namespace, status=code, *args, **kwargs)
 
+
 class PasteResponse(DictResponse):
     _conv = SIDConverter
 
     def __init__(self, paste, status=None, filename=None, uuid=None, code=None):
         self._paste = paste
-        paste['status'] = status # hack
+        paste['status'] = status  # hack
         self.uuid = uuid
         self.url = any_url(paste, filename)
 

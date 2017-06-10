@@ -24,6 +24,7 @@ from pb.routing import Rule, RequestContext
 from pb.config import load_config
 from pb.logging import init_logging
 
+
 def cors(response):
     response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
     for i in ('Header', 'Method'):
@@ -32,6 +33,7 @@ def cors(response):
             response.headers['Access-Control-Allow-{}s'.format(i)] = t
 
     return response
+
 
 class App(Flask):
     response_class = BaseResponse
@@ -51,11 +53,11 @@ def create_app(config_filename='config.yaml'):
 
     app = App(__name__, static_url_path='/static', static_folder=xdg_static_folder())
     app.url_map.converters.update(dict(
-        sid = SIDConverter,
-        sha1 = SHA1Converter,
-        label = LabelConverter,
-        namespace = NamespaceConverter,
-        handler = HandlerConverter
+        sid=SIDConverter,
+        sha1=SHA1Converter,
+        label=LabelConverter,
+        namespace=NamespaceConverter,
+        handler=HandlerConverter
     ))
 
     load_config(app, config_filename)

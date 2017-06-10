@@ -14,25 +14,28 @@ from datetime import datetime
 
 from pb.db import get_db
 
+
 def auth(name, uuid):
     ns = get_db().namespaces.find(dict(
-        name = name,
-        _id = uuid.hex
+        name=name,
+        _id=uuid.hex
     ))
 
     return ns
+
 
 def get(name):
     ns = get_db().namespaces.find(dict(
-        name = name
+        name=name
     ))
 
     return ns
 
+
 def create(name):
     d = dict(
-        _id = uuid4().hex,
-        name = name
+        _id=uuid4().hex,
+        name=name
     )
     get_db().namespaces.insert(d)
     return d

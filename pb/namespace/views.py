@@ -17,6 +17,7 @@ from pb.responses import NamespaceResponse, StatusResponse
 
 namespace = Blueprint('namespace', __name__)
 
+
 @namespace.route('/n/<string:namespace>')
 def get(namespace):
     cur = model.get(namespace)
@@ -27,6 +28,7 @@ def get(namespace):
         return StatusResponse('not found', code=404)
 
     return NamespaceResponse(namespace, 'exists', code=200)
+
 
 @namespace.route('/n/<string:namespace>', methods=['POST'])
 def post(namespace):

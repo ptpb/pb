@@ -29,6 +29,7 @@ class Rule(BaseRule):
     def match_compare_key(self):
         return not bool(self.namespace_only), bool(self.arguments), -len(self._weights), self._weights
 
+
 class RequestContext(BaseRequestContext):
     def match_request(self):
         try:
@@ -89,5 +90,6 @@ class MapAdapter(BaseMapAdapter):
         if have_match_for:
             raise MethodNotAllowed(valid_methods=list(have_match_for))
         raise NotFound()
+
 
 routing.MapAdapter = MapAdapter

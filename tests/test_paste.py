@@ -7,6 +7,7 @@ from yaml import load
 
 from pb.pb import create_app
 
+
 def test_post_content():
     app = create_app()
 
@@ -14,7 +15,7 @@ def test_post_content():
     assert rv.status_code == 400
 
     rv = app.test_client().post('/', data=dict(
-        c = str(time())
+        c=str(time())
     ))
     assert rv.status_code == 200
 
@@ -24,13 +25,14 @@ def test_post_content():
     rv = app.test_client().get(data['url'])
     assert rv.status_code == 200
 
+
 def test_post_file():
     app = create_app()
 
     c = urandom(24)
     ext = int(time())
     rv = app.test_client().post('/', data=dict(
-        c = (BytesIO(c), 'foo.{}'.format(ext))
+        c=(BytesIO(c), 'foo.{}'.format(ext))
     ))
 
     data = load(rv.get_data())
@@ -39,11 +41,12 @@ def test_post_file():
     rv = app.test_client().get(data['url'])
     assert c == rv.get_data()
 
+
 def test_post_unique():
     app = create_app()
 
     f = lambda c: app.test_client().post('/', data=dict(
-        c = str(c)
+        c=str(c)
     ))
 
     rv1 = f(monotonic())
@@ -57,11 +60,12 @@ def test_post_unique():
 
     assert load(rv1.get_data())['url'] == load(rv2.get_data())['url']
 
+
 def test_get_mimetype():
     app = create_app()
 
     rv = app.test_client().post('/', data=dict(
-        c = str('ello')
+        c=str('ello')
     ))
 
     rv = app.test_client().get('{}.py'.format(load(rv.get_data())['url']))

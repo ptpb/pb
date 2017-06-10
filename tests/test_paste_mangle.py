@@ -6,6 +6,7 @@ from flask import url_for
 
 from pb.pb import create_app
 
+
 def test_paste_mangle():
     app = create_app()
 
@@ -13,7 +14,7 @@ def test_paste_mangle():
         url = url_for('paste.post')
 
     rv = app.test_client().post(url, data=dict(
-        c = str(time())
+        c=str(time())
     ))
 
     location = rv.headers.get('Location')

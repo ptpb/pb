@@ -6,13 +6,14 @@ from flask import url_for
 
 from pb.pb import create_app
 
+
 def test_insert_private():
     app = create_app()
 
     c = str(time())
     rv = app.test_client().post('/', data=dict(
-        c = c,
-        p = 1
+        c=c,
+        p=1
     ))
 
     data = load(rv.get_data())
@@ -25,7 +26,7 @@ def test_insert_private():
         url = url_for('paste.put', uuid=data.get('uuid'))
 
     f = lambda c: app.test_client().put(url, data=dict(
-        c = c
+        c=c
     ))
 
     rv = f(c)
