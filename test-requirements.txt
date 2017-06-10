@@ -1,0 +1,11 @@
+# coverage
+coverage>=4.3.4
+
+# flake8
+flake8>=3.2.1
+pep8-naming>=0.4.1
+flake8-import-order>=0.8
+
+# pytest
+pytest>=3.0.5
+pytest-sugar>=0.8.0
