@@ -1,8 +1,8 @@
-from time import time
 from hashlib import sha1
-from yaml import load
+from time import time
 
 from flask import url_for
+from yaml import load
 
 from pb.pb import create_app
 

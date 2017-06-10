@@ -1,6 +1,6 @@
-from time import time, monotonic
 from io import BytesIO
-from os import urandom, path
+from os import path, urandom
+from time import monotonic, time
 from urllib import parse
 
 from yaml import load

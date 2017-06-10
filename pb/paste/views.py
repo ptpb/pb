@@ -9,13 +9,12 @@
     :license: GPLv3, see LICENSE for details.
 """
 
-from uuid import UUID
-from mimetypes import guess_type
+from datetime import datetime, timedelta
 from io import BytesIO
+from mimetypes import guess_type
+from uuid import UUID
 
-from datetime import timedelta, datetime
-
-from flask import Blueprint, request, render_template, current_app
+from flask import Blueprint, current_app, render_template, request
 from jinja2 import Markup
 from pygments.formatters import HtmlFormatter, get_all_formatters
 from pygments.lexers import get_all_lexers
@@ -23,11 +22,14 @@ from pygments.styles import get_all_styles
 from pygments.util import ClassNotFound
 from pymongo import errors
 
-from pb.namespace import model as ns_model
-from pb.paste import model, handler as _handler
-from pb.util import highlight, request_content, request_keys, rst, markdown, absolute_url, get_host_name, parse_sunset
 from pb.cache import invalidate
-from pb.responses import BaseResponse, StatusResponse, PasteResponse, DictResponse, redirect
+from pb.namespace import model as ns_model
+from pb.paste import handler as _handler
+from pb.paste import model
+from pb.responses import (BaseResponse, DictResponse, PasteResponse,
+                          StatusResponse, redirect)
+from pb.util import (absolute_url, get_host_name, highlight, markdown,
+                     parse_sunset, request_content, request_keys, rst)
 
 paste = Blueprint('paste', __name__)
 

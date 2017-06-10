@@ -12,7 +12,7 @@
 
 from argparse import ArgumentParser
 
-from pb.runonce import main, _admin
+from pb.runonce import _admin, main
 
 parser = ArgumentParser(description='Initial pb database setup')
 sub = parser.add_subparsers(metavar='[admin]')

@@ -26,12 +26,11 @@ if __name__ == '__main__':
 
 import os
 
-from pb.pb import create_app
-from pb.runonce import add_indexes
-from pb import db
-
 from werkzeug.serving import run_simple
 
+from pb import db
+from pb.pb import create_app
+from pb.runonce import add_indexes
 
 app = create_app()
 

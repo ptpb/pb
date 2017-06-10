@@ -11,8 +11,9 @@
 """
 
 from urllib import parse
-from pymongo import MongoClient
+
 import pymongo
+from pymongo import MongoClient
 
 from pb.config import load_config
 

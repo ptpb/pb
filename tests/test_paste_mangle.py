@@ -1,5 +1,5 @@
-from time import time
 from os import path
+from time import time
 from urllib import parse
 
 from flask import url_for

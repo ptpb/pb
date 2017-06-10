@@ -9,12 +9,12 @@
     :license: GPLv3, see LICENSE for details.
 """
 
-from uuid import uuid4
-from hashlib import sha1
 from datetime import datetime
+from hashlib import sha1
+from uuid import uuid4
 
-from pymongo import DESCENDING
 from bson import ObjectId
+from pymongo import DESCENDING
 
 from pb.db import get_db, get_fs
 

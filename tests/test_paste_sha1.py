@@ -1,5 +1,5 @@
-from time import time
 from hashlib import sha1
+from time import time
 
 from flask import url_for
 
