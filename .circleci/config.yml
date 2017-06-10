@@ -8,18 +8,18 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: pb-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "ci-requirements.txt" }}-{{ checksum "tests/requirements.txt" }}
+          key: pb-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "ci-requirements.txt" }}-{{ checksum "test-requirements.txt" }}
       - run:
           name: configure pb
           command: |
             python3 -m venv venv
             . venv/bin/activate
-            pip install -r ci-requirements.txt -r tests/requirements.txt -r requirements.txt
+            pip install -r ci-requirements.txt -r test-requirements.txt -r requirements.txt
             mkdir -p ~/.config/pb
             cp .circleci/pb-config.yaml ~/.config/pb/config.yaml
             python runonce.py
       - save_cache:
-          key: pb-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "ci-requirements.txt" }}-{{ checksum "tests/requirements.txt" }}
+          key: pb-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "ci-requirements.txt" }}-{{ checksum "test-requirements.txt" }}
           paths:
             - "venv"
       - run:
