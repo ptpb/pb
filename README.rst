@@ -8,6 +8,9 @@ pb
 .. image:: https://img.shields.io/codecov/c/github/ptpb/pb.svg
    :target: https://codecov.io/gh/ptpb/pb
 
+Overview
+--------
+
 ``pb`` is a lightweight pastebin (and url shortener) built using
 `flask <http://flask.pocoo.org/>`_.
 
