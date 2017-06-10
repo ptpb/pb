@@ -9,23 +9,21 @@
     :license: GPLv3, see LICENSE for details.
 """
 
-from io import BytesIO
 from datetime import datetime, timedelta
+from io import BytesIO
+
 from dateutil.parser import parse as datetime_parse
-
+from docutils import core
 from flask import render_template, request, url_for
-
-from pygments import highlight as _highlight, format as _format
-from pygments.token import Token
-from pygments.lexers import get_lexer_by_name
+from markdown import markdown as _markdown
+from pygments import format as _format
+from pygments import highlight as _highlight
 from pygments.formatters import HtmlFormatter, get_formatter_by_name
+from pygments.lexers import get_lexer_by_name
+from pygments.token import Token
 from pygments.util import ClassNotFound
-
 from werkzeug import http
 from werkzeug.wrappers import get_host
-
-from docutils import core
-from markdown import markdown as _markdown
 
 
 def style_args():

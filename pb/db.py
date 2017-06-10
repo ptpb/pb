@@ -9,9 +9,9 @@
     :license: GPLv3, see LICENSE for details.
 """
 
-from flask import g, request, current_app
-from pymongo import MongoClient
+from flask import current_app, g, request
 from gridfs import GridFS
+from pymongo import MongoClient
 
 
 def get_db():

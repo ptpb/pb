@@ -1,10 +1,10 @@
-from werkzeug.routing import Rule as BaseRule, \
-    MapAdapter as BaseMapAdapter
-from werkzeug import routing
-from werkzeug.routing import RequestSlash, RequestAliasRedirect, RequestRedirect, MethodNotAllowed, NotFound
-from werkzeug.exceptions import HTTPException
-
 from flask.ctx import RequestContext as BaseRequestContext
+from werkzeug import routing
+from werkzeug.exceptions import HTTPException
+from werkzeug.routing import MapAdapter as BaseMapAdapter
+from werkzeug.routing import Rule as BaseRule
+from werkzeug.routing import (MethodNotAllowed, NotFound, RequestAliasRedirect,
+                              RequestRedirect, RequestSlash)
 
 from pb.config import config
 from pb.util import get_host_name

@@ -12,17 +12,18 @@
 from flask import Flask, request
 from xdg import BaseDirectory
 
-from pb.paste.views import paste
-from pb.namespace.views import namespace
-from pb.db import init_db
 from pb.cache import init_cache
-from pb.template import init_template
-from pb.converters import SIDConverter, SHA1Converter, LabelConverter, NamespaceConverter
-from pb.paste.handler import HandlerConverter
-from pb.responses import BaseResponse
-from pb.routing import Rule, RequestContext
 from pb.config import load_config
+from pb.converters import (LabelConverter, NamespaceConverter, SHA1Converter,
+                           SIDConverter)
+from pb.db import init_db
 from pb.logging import init_logging
+from pb.namespace.views import namespace
+from pb.paste.handler import HandlerConverter
+from pb.paste.views import paste
+from pb.responses import BaseResponse
+from pb.routing import RequestContext, Rule
+from pb.template import init_template
 
 
 def cors(response):

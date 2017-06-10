@@ -9,17 +9,15 @@
     :license: GPLv3, see LICENSE for details.
 """
 
-from os import path
-from functools import wraps
 from concurrent.futures import ThreadPoolExecutor
-
+from functools import wraps
 from hashlib import sha1
-
+from os import path
 from urllib.parse import urljoin, urlsplit
-from requests.sessions import Session
 
+from flask import current_app, g, request
+from requests.sessions import Session
 from werkzeug.wrappers import get_host
-from flask import request, current_app, g
 
 from pb.paste import model
 

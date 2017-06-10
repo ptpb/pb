@@ -1,7 +1,7 @@
 from time import time
-from yaml import load
 
 from flask import url_for
+from yaml import load
 
 from pb.pb import create_app
 

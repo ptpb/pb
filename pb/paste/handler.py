@@ -10,13 +10,13 @@
 """
 
 from json import dumps
-from flask import render_template, url_for, request
+from mimetypes import add_type
+
+from flask import render_template, request, url_for
 from werkzeug.routing import BaseConverter
 
-from pb.util import rst, markdown, style_args
 from pb.responses import StatusResponse
-
-from mimetypes import add_type
+from pb.util import markdown, rst, style_args
 
 add_type('text/x-markdown', '.md')
 add_type('text/x-rst', '.rst')
