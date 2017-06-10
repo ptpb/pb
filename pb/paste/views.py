@@ -240,7 +240,6 @@ def get(sid=None, sha1=None, label=None, namespace=None, lexer=None, handler=Non
     paste = next(cur)
     if paste.get('sunset'):
         request.max_age = parse_sunset(**paste) - datetime.utcnow()
-        print('max_age', request.max_age)
         if request.max_age < timedelta():
             uuid = UUID(hex=paste['_id'])
             paste = invalidate(uuid=uuid)
