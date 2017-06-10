@@ -20,14 +20,12 @@ The official instance of ``pb`` can be found at `ptpb.pw
 Development
 -----------
 
-pb comes with a `Dockerfile` and `docker-compose.yml` to start development
-environments easily. Refer to relevant documentation for how to install `docker`
-and `docker-compose`.
+pb comes with a ``Dockerfile`` and ``docker-compose.yml`` to start development
+environments easily. Refer to relevant documentation for how to install ``docker``
+and ``docker-compose``.
 
-start pb with:
+start pb with::
 
-```
-docker-compose up
-```
+  docker-compose up
 
-pb will be listening on `http://localhost:10002`
+pb will be listening on ``http://localhost:10002``
