@@ -10,12 +10,12 @@ def test_paste_vanity():
     app = create_app()
 
     c = str(time())
-    rv = app.test_client().post('/~foo123', data=dict(
+    rv = app.test_client().post('/~foo1234', data=dict(
         c=c
     ))
 
     data = load(rv.get_data())
-    assert 'foo123' in data['url']
+    assert 'foo1234' in data['url']
 
     rv = app.test_client().get(data['url'])
     assert rv.status_code == 200

@@ -44,9 +44,10 @@ def test_post_file():
 def test_post_unique():
     app = create_app()
 
-    f = lambda c: app.test_client().post('/', data=dict(
-        c=str(c)
-    ))
+    def f(c):
+        return app.test_client().post('/', data=dict(
+            c=str(c)
+        ))
 
     rv1 = f(monotonic())
     rv2 = f(monotonic())
