@@ -20,7 +20,8 @@ def json_datetime(obj):
 
 def any_url(paste, filename=None):
     def idu(k, v):
-        return absolute_url('.get', **{k: (paste[v], filename)})
+        kwargs = {k: (paste[v], filename)}
+        return absolute_url('.get', **kwargs)
     if paste.get('namespace'):
         return idu('label', 'label')
     if paste.get('private'):
