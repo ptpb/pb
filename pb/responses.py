@@ -19,7 +19,8 @@ def json_datetime(obj):
 
 
 def any_url(paste, filename=None):
-    idu = lambda k, v: absolute_url('.get', **{k: (paste[v], filename)})
+    def idu(k, v):
+        return absolute_url('.get', **{k: (paste[v], filename)})
     if paste.get('namespace'):
         return idu('label', 'label')
     if paste.get('private'):
@@ -50,6 +51,14 @@ class BaseResponse(Response):
     default_mimetype = 'text/html'
 
 
+def _dump_json(obj):
+    return json.dumps(obj, default=json_datetime)
+
+
+def _dump_yaml(obj):
+    return yaml.safe_dump(obj, default_flow_style=False)
+
+
 class DictResponse(BaseResponse):
     def __init__(self, obj, *args, **kwargs):
         response = self._dump(obj)
@@ -62,14 +71,6 @@ class DictResponse(BaseResponse):
         if accept and 'application/json' in accept:
             return 'application/json'
         return 'text/plain'  # yaml
-
-    @staticmethod
-    def _dump_json(obj):
-        return json.dumps(obj, default=json_datetime)
-
-    @staticmethod
-    def _dump_yaml(obj):
-        return yaml.safe_dump(obj, default_flow_style=False)
 
     def _dump(self, obj):
         return self._mimetypes[self.default_mimetype](obj)

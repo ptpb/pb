@@ -16,9 +16,10 @@ def test_url_post():
     rv = app.test_client().post(url)
     assert rv.status_code == 400
 
-    f = lambda c: app.test_client().post(url, data=dict(
-        c=str(c)
-    ))
+    def f(c):
+        return app.test_client().post(url, data=dict(
+            c=str(c)
+        ))
     rv = f(shorturl)
     assert rv.status_code == 200
 

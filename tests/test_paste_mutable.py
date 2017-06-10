@@ -22,9 +22,10 @@ def test_put():
     with app.test_request_context():
         url = url_for('paste.put', uuid=data.get('uuid'))
 
-    f = lambda c: app.test_client().put(url, data=dict(
-        c=str(c) if c else c
-    ))
+    def f(c):
+        return app.test_client().put(url, data=dict(
+            c=str(c) if c else c
+        ))
 
     rv = f(None)
     assert rv.status_code == 400

@@ -25,9 +25,10 @@ def test_insert_private():
     with app.test_request_context():
         url = url_for('paste.put', uuid=data.get('uuid'))
 
-    f = lambda c: app.test_client().put(url, data=dict(
-        c=c
-    ))
+    def f(c):
+        return app.test_client().put(url, data=dict(
+            c=c
+        ))
 
     rv = f(c)
     assert load(rv.get_data())['status'] == 'already exists'
