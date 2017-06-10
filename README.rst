@@ -20,11 +20,11 @@ The official instance of ``pb`` can be found at `ptpb.pw
 Features
 --------
 
- * full paste and short-url CRUD
- * private pastes
- * tweakable syntax highlighting
- * terminal recording playback
- * markup rendering
+* full paste and short-url CRUD
+* private pastes
+* tweakable syntax highlighting
+* terminal recording playback
+* markup rendering
 
 Development
 -----------
