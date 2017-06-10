@@ -9,10 +9,9 @@
     :license: GPLv3, see LICENSE for details.
 """
 
-from json import dumps
 from mimetypes import add_type
 
-from flask import render_template, request, url_for
+from flask import render_template, url_for
 from werkzeug.routing import BaseConverter
 
 from pb.responses import StatusResponse

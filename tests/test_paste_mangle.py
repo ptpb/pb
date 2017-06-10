@@ -1,4 +1,3 @@
-from os import path
 from time import time
 from urllib import parse
 

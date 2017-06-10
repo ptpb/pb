@@ -10,10 +10,8 @@
 """
 
 from concurrent.futures import ThreadPoolExecutor
-from functools import wraps
 from hashlib import sha1
-from os import path
-from urllib.parse import urljoin, urlsplit
+from urllib.parse import urljoin
 
 from flask import current_app, g, request
 from requests.sessions import Session

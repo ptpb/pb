@@ -1,10 +1,12 @@
 from flask.ctx import RequestContext as BaseRequestContext
 from werkzeug import routing
+from werkzeug._compat import to_unicode
 from werkzeug.exceptions import HTTPException
 from werkzeug.routing import MapAdapter as BaseMapAdapter
 from werkzeug.routing import Rule as BaseRule
 from werkzeug.routing import (MethodNotAllowed, NotFound, RequestAliasRedirect,
                               RequestRedirect, RequestSlash)
+from werkzeug.urls import url_quote
 
 from pb.config import config
 from pb.util import get_host_name

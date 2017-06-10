@@ -14,8 +14,7 @@ from io import BytesIO
 from mimetypes import guess_type
 from uuid import UUID
 
-from flask import Blueprint, current_app, render_template, request
-from jinja2 import Markup
+from flask import Blueprint, render_template, request
 from pygments.formatters import HtmlFormatter, get_all_formatters
 from pygments.lexers import get_all_lexers
 from pygments.styles import get_all_styles
@@ -28,7 +27,7 @@ from pb.paste import handler as _handler
 from pb.paste import model
 from pb.responses import (BaseResponse, DictResponse, PasteResponse,
                           StatusResponse, redirect)
-from pb.util import (absolute_url, get_host_name, highlight, markdown,
+from pb.util import (absolute_url, get_host_name, highlight,
                      parse_sunset, request_content, request_keys, rst)
 
 paste = Blueprint('paste', __name__)
