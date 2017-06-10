@@ -1,14 +1,23 @@
 from time import time
-from urllib import parse
 
 from flask import url_for
+import pytest
+from yaml import load
 
-from pb.pb import create_app
+
+lexer_tests = [
+    ('py', 200),
+    ('', 200),
+    ('fake_test', 400),
+]
+
+handler_tests = [
+    ('r', 200),
+]
 
 
-def test_paste_mangle():
-    app = create_app()
-
+@pytest.fixture()
+def digest(app):
     with app.test_request_context():
         url = url_for('paste.post')
 
@@ -16,25 +25,23 @@ def test_paste_mangle():
         c=str(time())
     ))
 
-    location = rv.headers.get('Location')
-    url_path = parse.urlsplit(location).path
-    """ FIXME
-    id = b66_int(path.split(url_path)[-1])
+    data = load(rv.get_data())
+    return data['digest']
 
-    assert id != 0
 
-    tests = [
-        ({'lexer': 'py'}, 200),
-        ({'lexer': ''}, 200),
-        ({'lexer': 'buhLang'}, 400),
-        ({'handler': 'r'}, 200),
-        ({'handler': 'Z'}, 400)
-    ]
+@pytest.mark.parametrize("lexer,code", lexer_tests)
+def test_paste_lexer(app, digest, lexer, code):
+    with app.test_request_context():
+        url = url_for('paste.get', sha1=digest, lexer=lexer)
 
-    for kwargs, code in tests:
-        with app.test_request_context():
-            url = url_for('paste.get', b66=id, **kwargs)
+    rv = app.test_client().get(url)
+    assert rv.status_code == code
 
-        rv = app.test_client().get(url)
-        assert rv.status_code == code
-    """
+
+@pytest.mark.parametrize("handler,code", handler_tests)
+def test_paste_handler(app, digest, handler, code):
+    with app.test_request_context():
+        url = url_for('paste.get', handler=handler, sha1=digest)
+
+    rv = app.test_client().get(url)
+    assert rv.status_code == code

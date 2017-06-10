@@ -17,7 +17,7 @@ def test_insert_private():
     ))
 
     data = load(rv.get_data())
-    assert sha1(c.encode('utf-8')).hexdigest() in data['digest']
+    assert sha1(c.encode('utf-8')).hexdigest() == data['digest']
 
     rv = app.test_client().get(data['url'])
     assert rv.status_code == 200
