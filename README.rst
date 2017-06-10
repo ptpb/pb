@@ -11,11 +11,20 @@ pb
 Overview
 --------
 
-``pb`` is a lightweight pastebin (and url shortener) built using
+``pb`` is a lightweight pastebin and url shortener built using
 `flask <http://flask.pocoo.org/>`_.
 
 The official instance of ``pb`` can be found at `ptpb.pw
 <https://ptpb.pw/>`_. Feel free deploy ``pb`` elsewhere.
+
+Features
+--------
+
+ * full paste and short-url CRUD
+ * private pastes
+ * tweakable syntax highlighting
+ * terminal recording playback
+ * markup rendering
 
 Development
 -----------
