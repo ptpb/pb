@@ -8,8 +8,6 @@
     :license: GPLv3, see LICENSE for details.
 """
 
-from werkzeug.serving import run_simple
-
 # XXX: werkzeug is garbage: https://github.com/pallets/werkzeug/issues/461
 # because both writing my own reloader and replacing werkzeug with something not
 # as terrible are too hard, just hack at sys.path
@@ -26,14 +24,26 @@ if __name__ == '__main__':
             sys.path[index] = str(path.cwd().resolve())
 
 
+import os
+
 from pb.pb import create_app
+from pb.runonce import add_indexes
+from pb import db
+
+from werkzeug.serving import run_simple
 
 
 app = create_app()
 
 
 if __name__ == '__main__':
-    run_simple('::1', 10002, app,
+    host = os.environ.get('LISTEN_ADDRESS', '::1')
+    port = os.environ.get('LISTEN_PORT', 10002)
+
+    with app.app_context():
+        add_indexes(db.get_db())
+
+    run_simple(host, int(port), app,
                use_reloader=True,
                use_debugger=True,
                use_evalex=True)
