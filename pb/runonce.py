@@ -18,12 +18,14 @@ from pb.config import load_config
 
 config = load_config(None, 'config.yaml')
 
+
 def add_config_user(db):
     up = parse.urlparse(config['MONGO']['host'])
 
     auth = [getattr(up, k) for k in ['username', 'password']]
 
     db.client.admin.add_user(*auth, roles=[{'role': 'readWrite', 'db': config['MONGO_DATABASE']}])
+
 
 def add_indexes(db):
     db.pastes.create_index('digest', unique=True)
@@ -37,15 +39,18 @@ def add_indexes(db):
 
     db.namespaces.create_index('name', unique=True)
 
+
 def _admin(db):
     add_config_user(db)
     add_indexes(db)
 
+
 def main(uri=None, func=add_indexes):
-    con = MongoClient(**config['MONGO'] if not uri else {'host':uri})
+    con = MongoClient(**config['MONGO'] if not uri else {'host': uri})
     db = con[config['MONGO_DATABASE']]
 
     func(db)
+
 
 if __name__ == '__main__':
     main()

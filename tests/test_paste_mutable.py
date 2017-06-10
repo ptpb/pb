@@ -5,12 +5,13 @@ from yaml import load
 
 from pb.pb import create_app
 
+
 def test_put():
     app = create_app()
 
     t1 = time()
     rv = app.test_client().post('/', data=dict(
-        c = str(t1)
+        c=str(t1)
     ))
     data = load(rv.get_data())
 
@@ -22,7 +23,7 @@ def test_put():
         url = url_for('paste.put', uuid=data.get('uuid'))
 
     f = lambda c: app.test_client().put(url, data=dict(
-        c = str(c) if c else c
+        c=str(c) if c else c
     ))
 
     rv = f(None)
@@ -35,15 +36,15 @@ def test_put():
     rv = f(t2)
     assert rv.status_code == 200
 
-
     rv = app.test_client().get(load(rv.get_data())['url'])
     assert rv.get_data().decode('utf-8') == str(t2)
+
 
 def test_delete():
     app = create_app()
 
     rv = app.test_client().post('/', data=dict(
-        c = 'delete me KU7cC3JBrz0jMXYRCWsZ6YGa/YTYIZWw'
+        c='delete me KU7cC3JBrz0jMXYRCWsZ6YGa/YTYIZWw'
     ))
     data = load(rv.get_data())
     assert 'redacted' not in data.get('uuid')
@@ -61,6 +62,6 @@ def test_delete():
         url = url_for('paste.put', uuid=data.get('uuid'))
 
     rv = app.test_client().put(url, data=dict(
-        c = str(time())
+        c=str(time())
     ))
     assert rv.status_code == 404

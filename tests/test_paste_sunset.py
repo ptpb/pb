@@ -4,12 +4,13 @@ from time import time, sleep
 from yaml import load
 from pb.pb import create_app
 
+
 def test_paste_sunset():
     app = create_app()
 
     rv = app.test_client().post('/', data=dict(
-        c = str(time()),
-        s = 1
+        c=str(time()),
+        s=1
     ))
 
     data = load(rv.get_data())

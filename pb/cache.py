@@ -29,6 +29,7 @@ _methods = {
     'label': 'label'
 }
 
+
 def all_urls(paste):
     for key, value in _methods.items():
         if value in paste:
@@ -38,12 +39,14 @@ def all_urls(paste):
             conv = current_app.url_map.converters[key]
             yield conv.to_url(None, paste[value], 6)
 
+
 def get_session():
     s = getattr(g, '_session', None)
     if s is None:
         s = g._session = Session()
         s.executor = ThreadPoolExecutor(4)
     return s
+
 
 def invalidate(**kwargs):
     cur = model.get_meta(**kwargs)
@@ -64,6 +67,7 @@ def invalidate(**kwargs):
 
     return paste
 
+
 def add_cache_header(response):
     if request.method == 'GET' and not response.cache_control.public:
         prefix = request.blueprint if request.blueprint else current_app.name
@@ -78,10 +82,12 @@ def add_cache_header(response):
         response.make_conditional(request)
     return response
 
+
 def teardown_cache(exception):
     s = getattr(g, '_session', None)
     if s is not None:
         s.executor.shutdown()
+
 
 def init_cache(app):
     app.teardown_appcontext(teardown_cache)

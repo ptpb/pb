@@ -3,6 +3,7 @@ from xdg import BaseDirectory
 
 config = {}
 
+
 def load_config(app, filename):
     config.clear()
     for filename in BaseDirectory.load_config_paths('pb', filename):

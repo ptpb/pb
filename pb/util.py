@@ -27,8 +27,10 @@ from werkzeug.wrappers import get_host
 from docutils import core
 from markdown import markdown as _markdown
 
+
 def style_args():
-    return {k:request.args[k] for k in ['style','css'] if k in request.args}
+    return {k: request.args[k] for k in ['style', 'css'] if k in request.args}
+
 
 def highlight(content, lexer_name, formatter):
     try:
@@ -55,11 +57,13 @@ def highlight(content, lexer_name, formatter):
 
     return template
 
+
 def _content_type():
     content_type = http.parse_options_header(request.headers.get('Content-Type', ''))
     if content_type:
         content_type, _ = content_type
         return content_type
+
 
 def request_content():
     content = request_key('content')
@@ -72,25 +76,30 @@ def request_content():
         return fs.stream, request_key('filename') or fs.filename
     return None, None
 
+
 def request_keys(*keys):
     for key in keys:
         value = request_key(key)
         if value:
             yield key, value
 
+
 def request_key(key):
     if _content_type() == 'application/json':
         return request.json.get(key, request.json.get(key[0]))
     return request.form.get(key, request.form.get(key[0]))
 
+
 def absolute_url(endpoint, **kwargs):
     scheme = request.environ.get('HTTP_X_FORWARDED_PROTO', request.scheme)
     return url_for(endpoint, _external=True, _scheme=scheme, **kwargs)
+
 
 def rst(source):
     overrides = {'syntax_highlight': 'short'}
     parts = core.publish_parts(source, writer_name='html', settings_overrides=overrides)
     return parts['html_body']
+
 
 def markdown(source):
     md = _markdown(source.decode('utf-8'), extensions=[
@@ -100,12 +109,13 @@ def markdown(source):
         'markdown.extensions.meta',
         'markdown.extensions.toc',
         'markdown.extensions.wikilinks'
-    ], extension_configs = {
+    ], extension_configs={
         'markdown.extensions.codehilite': {
             'css_class': 'code'
         }
     })
     return md
+
 
 def get_host_name(request):
     if not request:
@@ -114,6 +124,7 @@ def get_host_name(request):
     if host:
         host = host.split(':')[0]
         return host
+
 
 def parse_sunset(sunset, date=None, **kwargs):
     if isinstance(sunset, datetime):

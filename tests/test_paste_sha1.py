@@ -5,12 +5,13 @@ from flask import url_for
 
 from pb.pb import create_app
 
+
 def test_get_digest():
     app = create_app()
 
     c = str(time())
     app.test_client().post('/', data=dict(
-        c = c
+        c=c
     ))
 
     digest = sha1(c.encode('utf-8')).hexdigest()

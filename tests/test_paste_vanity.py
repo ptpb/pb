@@ -5,12 +5,13 @@ from flask import url_for
 
 from pb.pb import create_app
 
+
 def test_paste_vanity():
     app = create_app()
 
     c = str(time())
     rv = app.test_client().post('/~foo123', data=dict(
-        c = c
+        c=c
     ))
 
     data = load(rv.get_data())
@@ -24,7 +25,7 @@ def test_paste_vanity():
         url = url_for('paste.put', uuid=data.get('uuid'))
 
     rv = app.test_client().put(url, data=dict(
-        c = str(time())
+        c=str(time())
     ))
     assert rv.status_code == 200
 

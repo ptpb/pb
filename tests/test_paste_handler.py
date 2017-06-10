@@ -4,11 +4,12 @@ from time import time
 from yaml import load
 from pb.pb import create_app
 
+
 def test_paste_render():
     app = create_app()
 
     rv = app.test_client().post('/', data=dict(
-        c = str(time())
+        c=str(time())
     ))
 
     data = load(rv.get_data())

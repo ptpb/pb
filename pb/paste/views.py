@@ -31,15 +31,18 @@ from pb.responses import BaseResponse, StatusResponse, PasteResponse, DictRespon
 
 paste = Blueprint('paste', __name__)
 
+
 @paste.app_template_global(name='url')
 def _url(endpoint, **kwargs):
     return absolute_url(endpoint, **kwargs)
+
 
 @paste.route('/')
 def index():
     content = rst(render_template("index.rst"))
 
     return render_template("generic.html", content=content)
+
 
 def _auth_namespace(namespace):
     uuid = request.headers.get('X-Namespace-Auth')
@@ -56,6 +59,7 @@ def _auth_namespace(namespace):
         return next(cur)
     except StopIteration:
         pass
+
 
 @paste.route('/<namespace:namespace>', namespace_only=True, methods=['POST'])
 @paste.route('/', methods=['POST'])
@@ -93,8 +97,8 @@ def post(label=None, namespace=None):
             return StatusResponse("invalid auth", 403)
         label, _ = namespace
         args.update(dict(
-            label = label,
-            namespace = host
+            label=label,
+            namespace=host
         ))
 
     if not cur.count():
@@ -111,15 +115,17 @@ def post(label=None, namespace=None):
 
     return PasteResponse(paste, status, filename, uuid)
 
+
 def _namespace_kwargs(kwargs):
     host = get_host_name(request)
     if not _auth_namespace(host):
         return StatusResponse("invalid auth", 403)
     label, _ = kwargs['namespace']
     return dict(
-        label = label,
-        namespace = host,
+        label=label,
+        namespace=host,
     )
+
 
 @paste.route('/<namespace:namespace>', methods=['PUT'], namespace_only=True)
 @paste.route('/<uuid:uuid>', methods=['PUT'])
@@ -147,6 +153,7 @@ def put(**kwargs):
 
     return StatusResponse("not found", 404)
 
+
 @paste.route('/<namespace:namespace>', methods=['DELETE'], namespace_only=True)
 @paste.route('/<uuid:uuid>', methods=['DELETE'])
 def delete(**kwargs):
@@ -158,6 +165,7 @@ def delete(**kwargs):
     if result['n']:
         return PasteResponse(paste, "deleted")
     return StatusResponse("not found", 404)
+
 
 def _get_paste(cb, sid=None, sha1=None, label=None, namespace=None):
     if sid:
@@ -191,11 +199,12 @@ def _get_paste(cb, sid=None, sha1=None, label=None, namespace=None):
         label, name = namespace
         host = get_host_name(request)
         return cb(
-            label = label,
-            namespace = host
+            label=label,
+            namespace=host
         ), name, label
 
     return None, None, None
+
 
 @paste.route('/<namespace:namespace>', methods=['REPORT'], namespace_only=True)
 @paste.route('/<sid(length=28):sha1>', methods=['REPORT'])
@@ -210,6 +219,7 @@ def report(sid=None, sha1=None, label=None, namespace=None):
 
     paste = next(cur)
     return PasteResponse(paste, "found")
+
 
 @paste.route('/<namespace:namespace>', namespace_only=True)
 @paste.route('/<namespace:namespace>/<string(minlength=0):lexer>', namespace_only=True)
@@ -265,6 +275,7 @@ def get(sid=None, sha1=None, label=None, namespace=None, lexer=None, handler=Non
 
     return BaseResponse(content, mimetype=mimetype)
 
+
 @paste.route('/<handler:handler>', methods=['POST'])
 def preview(handler):
     stream, filename = request_content()
@@ -277,6 +288,7 @@ def preview(handler):
         mimetype, _ = guess_type(filename)
 
     return _handler.get(handler, stream.read(), mimetype, partial=True)
+
 
 @paste.route('/u', methods=['POST'])
 def url():
@@ -296,10 +308,12 @@ def url():
 
     return PasteResponse(url, status)
 
+
 @paste.route('/s')
 def stats():
     cur = model.get_meta()
     return DictResponse(dict(pastes=cur.count()))
+
 
 @paste.route('/static/<style>.css')
 def highlight_css(style="default"):
@@ -310,15 +324,18 @@ def highlight_css(style="default"):
 
     return BaseResponse(css, mimetype='text/css')
 
+
 @paste.route('/lf')
 def list_formatters():
     formatters = [i.aliases for i in get_all_formatters()]
     return DictResponse(formatters)
 
+
 @paste.route('/l')
 def list_lexers():
     lexers = [i for _, i, _, _ in get_all_lexers()]
     return DictResponse(lexers)
+
 
 @paste.route('/ls')
 def list_styles():

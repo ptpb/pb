@@ -21,8 +21,9 @@ from werkzeug.routing import BaseConverter
 class UnhexMixin:
     def to_url(self, value, length=None):
         length = length if length else self.length
+
         def f(v):
-            v = '{:0>{length}}'.format(v[-(length):], length = length)
+            v = '{:0>{length}}'.format(v[-(length):], length=length)
             return urlsafe_b64encode(unhexlify(v)).decode('utf-8')
 
         if isinstance(value, str):
@@ -31,10 +32,12 @@ class UnhexMixin:
         ext = path.splitext(filename)[1] if filename else ''
         return '{}{}'.format(f(sid), ext)
 
+
 class SREMixin:
     def to_python(self, value):
         name, label = self.sre.match(value).groups()
         return label, name
+
 
 class SIDConverter(UnhexMixin, BaseConverter):
     def __init__(self, map, length):
@@ -53,6 +56,7 @@ class SIDConverter(UnhexMixin, BaseConverter):
             _hex = None
         return _hex, name, value[:4]
 
+
 class SHA1Converter(UnhexMixin, SREMixin, BaseConverter):
     regex = '(([A-Za-z0-9]{40})(?:[.][^/]*)?)'
 
@@ -60,6 +64,7 @@ class SHA1Converter(UnhexMixin, SREMixin, BaseConverter):
         super().__init__(map)
         self.sre = re.compile(self.regex)
         self.length = 42
+
 
 class LabelConverter(SREMixin, BaseConverter):
     regex = '(((?:~[^/.]+)|(?:[^/.]{1}))(?:[.][^/]*)?)'
@@ -74,6 +79,7 @@ class LabelConverter(SREMixin, BaseConverter):
         label, filename = value
         ext = path.splitext(filename)[1] if filename else ''
         return '{}{}'.format(label, ext)
+
 
 class NamespaceConverter(LabelConverter):
     regex = '(([^/.]*)(?:[.][^/]*)?)'
