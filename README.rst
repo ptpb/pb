@@ -8,6 +8,9 @@ pb
 .. image:: https://img.shields.io/codecov/c/github/ptpb/pb.svg
    :target: https://codecov.io/gh/ptpb/pb
 
+.. image:: https://img.shields.io/docker/automated/ptpb/pb.svg
+   :target: https://hub.docker.com/r/ptpb/pb
+
 Overview
 --------
 
