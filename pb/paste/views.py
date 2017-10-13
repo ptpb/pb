@@ -292,16 +292,25 @@ def preview(handler):
 
 
 @paste.route('/u', methods=['POST'])
-def url():
+@paste.route('/u/<label:label>', methods=['POST'])
+def url(label=None):
     stream, _ = request_content()
     if not stream:
         return StatusResponse("no post content", 400)
+
+    args = {}
+
+    if label:
+        label, _ = label
+        if len(label) == 1:
+            return StatusResponse("invalid label", 400)
+        args['label'] = label
 
     stream = BytesIO(stream.read().decode('utf-8').split()[0].encode('utf-8'))
 
     cur = model.get_digest(stream)
     if not cur.count():
-        url = model.insert(stream, redirect=1)
+        url = model.insert(stream, redirect=1, **args)
         status = "created"
     else:
         url = next(cur)
