@@ -26,12 +26,18 @@ from pb.routing import RequestContext, Rule
 from pb.template import init_template
 
 
+cors_map = {
+    'Origin': 'Access-Control-Allow-Origin',
+    'Access-Control-Request-Headers': 'Access-Control-Allow-Headers',
+    'Access-Control-Request-Method': 'Access-Control-Allow-Methods',
+}
+
+
 def cors(response):
-    response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
-    for i in ('Header', 'Method'):
-        t = request.headers.get('Access-Control-Request-{}'.format(i))
-        if t:
-            response.headers['Access-Control-Allow-{}s'.format(i)] = t
+    for request_header, response_header in cors_map.items():
+        value = request.headers.get(request_header)
+        if value:
+            response.headers[response_header] = value
 
     return response
 
