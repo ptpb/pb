@@ -278,30 +278,26 @@ This uses xsel to set the ``CLIPBOARD`` selection with the url of the
 uploaded paste for immediate regurgitation elsewhere.
 
 How about uploading a screenshot then throwing the URL in your
-clipboard?
+clipboard? Here's two variants; one for window selection, and another
+for bounding box selection:
 
 .. code:: bash
 
     pbs () {
-      gm import -window ${1:-root} /tmp/$$.png
+      maim -i $(xdotool selectwindow) /tmp/$$.png
       pbx /tmp/$$.png
     }
 
-Now you can:
-
-.. code:: console
-
-    $ pbs
-    $ pbs 0
-
-The second command would allow you to select an individual window
-while the first uses the root window.
+    pbss () {
+      maim -s /tmp/$$.png
+      pbx /tmp/$$.png
+    }
 
 Perhaps we'd like to do the terminal recording with a single command.
 
 .. code:: bash
 
-    pbs () {
+    pbr () {
       asciinema rec /tmp/$$.json
       pbx /tmp/$$.json
     }
