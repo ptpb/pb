@@ -200,117 +200,42 @@ Create and upload a recording using `asciinema <https://asciinema.org/docs/insta
 
 Then watch the playback with the ``t`` handler ({{ url('.get', label='c9GF', handler='t') }} in this case).
 
-namespaces
-^^^^^^^^^^
-
-.. warning:: This feature is considered highly experimental, and its API/semantics changed in subtle but signtificant ways in the future
-
-First you'll need a DNS name that points to the pb instance you want
-to use namespaces with.
-
-Start by creating a new namespace:
-
-.. code:: console
-
-    $ curl -X POST {{ url('namespace.post', namespace='buh.io') }}
-    name: buh.io
-    status: created
-    uuid: 326117ad-2969-4a0a-a3d7-04eef09127ab
-
-With the namespace uuid, you can modify any paste in that
-namespace. Namespace pastes are a little different in that they are
-always referenced by label; while ``sids`` and ``uuids`` exist
-internally, no route can access namespace'ed pastes that way.
-
-You authorized yourself via the ``X-Namespace-Auth`` header:
-
-.. code:: console
-
-    $ auth=326117ad-2969-4a0a-a3d7-04eef09127ab
-    $ curl -H "X-Namespace-Auth: $auth" -F c=@- https://buh.io/foo <<< loltrain
-    date: 2016-01-17 02:52:29.179089
-    digest: 7bcbab9cb9dbf26c5cdbf02e1f67f93fdb6237ea
-    label: foo
-    namespace: buh.io
-    status: created
-    url: http://buh.io/foo
-    uuid: 5f9dc40c-35df-4298-977c-6baeeb56bed1
-
-You'll notice we access the namespace via its DNS name instead of the
-'real' pb domain name. This is what internally allows you to use the
-special ``namespace`` labels, which have relaxed restrictions: they
-can be any length (including zero-length), and don't need to start
-with a tilde.
-
-``DELETE`` and ``PUT`` work as usual, except you reference the paste
-via namespace+label instead of uuid.
 
 shell functions
 ---------------
 
-Like it? Here's some convenience shell functions:
+Like it? Try the `pb_cli <https://github.com/ptpb/pb_cli>`_ for maximum
+convenience:
 
 .. code:: bash
 
-    pb () {
-      curl -F "c=@${1:--}" {{ url('.post') }}
-    }
+    command | pb
+    pb < /path/to/file
 
-This uploads paste content stdin unless an argument is provided,
-otherwise uploading the specified file.
 
-Now just:
+Terminal recording
+^^^^^^^^^^^^^^^^^^
 
-.. code:: console
-
-    $ command | pb
-    $ pb filename
-
-A slightly more elaborate variant:
+Create a terminal recording with asciinema:
 
 .. code:: bash
 
-    pbx () {
-      curl -sF "c=@${1:--}" -w "%{redirect_url}" '{{ url('.post', r=1) }}' -o /dev/stderr | xsel -l /dev/null -b
-    }
-
-This uses xsel to set the ``CLIPBOARD`` selection with the url of the
-uploaded paste for immediate regurgitation elsewhere.
-
-How about uploading a screenshot then throwing the URL in your
-clipboard? Here's two variants; one for window selection, and another
-for bounding box selection:
-
-.. code:: bash
-
-    pbs () {
-      maim -i $(xdotool selectwindow) /tmp/$$.png
-      pbx /tmp/$$.png
-    }
-
-    pbss () {
-      maim -s /tmp/$$.png
-      pbx /tmp/$$.png
-    }
-
-Perhaps we'd like to do the terminal recording with a single command.
-
-.. code:: bash
-
-    pbr () {
+    pb_rec () {
       asciinema rec /tmp/$$.json
-      pbx /tmp/$$.json
+      pb < /tmp/$$.json
     }
 
-View the recording by prepending a ``t/`` to the paste id.
+View the recording by prepending a ``t/`` to the paste id:
+{{ url('.get', label='HD4D', handler='t') }}
+
 
 native clients
 --------------
 
 There are some native clients for interacting with pb, below are the ones we know of:
 
-- `pbpst <https://github.com/HalosGhost/pbpst.git>`_
-- `AndroPTPB <https://f-droid.org/repository/browse/?fdfilter=pb&fdid=io.github.phora.androptpb>`_
+- `ptpb/pb_cli <https://github.com/ptpb/pb_cli>`_
+- `HalosGhost/pbpst <https://github.com/HalosGhost/pbpst.git>`_
 
 duck sauce
 ----------
