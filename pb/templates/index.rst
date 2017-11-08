@@ -213,10 +213,8 @@ convenience:
     pb < /path/to/file
 
 
-Terminal recording
-^^^^^^^^^^^^^^^^^^
-
-Create a terminal recording with asciinema:
+You could further extend this by creating more shell functions around it; here's
+one for asciinema:
 
 .. code:: bash
 
@@ -224,9 +222,6 @@ Create a terminal recording with asciinema:
       asciinema rec /tmp/$$.json
       pb < /tmp/$$.json
     }
-
-View the recording by prepending a ``t/`` to the paste id:
-{{ url('.get', label='HD4D', handler='t') }}
 
 
 native clients
