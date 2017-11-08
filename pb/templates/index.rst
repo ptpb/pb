@@ -21,6 +21,9 @@ Create a new paste from the output of ``cmd``:
 A `HTML form </f>`_ is also provided for convenience paste and
 file-uploads from web browsers.
 
+The `pb_cli <https://github.com/ptpb/pb_cli>`_ is also available for maximum
+convenience pastes from your terminal.
+
 api spec
 --------
 
