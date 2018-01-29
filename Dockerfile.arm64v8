@@ -1,4 +1,4 @@
-FROM arm64v8/python:3.6-alpine
+FROM arm64v8/python:3.6-alpine3.7
 
 WORKDIR /pb
 ADD . /build
