@@ -29,9 +29,7 @@ class Rule(BaseRule):
             return super().match(path)
 
     def match_compare_key(self):
-        return not bool(self.namespace_only), bool(self.arguments), \
-            -len(self._static_weights), self._static_weights,\
-            -len(self._argument_weights), self._argument_weights
+        return (not bool(self.namespace_only),) + super().match_compare_key()
 
 
 class RequestContext(BaseRequestContext):
