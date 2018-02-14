@@ -44,8 +44,10 @@ def main():
 
     digest = res.json()['digest']
 
-    with create_app().app_context():
-        delete_paste(digest)
+    app = create_app()
+    with app.app_context():
+        with app.test_request_context(ns.endpoint):
+            delete_paste(digest)
 
 
 if __name__ == '__main__':
