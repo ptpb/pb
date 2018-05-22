@@ -21,7 +21,7 @@ from pb.logging import init_logging
 from pb.namespace.views import namespace
 from pb.paste.handler import HandlerConverter
 from pb.paste.views import paste
-from pb.responses import BaseResponse
+from pb.responses import BaseResponse, StatusResponse
 from pb.routing import RequestContext, Rule
 from pb.template import init_template
 
@@ -77,6 +77,9 @@ def create_app(config_filename='config.yaml'):
 
     app.register_blueprint(paste)
     app.register_blueprint(namespace)
+
+    # error handlers
+    app.register_error_handler(StopIteration, lambda _: StatusResponse("not found", 404))
 
     app.url_map.update()
     #print('\n'.join(repr(i) for i in app.url_map._rules))

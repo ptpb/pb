@@ -46,9 +46,10 @@ def get_session():
 
 def invalidate(**kwargs):
     cur = model.get_meta(**kwargs)
-    if not cur or not cur.count():
+    try:
+        paste = next(cur)
+    except StopIteration:
         return
-    paste = next(cur)
 
     base = current_app.config.get('VARNISH_BASE')
     if not base:
