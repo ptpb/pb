@@ -9,7 +9,7 @@
     :license: GPLv3, see LICENSE for details.
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from io import BytesIO
 from mimetypes import guess_type
 from uuid import UUID
@@ -102,17 +102,17 @@ def post(label=None, namespace=None):
             namespace=host
         ))
 
-    if not cur.count():
+    try:
+        paste = next(cur)
+        uuid = None
+        status = "already exists"
+    except StopIteration:
         try:
             paste = model.insert(stream, **args)
         except errors.DuplicateKeyError:
             return StatusResponse("label already exists.", 409)
         uuid = str(UUID(hex=paste['_id']))
         status = "created"
-    else:
-        paste = next(cur)
-        uuid = None
-        status = "already exists"
 
     return PasteResponse(paste, status, filename, uuid)
 
@@ -139,8 +139,10 @@ def put(**kwargs):
         return StatusResponse("no post content", 400)
 
     cur = model.get_digest(stream)
-    if cur.count():
+    try:
         return PasteResponse(next(cur), "already exists", filename)
+    except StopIteration:
+        pass
 
     if filename:
         kwargs['mimetype'], _ = guess_type(filename)
@@ -187,7 +189,7 @@ def _get_paste(cb, sid=None, sha1=None, label=None, namespace=None):
             'namespace': {
                 '$exists': False
             }
-        }).hint([('digest', 1)]), name, digest
+        }), name, digest
     if label:
         label, name = label
         return cb(**{
@@ -195,7 +197,7 @@ def _get_paste(cb, sid=None, sha1=None, label=None, namespace=None):
             'namespace': {
                 '$exists': False
             }
-        }).hint([('label', 1)]), name, label
+        }), name, label
     if namespace:
         label, name = namespace
         host = get_host_name(request)
@@ -215,10 +217,8 @@ def _get_paste(cb, sid=None, sha1=None, label=None, namespace=None):
 def report(sid=None, sha1=None, label=None, namespace=None):
     cur, name, path = _get_paste(model.get_meta, sid, sha1, label, namespace)
 
-    if not cur or not cur.count():
-        return StatusResponse("not found", 404)
-
     paste = next(cur)
+
     return PasteResponse(paste, "found")
 
 
@@ -245,19 +245,10 @@ def report(sid=None, sha1=None, label=None, namespace=None):
 def get(sid=None, sha1=None, label=None, namespace=None, lexer=None, handler=None, formatter=None):
     cur, name, path = _get_paste(model.get_content, sid, sha1, label, namespace)
 
-    if not cur or not cur.count():
-        return StatusResponse("not found", 404)
-
     paste = next(cur)
     if paste.get('sunset'):
-        request.max_age = parse_sunset(**paste) - datetime.utcnow()
-        if request.max_age < timedelta():
-            uuid = UUID(hex=paste['_id'])
-            paste = invalidate(uuid=uuid)
-            model.delete(uuid=uuid)
-            return PasteResponse(paste, "expired", code=410)
-        else:
-            request.max_age = request.max_age.seconds
+        max_age = parse_sunset(**paste) - datetime.utcnow()
+        request.max_age = max_age.seconds
 
     content = model._get(paste.get('content'))
 
@@ -309,20 +300,21 @@ def url(label=None):
     stream = BytesIO(stream.read().decode('utf-8').split()[0].encode('utf-8'))
 
     cur = model.get_digest(stream)
-    if not cur.count():
-        url = model.insert(stream, redirect=1, **args)
-        status = "created"
-    else:
+
+    try:
         url = next(cur)
         status = "already exists"
+    except StopIteration:
+        url = model.insert(stream, redirect=1, **args)
+        status = "created"
 
     return PasteResponse(url, status)
 
 
 @paste.route('/s')
 def stats():
-    cur = model.get_meta()
-    return DictResponse(dict(pastes=cur.count()))
+    # fixme: use mapreduce
+    return DictResponse(dict(pastes=-1))
 
 
 @paste.route('/static/<style>.css')

@@ -9,9 +9,10 @@
     :license: GPLv3, see LICENSE for details.
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from hashlib import sha1
-from uuid import uuid4
+from itertools import filterfalse
+from uuid import UUID, uuid4
 
 from bson import ObjectId
 from pymongo import DESCENDING
@@ -81,16 +82,18 @@ def delete(**kwargs):
 
 
 def get_digest(stream=None, content=None):
-    paste = get_db().pastes.find(dict(
+    cur = get_db().pastes.find(dict(
         digest=sha1(content if content else stream.read()).hexdigest()
     )).sort('date', DESCENDING)
+    # fixme: wtf?
     if stream:
         stream.seek(0)
-    return paste
+
+    return filterfalse(_is_expired, cur)
 
 
 def get_content(**kwargs):
-    paste = get_db().pastes.find(transform(kwargs), dict(
+    cur = get_db().pastes.find(transform(kwargs), dict(
         content=1,
         redirect=1,
         sunset=1,
@@ -98,10 +101,29 @@ def get_content(**kwargs):
         _id=1,
         mimetype=1
     )).sort('date', DESCENDING)
-    return paste
+
+    return filterfalse(_is_expired, cur)
 
 
 def get_meta(**kwargs):
-    return get_db().pastes.find(
+    cur = get_db().pastes.find(
         transform(kwargs)
     )
+
+    return filterfalse(_is_expired, cur)
+
+
+def _is_expired(paste):
+    if not paste.get('sunset'):
+        return False
+
+    max_age = paste['sunset'] - datetime.utcnow()
+    if not (max_age < timedelta()):
+        return False
+
+    uuid = UUID(hex=paste['_id'])
+    # XXX: we shouldn't actually need to invalidate here because we set
+    # cache_control headers correctly
+    delete(uuid=uuid)
+
+    return True
