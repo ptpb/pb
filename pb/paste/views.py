@@ -16,12 +16,12 @@ from uuid import UUID
 
 from flask import Blueprint, render_template, request
 from pygments.formatters import HtmlFormatter, get_all_formatters
-from pygments.lexers import get_all_lexers
 from pygments.styles import get_all_styles
 from pygments.util import ClassNotFound
 from pymongo import errors
 
 from pb.cache import invalidate
+from pb.lexers import get_lexer_aliases
 from pb.namespace import model as ns_model
 from pb.paste import handler as _handler
 from pb.paste import model
@@ -335,8 +335,7 @@ def list_formatters():
 
 @paste.route('/l')
 def list_lexers():
-    lexers = [i for _, i, _, _ in get_all_lexers()]
-    return DictResponse(lexers)
+    return DictResponse(list(get_lexer_aliases()))
 
 
 @paste.route('/ls')

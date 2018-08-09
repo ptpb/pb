@@ -19,11 +19,12 @@ from markdown import markdown as _markdown
 from pygments import format as _format
 from pygments import highlight as _highlight
 from pygments.formatters import HtmlFormatter, get_formatter_by_name
-from pygments.lexers import get_lexer_by_name
 from pygments.token import Token
 from pygments.util import ClassNotFound
 from werkzeug import http
 from werkzeug.wrappers import get_host
+
+from pb.lexers import get_lexer_by_name
 
 
 def style_args():
