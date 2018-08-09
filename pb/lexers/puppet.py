@@ -6,10 +6,11 @@
     Puppet lexer
 
     :copyright: Copyright (C) 2012 by GitHub, Inc
+
     :license: GPLv3, see LICENSE for details.
 """
 
-from pygments.lexer import include, bygroups, RegexLexer
+from pygments.lexer import RegexLexer, bygroups, include
 from pygments.token import *
 
 
@@ -25,7 +26,7 @@ class PuppetLexer(RegexLexer):
         'puppet': [
             include('comments'),
             (r'(class)(\s*)(\{)', bygroups(Name.Class, Text, Punctuation), ('type', 'namevar')),
-            (r'(class|define)', Keyword.Declaration, ('block','class_name')),
+            (r'(class|define)', Keyword.Declaration, ('block', 'class_name')),
             (r'node', Keyword.Declaration, ('block', 'node_name')),
             (r'elsif', Keyword.Reserved, ('block', 'conditional')),
             (r'if', Keyword.Reserved, ('block', 'conditional')),
