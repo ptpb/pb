@@ -9,9 +9,9 @@
 
 from itertools import chain, repeat
 
+from pb.lexers.lexers import *  # noqa
 from pb.lexers.puppet import PuppetLexer
 from pb.lexers.toml import TOMLLexer
-from pb.lexers.lexers import *
 
 
 __all__ = ['PuppetLexer', 'TOMLLexer']

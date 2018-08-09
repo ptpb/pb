@@ -10,7 +10,7 @@
     :license: GPLv3, see LICENSE for details.
 """
 
-from pygments.lexer import RegexLexer, bygroups, include
+from pygments.lexer import RegexLexer, bygroups
 from pygments.token import *
 
 
@@ -31,7 +31,7 @@ class TOMLLexer(RegexLexer):
             # Basics, comments, strings
             (r'\s+$', Text),
             (r'^\s+', Text),
-            (r'[ ]+', Text), # hack
+            (r'[ ]+', Text),  # hack
             (r'#.*?$', Comment.Single),
             (r'"(\\\\|\\"|[^"])*"', String),
             (r'(true|false)$', Keyword.Constant),

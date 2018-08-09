@@ -8,10 +8,9 @@
 """
 
 from itertools import chain
-from operator import itemgetter, attrgetter
+from operator import attrgetter, itemgetter
 
 from pygments import lexers as pygments_lexers
-from pygments.util import ClassNotFound
 
 from pb import lexers
 
