@@ -1,3 +1,12 @@
+# -*- coding: utf-8 -*-
+"""
+    lexers
+    ~~~~~~
+
+    :copyright: Copyright (C) 2018 by the respective authors; see AUTHORS.
+    :license: GPLv3, see LICENSE for details.
+"""
+
 from itertools import chain, repeat
 
 from pb.lexers.puppet import PuppetLexer
