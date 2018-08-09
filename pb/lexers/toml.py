@@ -6,7 +6,8 @@
     TOML lexer
 
     :copyright: Copyright (C) 2012 by GitHub, Inc
-    :license: BSD
+    :copyright: Copyright (C) 2018 by the respective authors; see AUTHORS.
+    :license: GPLv3, see LICENSE for details.
 """
 
 from pygments.lexer import RegexLexer, bygroups, include

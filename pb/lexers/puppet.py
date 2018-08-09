@@ -6,7 +6,7 @@
     Puppet lexer
 
     :copyright: Copyright (C) 2012 by GitHub, Inc
-    :license: BSD
+    :license: GPLv3, see LICENSE for details.
 """
 
 from pygments.lexer import include, bygroups, RegexLexer
