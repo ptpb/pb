@@ -111,6 +111,7 @@ def post(label=None, namespace=None):
             paste = model.insert(stream, **args)
         except errors.DuplicateKeyError:
             return StatusResponse("label already exists.", 409)
+        invalidate(**paste)
         uuid = str(UUID(hex=paste['_id']))
         status = "created"
 
@@ -148,9 +149,9 @@ def put(**kwargs):
         kwargs['mimetype'], _ = guess_type(filename)
 
     # FIXME: such query; wow
-    invalidate(**kwargs)
     result = model.put(stream, **kwargs)
     if result['n']:
+        invalidate(**kwargs)
         paste = next(model.get_meta(**kwargs))
         return PasteResponse(paste, "updated")
 
@@ -163,9 +164,9 @@ def delete(**kwargs):
     if 'namespace' in kwargs:
         kwargs = _namespace_kwargs(kwargs)
 
-    paste = invalidate(**kwargs)
     result = model.delete(**kwargs)
     if result['n']:
+        paste = invalidate(**kwargs)
         return PasteResponse(paste, "deleted")
     return StatusResponse("not found", 404)
 
