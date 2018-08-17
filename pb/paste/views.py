@@ -111,6 +111,7 @@ def post(label=None, namespace=None):
             paste = model.insert(stream, **args)
         except errors.DuplicateKeyError:
             return StatusResponse("label already exists.", 409)
+        invalidate(**paste)
         uuid = str(UUID(hex=paste['_id']))
         status = "created"
 
