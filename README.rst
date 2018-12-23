@@ -41,3 +41,10 @@ start pb with::
   docker-compose up
 
 pb will be listening on ``http://localhost:10002``
+
+Deployment
+----------
+
+ptpb.pw (the reference deployment) uses `ptpb-deploy
+<https://github.com/ptpb/ptpb-deploy>`_, which includes automatic TLS
+certificate rotation and paste response caching.
