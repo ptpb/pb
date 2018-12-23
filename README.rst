@@ -32,7 +32,7 @@ Features
 Development
 -----------
 
-pb comes with a ``Dockerfile`` and ``docker-compose.yml`` to start development
+pb comes with a ``Dockerfile`` and ``docker-compose.yaml`` to start development
 environments easily. Refer to relevant documentation for how to install ``docker``
 and ``docker-compose``.
 
@@ -46,10 +46,13 @@ Deployment
 ----------
 
 ptpb.pw (the reference deployment) uses `ptpb-deploy
-<https://github.com/ptpb/ptpb-deploy>`_, which includes automatic TLS
-certificate rotation and paste response caching.
+<https://github.com/ptpb/ptpb-deploy>`_, which includes TLS termination,
+automatic x509 certificate rotation, and response caching.
 
-In general, when making your own deployment, best practices include:
+For a simpler deployment, the included ``Dockerfile`` and
+``docker-compose.yaml`` can be used verbatim, and are easy to read/study.
+
+Other best practices include:
 
 - not using a shared/system python, when this is shared with packages other than pb
 
@@ -62,5 +65,5 @@ In general, when making your own deployment, best practices include:
 
 - not using debian or centos
 
-  - these provide severely outdated packages, forcing you do additional work to
+  - these provide severely outdated packages, and require additional work to
     compensate for this
