@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/build
     docker:
-      - image: python:3.6.0
+      - image: python:3.7.0
       - image: circleci/mongo:latest
     steps:
       - checkout
@@ -25,5 +25,5 @@ jobs:
       - run:
           command: |
             . venv/bin/activate
-            tox -e check,py36,report
+            tox -e check,py37,report
             codecov
