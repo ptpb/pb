@@ -29,6 +29,13 @@ Features
 * terminal recording playback
 * markup rendering
 
+Suggested versions
+------------------
+
+- python >= 3.6
+- mongodb >= 3.2
+- docker >= 17.04
+
 Development
 -----------
 
