@@ -40,7 +40,7 @@ class TOMLLexer(RegexLexer):
             (r'([^\s]+)(\s*)(=)(\s*)', bygroups(Name.Attribute, Text, Operator, Text)),
 
             # Eats everything
-            ('[a-zA-Z_][a-zA-Z0-9_\-]*', Name),
+            (r'[a-zA-Z_][a-zA-Z0-9_\-]*', Name),
 
             # Datetime
             (r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z', Number.Integer),
