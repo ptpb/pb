@@ -51,6 +51,8 @@ certificate rotation and paste response caching.
 
 In general, when making your own deployment, best practices include:
 
- - not using a distribution-provided python installation
-   - pb is tested on python 3.4, 3.5, 3.6, and 3.7
- - not using debian or centos (these provide severely outdated packages, forcing you do additional work to compensate for this)
+- not using a distribution-provided python installation
+
+  - pb is tested on python 3.4, 3.5, 3.6, and 3.7
+
+- not using debian or centos (these provide severely outdated packages, forcing you do additional work to compensate for this)
