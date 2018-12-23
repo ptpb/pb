@@ -51,8 +51,16 @@ certificate rotation and paste response caching.
 
 In general, when making your own deployment, best practices include:
 
-- not using a distribution-provided python installation
+- not using a shared/system python, when this is shared with packages other than pb
 
-  - pb is tested on python 3.4, 3.5, 3.6, and 3.7
+  - using site-packages is fine/preferred inside a container or isolated
+    filesystem, otherwise use `venv
+    <https://docs.python.org/3/library/venv.html>`_
 
-- not using debian or centos (these provide severely outdated packages, forcing you do additional work to compensate for this)
+  - if you need/want a version of python other than what your distribution
+    packages, `pyenv <https://github.com/pyenv/pyenv>`_ is a good option
+
+- not using debian or centos
+
+  - these provide severely outdated packages, forcing you do additional work to
+    compensate for this
