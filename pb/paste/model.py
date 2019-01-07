@@ -69,9 +69,9 @@ def insert(stream, **kwargs):
     return d
 
 
-def put(stream, mimetype=None, **kwargs):
+def put(stream, mimetype=None, headers={}, **kwargs):
     args = _put(stream)
-    args.update(mimetype=mimetype)
+    args.update(mimetype=mimetype, headers=headers)
     return get_db().pastes.update(transform(kwargs), {
         '$set': transform(args)
     })
@@ -99,7 +99,8 @@ def get_content(**kwargs):
         sunset=1,
         date=1,
         _id=1,
-        mimetype=1
+        mimetype=1,
+        headers=1,
     )).sort('date', DESCENDING)
 
     return filterfalse(_is_expired, cur)

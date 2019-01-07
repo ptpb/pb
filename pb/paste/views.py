@@ -62,6 +62,30 @@ def _auth_namespace(namespace):
         pass
 
 
+whitelist_headers = {
+    #'content-type',
+    'content-encoding',
+    'content-disposition',
+}
+
+blacklist_headers = {
+    'x-forwarded-proto',
+    'x-forwarded-host',
+    'x-forwarded-for',
+}
+
+
+def allowed_headers(headers):
+    for key, value in headers.items():
+        key = key.lower()
+        if key in whitelist_headers:
+            yield key, value
+        if key in blacklist_headers:
+            continue
+        if key.startswith('x-'):
+            yield key, value
+
+
 @paste.route('/<namespace:namespace>', namespace_only=True, methods=['POST'])
 @paste.route('/', methods=['POST'])
 @paste.route('/<label:label>', methods=['POST'])
@@ -101,6 +125,9 @@ def post(label=None, namespace=None):
             label=label,
             namespace=host
         ))
+
+    headers = dict(allowed_headers(request.headers))
+    args['headers'] = headers
 
     try:
         paste = next(cur)
@@ -148,9 +175,12 @@ def put(**kwargs):
     if filename:
         kwargs['mimetype'], _ = guess_type(filename)
 
+    # this entirely replaces paste headers, which might not be expected behavior
+    headers = dict(allowed_headers(request.headers))
+
     # FIXME: such query; wow
     invalidate(**kwargs)
-    result = model.put(stream, **kwargs)
+    result = model.put(stream, headers=headers, **kwargs)
     if result['n']:
         paste = next(model.get_meta(**kwargs))
         return PasteResponse(paste, "updated")
@@ -261,12 +291,17 @@ def get(sid=None, sha1=None, label=None, namespace=None, lexer=None, handler=Non
     if not mimetype:
         mimetype = paste.get('mimetype', 'text/plain')
 
+    headers = paste.get('headers', {})
+
     if lexer is not None:
         return highlight(content, lexer, formatter)
     if handler is not None:
         return _handler.get(handler, content, mimetype, path=path)
 
-    return BaseResponse(content, mimetype=mimetype)
+    response = BaseResponse(content, mimetype=mimetype)
+    response.headers.extend(headers)
+
+    return response
 
 
 @paste.route('/<handler:handler>', methods=['POST'])
