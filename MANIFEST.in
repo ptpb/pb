@@ -1,4 +1,1 @@
-include LICENSE AUTHORS README.rst
 recursive-include pb/templates *
-recursive-include tests *
-recursive-include requirements.txt
