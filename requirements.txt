@@ -1,11 +1,11 @@
-Flask==0.12.2
+Flask==1.0.2
 Werkzeug==0.14.1
 PyYAML==3.13
 Pygments==2.2.0
 requests==2.18.4
 docutils==0.14
 pyxdg==0.26
-pymongo==3.6.0
-Markdown==2.6.11
-python-dateutil==2.6.1
-pytz==2018.3
+pymongo==3.7.2
+Markdown==3.0.1
+python-dateutil==2.7.3
+pytz==2018.5
