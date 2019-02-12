@@ -10,6 +10,7 @@ config.yaml
 *.egg-info
 build/
 dist/
+.eggs/
 node_modules/
 .cache
 
