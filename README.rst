@@ -17,8 +17,8 @@ Overview
 ``pb`` is a lightweight pastebin and url shortener built using
 `flask <http://flask.pocoo.org/>`_.
 
-The official instance of ``pb`` can be found at `ptpb.pw
-<https://ptpb.pw/>`_. Feel free deploy ``pb`` elsewhere.
+There is currently no known general-purpose public pb deployment. See `#246
+<https://github.com/ptpb/pb/issues/246>`_ for details.
 
 Features
 --------
