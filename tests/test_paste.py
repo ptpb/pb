@@ -2,20 +2,27 @@ from io import BytesIO
 from os import urandom
 from time import monotonic, time
 
+import pytest
 from yaml import load
 
 from pb.pb import create_app
 
 
-def test_post_content():
+@pytest.mark.parametrize("field_name", [
+    "content",
+    "c",
+    "file"
+])
+def test_post_content(field_name):
     app = create_app()
 
     rv = app.test_client().post('/')
     assert rv.status_code == 400
 
-    rv = app.test_client().post('/', data=dict(
-        c=str(time())
-    ))
+    content = str(time())
+    rv = app.test_client().post('/', data={
+        field_name: content
+    })
     assert rv.status_code == 200
 
     data = load(rv.get_data())
@@ -23,22 +30,28 @@ def test_post_content():
 
     rv = app.test_client().get(data['url'])
     assert rv.status_code == 200
+    assert rv.get_data() == content.encode('utf-8')
 
 
-def test_post_file():
+@pytest.mark.parametrize("field_name", [
+    "content",
+    "c",
+    "file"
+])
+def test_post_file(field_name):
     app = create_app()
 
-    c = urandom(24)
+    content = urandom(24)
     ext = int(time())
-    rv = app.test_client().post('/', data=dict(
-        c=(BytesIO(c), 'foo.{}'.format(ext))
-    ))
+    rv = app.test_client().post('/', data={
+        field_name: (BytesIO(content), 'foo.{}'.format(ext))
+    })
 
     data = load(rv.get_data())
     assert '.{}'.format(ext) in data['url']
 
     rv = app.test_client().get(data['url'])
-    assert c == rv.get_data()
+    assert rv.get_data() == content
 
 
 def test_post_unique():
