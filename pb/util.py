@@ -65,15 +65,19 @@ def _content_type():
 
 
 def request_content():
-    content = request_key('content')
+    content = request_key('content') or request_key('file')
     if content:
         content = BytesIO(content.encode('utf-8'))
         return content, request_key('filename')
 
-    fs = request.files.get('content', request.files.get('c'))
+    fs = request_files('content') or request_files('file')
     if fs:
         return fs.stream, request_key('filename') or fs.filename
     return None, None
+
+
+def request_files(key):
+    return request.files.get(key, request.files.get(key[0]))
 
 
 def request_keys(*keys):
