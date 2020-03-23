@@ -38,12 +38,9 @@ def _put(stream):
     b = stream.read()
     digest = sha1(b).hexdigest()
     size = len(b)
-    try:
-        if stream.getbuffer().nbytes > 2 ** 23:
-            b = get_fs().put(b)
-    except AttributeError:
-        # FIXME: what the actual fuck, mitsuhiko?
-        b = get_fs().put(b)
+    
+    b = get_fs().put(b)
+    
     return dict(
         content=b,
         digest=digest,
