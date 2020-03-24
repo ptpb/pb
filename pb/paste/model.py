@@ -39,7 +39,8 @@ def _put(stream):
     digest = sha1(b).hexdigest()
     size = len(b)
     
-    b = get_fs().put(b)
+    if len(stream.getvalue()) > 2 ** 23:
+        b = get_fs().put(b)
     
     return dict(
         content=b,
