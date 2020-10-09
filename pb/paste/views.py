@@ -29,6 +29,8 @@ from pb.responses import (BaseResponse, DictResponse, PasteResponse,
                           StatusResponse, redirect)
 from pb.util import (absolute_url, get_host_name, highlight,
                      parse_sunset, request_content, request_keys, rst)
+from pb import storage
+from pb.storage import apocrypha
 
 paste = Blueprint('paste', __name__)
 
@@ -86,63 +88,19 @@ def allowed_headers(headers):
             yield key, value
 
 
-@paste.route('/<namespace:namespace>', namespace_only=True, methods=['POST'])
 @paste.route('/', methods=['POST'])
-@paste.route('/<label:label>', methods=['POST'])
-def post(label=None, namespace=None):
-    stream, filename = request_content()
+def post():
+    stream, _ = request_content()
     if not stream:
         return StatusResponse("no post content", 400)
 
-    cur = model.get_digest(stream)
-
-    args = {}
-    if filename:
-        args['mimetype'], _ = guess_type(filename)
-
-    for key, value in request_keys('private', 'sunset'):
-        try:
-            if key == 'sunset':
-                args[key] = parse_sunset(value)
-            else:
-                args[key] = int(value)
-        except (ValueError, OverflowError):
-            return StatusResponse({
-                "invalid request params": {key: value}
-            }, 400)
-
-    if label:
-        label, _ = label
-        if len(label) == 1:
-            return StatusResponse("invalid label", 400)
-        args['label'] = label
-    if namespace:
-        host = get_host_name(request)
-        if not _auth_namespace(host):
-            return StatusResponse("invalid auth", 403)
-        label, _ = namespace
-        args.update(dict(
-            label=label,
-            namespace=host
+    status, label = apocrypha.write(stream.read())
+    if status is storage.WRITE.CREATED:
+        return PasteResponse(dict(
+            url="/" + label
         ))
-
-    headers = dict(allowed_headers(request.headers))
-    args['headers'] = headers
-
-    try:
-        paste = next(cur)
-        uuid = None
-        status = "already exists"
-    except StopIteration:
-        try:
-            paste = model.insert(stream, **args)
-        except errors.DuplicateKeyError:
-            return StatusResponse("label already exists.", 409)
-        invalidate(**paste)
-        uuid = str(UUID(hex=paste['_id']))
-        status = "created"
-
-    return PasteResponse(paste, status, filename, uuid)
+    else:
+        return StatusResponse("error", 500)
 
 
 def _namespace_kwargs(kwargs):
@@ -253,55 +211,27 @@ def report(sid=None, sha1=None, label=None, namespace=None):
     return PasteResponse(paste, "found")
 
 
-@paste.route('/<namespace:namespace>', namespace_only=True)
-@paste.route('/<namespace:namespace>/<string(minlength=0):lexer>', namespace_only=True)
-@paste.route('/<namespace:namespace>/<string(minlength=0):lexer>/<formatter>', namespace_only=True)
-@paste.route('/<handler:handler>/<namespace:namespace>', namespace_only=True)
-@paste.route('/<sid(length=28):sha1>')
-@paste.route('/<sid(length=28):sha1>/<string(minlength=0):lexer>')
-@paste.route('/<sid(length=28):sha1>/<string(minlength=0):lexer>/<formatter>')
-@paste.route('/<handler:handler>/<sid(length=28):sha1>')
-@paste.route('/<sid(length=4):sid>')
-@paste.route('/<sid(length=4):sid>/<string(minlength=0):lexer>')
-@paste.route('/<sid(length=4):sid>/<string(minlength=0):lexer>/<formatter>')
-@paste.route('/<handler:handler>/<sid(length=4):sid>')
-@paste.route('/<sha1:sha1>')
-@paste.route('/<sha1:sha1>/<string(minlength=0):lexer>')
-@paste.route('/<sha1:sha1>/<string(minlength=0):lexer>/<formatter>')
-@paste.route('/<handler:handler>/<sha1:sha1>')
-@paste.route('/<label:label>')
-@paste.route('/<label:label>/<string(minlength=0):lexer>')
-@paste.route('/<label:label>/<string(minlength=0):lexer>/<formatter>')
-@paste.route('/<handler:handler>/<label:label>')
-def get(sid=None, sha1=None, label=None, namespace=None, lexer=None, handler=None, formatter=None):
-    cur, name, path = _get_paste(model.get_content, sid, sha1, label, namespace)
-
-    paste = next(cur)
-    if paste.get('sunset'):
-        max_age = parse_sunset(**paste) - datetime.utcnow()
-        request.max_age = max_age.seconds
-
-    content = model._get(paste.get('content'))
-
-    if paste.get('redirect'):
-        content = content.decode('utf-8')
-        return redirect(content, content)
-
-    mimetype, _ = guess_type(name)
-    if not mimetype:
-        mimetype = paste.get('mimetype', 'text/plain')
-
-    headers = paste.get('headers', {})
+@paste.route('/<string(minlength=3):label>')
+@paste.route('/<string(minlength=3):label>/<string(minlength=0):lexer>')
+@paste.route('/<string(minlength=3):label>/<string(minlength=0):lexer>/<formatter>')
+@paste.route('/<handler:handler>/<string(minlength=3):label>')
+def get(label, lexer=None, formatter=None, handler=None):
+    status, content = apocrypha.read(label)
+    if status is storage.READ.FOUND:
+        pass
+    elif status is storage.READ.NOT_FOUND:
+        return StatusResponse("not found", 404)
+    else:
+        return StatusResponse("error", 500)
 
     if lexer is not None:
         return highlight(content, lexer, formatter)
-    if handler is not None:
+    elif handler is not None:
         return _handler.get(handler, content, mimetype, path=path)
-
-    response = BaseResponse(content, mimetype=mimetype)
-    response.headers.extend(headers)
-
-    return response
+    else:
+        mimetype, _ = guess_type(label)
+        response = BaseResponse(content, mimetype=mimetype)
+        return response
 
 
 @paste.route('/<handler:handler>', methods=['POST'])

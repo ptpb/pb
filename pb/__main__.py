@@ -40,7 +40,8 @@ if __name__ == '__main__':
     port = os.environ.get('LISTEN_PORT', 10002)
 
     with app.app_context():
-        add_indexes(db.get_db())
+        pass
+        #add_indexes(db.get_db())
 
     run_simple(host, int(port), app,
                use_reloader=True,
