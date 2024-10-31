@@ -26,6 +26,15 @@ if __name__ == '__main__':
 
 import os
 
+# monkey-patch collections for Werkzeug
+import collections
+import collections.abc
+collections.Container = collections.abc.Container
+collections.Iterable = collections.abc.Iterable
+collections.MutableSet = collections.abc.MutableSet
+collections.MutableMapping = collections.abc.MutableMapping
+collections.Mapping = collections.abc.MutableMapping
+
 from werkzeug.serving import run_simple
 
 from pb import db
