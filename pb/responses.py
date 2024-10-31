@@ -111,7 +111,7 @@ class PasteResponse(DictResponse):
         self._paste = paste
         paste['status'] = status  # hack
         self.uuid = uuid
-        self.url = any_url(paste, filename)
+        #self.url = any_url(paste, filename)
 
         code = code or (302 if request.args.get('r') else 200)
         super().__init__(dict(self), code)
@@ -124,9 +124,9 @@ class PasteResponse(DictResponse):
         return super()._dump(obj)
 
     def __dir__(self):
-        return ['url', 'long', 'short',
-                'uuid', 'status', 'label', 'sunset',
-                'redirect', 'digest', 'namespace', 'date', 'size']
+        return ['url']#, 'long', 'short',
+                #'uuid', 'status', 'label', 'sunset',
+                #'redirect', 'digest', 'namespace', 'date', 'size']
 
     def __getattr__(self, name):
         if name in dir(self):
